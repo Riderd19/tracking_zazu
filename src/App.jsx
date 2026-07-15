@@ -45,6 +45,19 @@ export default function App() {
     limpiarCodigoDeUrl()
   }
 
+  if (pedido) {
+    return (
+      <div className="min-h-screen w-full bg-[#faf9fc] px-4 py-10">
+        <div className="w-full max-w-5xl mx-auto flex flex-col gap-6">
+          <OrderResult pedido={pedido} onVolver={handleVolver} />
+          <footer className="text-xs text-gray-400 text-center">
+            Zazu 2026. Todos los derechos reservados.
+          </footer>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       className="min-h-screen w-full flex items-center justify-center px-4 py-10"
@@ -71,16 +84,12 @@ export default function App() {
           </header>
 
           <main className="w-full">
-            {pedido ? (
-              <OrderResult pedido={pedido} onVolver={handleVolver} />
-            ) : (
-              <SearchForm
-                onSubmit={handleSearch}
-                loading={loading}
-                error={error}
-                codigoInicial={codigoInicial}
-              />
-            )}
+            <SearchForm
+              onSubmit={handleSearch}
+              loading={loading}
+              error={error}
+              codigoInicial={codigoInicial}
+            />
           </main>
         </div>
 
