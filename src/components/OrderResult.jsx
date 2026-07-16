@@ -4,13 +4,14 @@ import OrderSummaryCard from './OrderSummaryCard'
 import DriverCard from './DriverCard'
 import DeliveryMap from './DeliveryMap'
 
-// El repartidor y el mapa son datos de ejemplo (ver constants/repartidorEjemplo.js)
-// que solo tienen sentido cuando ya hay alguien en camino. Antes de "En Ruta" no
-// existe motorizado asignado, así que mostrarlos sería engañoso.
+// El repartidor y el mapa solo tienen sentido cuando ya hay alguien en camino
+// Y el pedido trae un motorizado asignado (ver TrackingPublicController::mapMotorizado).
+// Antes de "En Ruta", o si por algún motivo no hay match de motorizado, mostrarlos
+// sería engañoso.
 const CODIGO_EN_RUTA = 'en_ruta'
 
 export default function OrderResult({ pedido, onVolver }) {
-  const enRuta = pedido.estado_actual?.codigo === CODIGO_EN_RUTA
+  const enRuta = pedido.estado_actual?.codigo === CODIGO_EN_RUTA && pedido.motorizado
 
   return (
     <div className="w-full flex flex-col gap-5 animate-fade-in-up">
@@ -30,8 +31,8 @@ export default function OrderResult({ pedido, onVolver }) {
 
       {enRuta && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <DriverCard className="lg:col-span-1" />
-          <DeliveryMap className="lg:col-span-2" />
+          <DriverCard motorizado={pedido.motorizado} className="lg:col-span-1" />
+          <DeliveryMap motorizado={pedido.motorizado} className="lg:col-span-2" />
         </div>
       )}
     </div>

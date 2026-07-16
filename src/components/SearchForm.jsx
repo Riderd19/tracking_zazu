@@ -1,6 +1,7 @@
+import { useEffect, useState } from 'react'
 import { Form, Input, Select, Space, Button } from 'antd'
 import { SearchOutlined, CloseOutlined, ClockCircleOutlined } from '@ant-design/icons'
-import { EMPRESAS, EMPRESA_EJEMPLOS } from '../constants/empresas'
+import { listarEmpresas } from '../services/trackingService'
 import { combinarCodigo, parseCodigo, detectarCodigoCompleto } from '../utils/codigoPedido'
 
 const ERROR_CONFIG = {
@@ -36,8 +37,34 @@ const ERROR_CONFIG = {
 
 export default function SearchForm({ onSubmit, loading, error, codigoInicial }) {
   const [form] = Form.useForm()
-  const { empresa: empresaInicial, numero: numeroInicial } = parseCodigo(codigoInicial)
-  const empresaSeleccionada = Form.useWatch('empresa', form) ?? empresaInicial
+  // empresas: [{ label, value }] — el "value" es el prefijo real que usa external_ref
+  // en el backend (no siempre igual a label, ver TrackingPublicController::empresas).
+  const [empresas, setEmpresas] = useState([])
+  const [empresasLoading, setEmpresasLoading] = useState(true)
+  const { empresa: empresaInicial, numero: numeroInicial } = parseCodigo(codigoInicial, empresas)
+
+  // Se cargan una sola vez al montar. Si el código de la URL llegó antes de que
+  // resuelva el fetch, se vuelve a resolver empresa/número con la lista ya
+  // completa (initialValues de antd solo aplica en el primer render).
+  useEffect(() => {
+    let cancelado = false
+
+    listarEmpresas()
+      .then((lista) => {
+        if (cancelado) return
+        setEmpresas(lista)
+        form.setFieldsValue(parseCodigo(codigoInicial, lista))
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelado) setEmpresasLoading(false)
+      })
+
+    return () => {
+      cancelado = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function handleFinish(values) {
     onSubmit(combinarCodigo(values.empresa, values.numero), values.identificador)
@@ -47,7 +74,7 @@ export default function SearchForm({ onSubmit, loading, error, codigoInicial }) 
   // campo de número, lo separamos en empresa + número sin que se note nada
   // más que el selector ajustándose solo.
   function handleNumeroChange(e) {
-    const detectado = detectarCodigoCompleto(e.target.value)
+    const detectado = detectarCodigoCompleto(e.target.value, empresas)
     if (detectado) {
       form.setFieldsValue({ empresa: detectado.empresa, numero: detectado.numero })
     }
@@ -86,7 +113,10 @@ export default function SearchForm({ onSubmit, loading, error, codigoInicial }) 
             <Select
               size="large"
               style={{ width: '42%' }}
-              options={EMPRESAS.map((empresa) => ({ label: empresa, value: empresa }))}
+              showSearch
+              optionFilterProp="label"
+              loading={empresasLoading}
+              options={empresas}
             />
           </Form.Item>
           <Form.Item
@@ -96,7 +126,7 @@ export default function SearchForm({ onSubmit, loading, error, codigoInicial }) 
           >
             <Input
               size="large"
-              placeholder={`Ej. ${EMPRESA_EJEMPLOS[empresaSeleccionada]}`}
+              placeholder="Ej. 000908"
               autoComplete="off"
               onChange={handleNumeroChange}
             />

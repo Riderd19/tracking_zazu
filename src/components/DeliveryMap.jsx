@@ -1,13 +1,13 @@
 import { HomeFilled } from '@ant-design/icons'
-import { REPARTIDOR_EJEMPLO } from '../constants/repartidorEjemplo'
 
 // Mapa ilustrativo: todavía no existe infraestructura de GPS en vivo para
 // motorizados ni coordenadas del destinatario expuestas por el backend
-// público (ver TrackingPublicController). Cuando eso exista, reemplazar
-// este fondo/ruta dibujados a mano por un mapa real (Google Maps / Mapbox)
-// posicionado con las coordenadas reales.
-export default function DeliveryMap({ className = '' }) {
-  const { nombre, etaMinutosMapa, ubicacionActualizada } = REPARTIDOR_EJEMPLO
+// público (ver TrackingPublicController). El nombre del motorizado y la hora
+// estimada sí son reales (vienen del pedido); la ruta punteada y la posición
+// del pin son decorativas. Cuando exista GPS real, reemplazar por un mapa
+// real (Google Maps / Mapbox) posicionado con las coordenadas reales.
+export default function DeliveryMap({ motorizado, className = '' }) {
+  const { nombre, hora_llegada_estimada: horaLlegadaEstimada } = motorizado
   const primerNombre = nombre.split(' ')[0]
 
   return (
@@ -53,8 +53,9 @@ export default function DeliveryMap({ className = '' }) {
         style={{ left: '17%', top: '78%', transform: 'translate(8%, -175%)' }}
       >
         <p className="text-xs font-semibold text-gray-900 mb-1">Motorizado: {primerNombre}</p>
-        <p className="text-[11px] text-gray-500 mb-0.5">Llegada aprox.: {etaMinutosMapa} min</p>
-        <p className="text-[11px] text-gray-400 mb-0">Ubicación actualizada {ubicacionActualizada}</p>
+        <p className="text-[11px] text-gray-500 mb-0">
+          Llegada aprox.: {horaLlegadaEstimada ?? 'no disponible'}
+        </p>
       </div>
     </div>
   )

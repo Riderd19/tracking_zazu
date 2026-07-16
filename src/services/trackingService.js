@@ -36,3 +36,17 @@ export async function buscarPedido(codigo, verificacion) {
 
   throw new Error(body.message ?? 'Ocurrió un error inesperado. Inténtalo de nuevo.')
 }
+
+// Empresas activas para poblar el selector del formulario (ver
+// TrackingPublicController::empresas en el backend).
+export async function listarEmpresas() {
+  const response = await fetch(`${API_URL}/public/empresas`, {
+    headers: { Accept: 'application/json' },
+  })
+
+  if (!response.ok) {
+    throw new Error('No se pudo cargar el listado de empresas.')
+  }
+
+  return response.json()
+}

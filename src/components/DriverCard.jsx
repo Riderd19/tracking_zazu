@@ -1,9 +1,11 @@
 import { Card, Avatar, Button } from 'antd'
-import { EnvironmentOutlined, StarFilled, CarOutlined, CustomerServiceOutlined } from '@ant-design/icons'
-import { REPARTIDOR_EJEMPLO } from '../constants/repartidorEjemplo'
+import { EnvironmentOutlined, CarOutlined, CustomerServiceOutlined } from '@ant-design/icons'
 
-export default function DriverCard({ className = '' }) {
-  const { nombre, rating, entregas, placa, etaMinutos } = REPARTIDOR_EJEMPLO
+// motorizado = { nombre, placa, hora_llegada_estimada } — datos reales del backend
+// (ver TrackingPublicController::mapMotorizado). hora_llegada_estimada puede venir
+// null si el pedido todavía no tiene ese dato calculado.
+export default function DriverCard({ motorizado, className = '' }) {
+  const { nombre, placa, hora_llegada_estimada: horaLlegadaEstimada } = motorizado
   const iniciales = nombre
     .split(' ')
     .map((parte) => parte[0])
@@ -13,12 +15,13 @@ export default function DriverCard({ className = '' }) {
   return (
     <Card className={`border-gray-100 h-full ${className}`}>
       <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-600 text-xs font-semibold px-3 py-1 mb-3">
-        <EnvironmentOutlined /> Cerca de tu domicilio
+        <EnvironmentOutlined /> Tu pedido está en camino
       </span>
 
-      <p className="text-sm font-semibold text-gray-900 mb-0.5">Tu pedido está en camino</p>
-      <p className="text-xs text-gray-500 mb-1">Llegada aproximada en</p>
-      <p className="text-4xl font-bold text-gray-900 mb-4">{etaMinutos} min</p>
+      <p className="text-xs text-gray-500 mb-1">Llegada aproximada</p>
+      <p className="text-4xl font-bold text-gray-900 mb-4">
+        {horaLlegadaEstimada ?? 'No disponible'}
+      </p>
 
       <div className="flex items-center gap-3 border-t border-gray-100 pt-4">
         <Avatar size={48} className="font-semibold shrink-0" style={{ backgroundColor: '#7c3aed', color: '#fff' }}>
@@ -26,9 +29,6 @@ export default function DriverCard({ className = '' }) {
         </Avatar>
         <div className="min-w-0">
           <p className="text-sm font-semibold text-gray-900 mb-0.5 truncate">{nombre}</p>
-          <p className="text-xs text-gray-500 mb-0.5">
-            <StarFilled className="text-amber-400" /> {rating.toFixed(1)} · {entregas} entregas
-          </p>
           <span className="inline-flex items-center gap-1 text-xs text-gray-600 font-medium">
             <CarOutlined /> {placa}
           </span>

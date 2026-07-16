@@ -6,12 +6,6 @@ export function leerCodigoDeUrl() {
   return new URLSearchParams(window.location.search).get(PARAM) ?? ''
 }
 
-export function escribirCodigoEnUrl(codigo) {
-  const url = new URL(window.location.href)
-  url.searchParams.set(PARAM, codigo)
-  window.history.replaceState({}, '', url)
-}
-
 export function limpiarCodigoDeUrl() {
   const url = new URL(window.location.href)
   url.searchParams.delete(PARAM)

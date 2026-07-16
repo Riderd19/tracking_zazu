@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import SearchForm from './components/SearchForm'
 import OrderResult from './components/OrderResult'
 import {
@@ -7,7 +7,7 @@ import {
   TrackingRateLimitError,
   TrackingValidacionError,
 } from './services/trackingService'
-import { leerCodigoDeUrl, escribirCodigoEnUrl, limpiarCodigoDeUrl } from './utils/codigoUrl'
+import { leerCodigoDeUrl, limpiarCodigoDeUrl } from './utils/codigoUrl'
 
 function clasificarError(err) {
   if (err instanceof TrackingRateLimitError) return { tipo: 'rate_limit', mensaje: err.message }
@@ -22,16 +22,22 @@ export default function App() {
   const [error, setError] = useState(null)
   const [codigoInicial, setCodigoInicial] = useState(leerCodigoDeUrl)
 
+  // El código de la URL (link de WhatsApp) se consume una sola vez: se usa para
+  // precargar el formulario y se borra de inmediato, para que un refresh (F5) o
+  // volver a abrir la pestaña siempre arranque con los campos limpios.
+  useEffect(() => {
+    if (codigoInicial) limpiarCodigoDeUrl()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   async function handleSearch(codigo, identificador) {
     setLoading(true)
     setError(null)
 
     try {
       const resultado = await buscarPedido(codigo, identificador)
-      escribirCodigoEnUrl(codigo)
       setPedido(resultado)
     } catch (err) {
-      escribirCodigoEnUrl(codigo)
       setError(clasificarError(err))
     } finally {
       setLoading(false)
