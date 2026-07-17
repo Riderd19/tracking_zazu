@@ -5,8 +5,8 @@ import OrderTimeline from './OrderTimeline'
 
 // Texto de apoyo bajo el badge de estado. Se indexa por nombre (igual que
 // los íconos del timeline) porque el backend entrega nombres libres, no un
-// enum fijo de códigos. Cubre los 12 estados de tipo "pedido" que existen
-// hoy (ver EstadosSeeder + migraciones de despachado/en_ruta).
+// enum fijo de códigos. Cubre los 17 estados de tipo "pedido" que existen
+// hoy (ver tabla `estados`, incluye los del flujo de portal cliente).
 const LEYENDAS_ESTADO = {
   Pendiente: 'Tu pedido está pendiente de confirmación.',
   Confirmado: 'Tu pedido fue confirmado.',
@@ -20,6 +20,11 @@ const LEYENDAS_ESTADO = {
   Entregado: 'Tu pedido fue entregado con éxito.',
   Devuelto: 'Tu pedido fue devuelto.',
   Cancelado: 'Tu pedido fue cancelado.',
+  'En revisión': 'Tu solicitud está siendo revisada por nuestro equipo.',
+  Rechazado: 'Tu solicitud fue rechazada.',
+  Asignado: 'Tu pedido fue asignado a un repartidor.',
+  Recepcionado: 'Tu pedido fue recepcionado en almacén.',
+  Reprogramado: 'La entrega de tu pedido fue reprogramada.',
 }
 
 function obtenerLeyenda(estado) {

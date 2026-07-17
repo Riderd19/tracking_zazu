@@ -1,4 +1,4 @@
-import { Card, Avatar, Button } from 'antd'
+import { Card, Button } from 'antd'
 import { EnvironmentOutlined, CarOutlined, CustomerServiceOutlined } from '@ant-design/icons'
 
 // motorizado = { nombre, placa, hora_llegada_estimada } — datos reales del backend
@@ -6,11 +6,6 @@ import { EnvironmentOutlined, CarOutlined, CustomerServiceOutlined } from '@ant-
 // null si el pedido todavía no tiene ese dato calculado.
 export default function DriverCard({ motorizado, className = '' }) {
   const { nombre, placa, hora_llegada_estimada: horaLlegadaEstimada } = motorizado
-  const iniciales = nombre
-    .split(' ')
-    .map((parte) => parte[0])
-    .join('')
-    .slice(0, 2)
 
   return (
     <Card className={`border-gray-100 h-full ${className}`}>
@@ -23,12 +18,12 @@ export default function DriverCard({ motorizado, className = '' }) {
         {horaLlegadaEstimada ?? 'No disponible'}
       </p>
 
-      <div className="flex items-center gap-3 border-t border-gray-100 pt-4">
-        <Avatar size={48} className="font-semibold shrink-0" style={{ backgroundColor: '#7c3aed', color: '#fff' }}>
-          {iniciales}
-        </Avatar>
+      <div className="flex items-center gap-3 rounded-2xl bg-gradient-to-br from-violet-50 to-violet-100 p-3">
+        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white text-3xl shadow-sm">
+          🛵
+        </span>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-gray-900 mb-0.5 truncate">{nombre}</p>
+          <p className="text-sm font-semibold text-gray-900 mb-1 truncate">{nombre}</p>
           <span className="inline-flex items-center gap-1 text-xs text-gray-600 font-medium">
             <CarOutlined /> {placa}
           </span>
