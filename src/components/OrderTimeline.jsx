@@ -58,7 +58,23 @@ function fechaParaHito(hito, timeline) {
   return encontrados.at(-1)?.fecha ?? null
 }
 
-export default function OrderTimeline({ timeline = [], estadoActual, fechaPedido }) {
+function formatearFecha(fecha) {
+  if (!fecha) return null
+
+  const soloFecha = String(fecha).match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (soloFecha) return `${soloFecha[3]}/${soloFecha[2]}/${soloFecha[1]}`
+
+  return fecha
+}
+
+export default function OrderTimeline({
+  timeline = [],
+  estadoActual,
+  fechaPedido,
+  fechaDespacho,
+  fechaEnRuta,
+  fechaEntregado,
+}) {
   const especial = estadoActual ? ESTADOS_ESPECIALES[estadoActual.codigo] : null
 
   if (especial) {
@@ -95,7 +111,8 @@ export default function OrderTimeline({ timeline = [], estadoActual, fechaPedido
           // podía mostrar, por ejemplo, la hora de una corrección de dirección
           // como si fuera la hora en que el pedido llegó a "En ruta" — mejor
           // mostrar "Fecha no disponible" que una fecha real pero engañosa.
-          const fecha = fechaParaHito(hito, timeline) ?? (i === 0 ? fechaPedido : null)
+          const fechasPorPaso = [fechaPedido, fechaDespacho, fechaEnRuta, fechaEntregado]
+          const fecha = formatearFecha(fechasPorPaso[i] ?? fechaParaHito(hito, timeline))
 
           // Colores calcados del inspector de Figma (Dev Mode): línea/círculo
           // completado en #5C009C/#560591, círculo actual en blanco con borde

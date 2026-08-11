@@ -72,6 +72,9 @@ export default function OrderSummaryCard({ pedido }) {
     timeline,
     fecha_pedido,
     fecha_envio,
+    fecha_despacho,
+    fecha_en_ruta,
+    fecha_entregado_zazu1,
     sede_entrega,
     saldo_pendiente,
   } = pedido
@@ -104,7 +107,14 @@ export default function OrderSummaryCard({ pedido }) {
 
       <div className="mt-10 flex flex-col sm:flex-row gap-5">
         <div className="flex-1 min-w-0">
-          <OrderTimeline timeline={timeline} estadoActual={estado_actual} fechaPedido={fecha_pedido} />
+          <OrderTimeline
+            timeline={timeline}
+            estadoActual={estado_actual}
+            fechaPedido={fecha_pedido}
+            fechaDespacho={fecha_despacho}
+            fechaEnRuta={fecha_en_ruta}
+            fechaEntregado={fecha_entregado_zazu1}
+          />
         </div>
         {/* Oculto por ahora a pedido del usuario — ver SaldoPendiente.jsx, no se eliminó el componente. */}
         {false && saldo_pendiente > 0 && <SaldoPendiente monto={saldo_pendiente} />}
