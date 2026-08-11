@@ -11,11 +11,13 @@ import SaldoPendiente from './SaldoPendiente'
 // Colores, tamaños y tipografía calcados del inspector de Figma (Dev Mode):
 // círculo bg gray-100/ícono gray-700 a 58px, texto 14px/20px, valores peso 600
 // en gray-900, etiquetas peso 500 en gray-700 (peso 400 solo para "Cliente: ...").
-// Ninguna línea trunca por defecto: un código de pedido o una dirección
-// larga se cortaban con "..." sin forma de leerlos completos. Excepción:
-// `abajoUnaLinea` (usado en Destino) para direcciones largas que deben caber
-// en una sola línea con "..." en vez de partirse en dos.
-function Campo({ icon, arriba, abajo, enfasisArriba = false, abajoUnaLinea = false }) {
+// Ninguna línea trunca con "...": un código de pedido o una dirección larga se
+// cortaban sin forma de leerlos completos. Por defecto se ajustan a varias
+// líneas; `abajoSinAjuste` (Destino) en cambio fuerza una sola fila completa —
+// el scroll horizontal queda aislado a esa línea (no al campo entero ni al
+// grid completo), así funciona igual sin importar el ancho de pantalla o
+// cuántas columnas tenga el grid en cada breakpoint.
+function Campo({ icon, arriba, abajo, enfasisArriba = false, abajoSinAjuste = false }) {
   return (
     <div className="flex items-start gap-3 min-w-0">
       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gray-100 text-gray-700">
@@ -29,14 +31,25 @@ function Campo({ icon, arriba, abajo, enfasisArriba = false, abajoUnaLinea = fal
         >
           {arriba}
         </p>
-        <p
-          className={`mb-0 text-sm leading-5 ${abajoUnaLinea ? 'truncate' : 'break-words'} ${
-            enfasisArriba ? 'font-normal text-gray-700' : 'font-semibold text-gray-900'
-          }`}
-          title={abajoUnaLinea ? abajo : undefined}
-        >
-          {abajo}
-        </p>
+        {abajoSinAjuste ? (
+          <div className="overflow-x-auto">
+            <p
+              className={`mb-0 whitespace-nowrap text-sm leading-5 ${
+                enfasisArriba ? 'font-normal text-gray-700' : 'font-semibold text-gray-900'
+              }`}
+            >
+              {abajo}
+            </p>
+          </div>
+        ) : (
+          <p
+            className={`mb-0 break-words text-sm leading-5 ${
+              enfasisArriba ? 'font-normal text-gray-700' : 'font-semibold text-gray-900'
+            }`}
+          >
+            {abajo}
+          </p>
+        )}
       </div>
     </div>
   )
@@ -70,15 +83,22 @@ export default function OrderSummaryCard({ pedido }) {
 
   return (
     <div>
-      <div className="rounded bg-gray-50 p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.1fr_0.9fr_1.4fr_0.9fr] gap-x-8 gap-y-5 lg:items-start lg:divide-x lg:divide-gray-200">
+      <div className="rounded bg-gray-50 p-6 grid grid-cols-1 sm:grid-cols-[repeat(2,max-content)] sm:justify-between gap-x-5 gap-y-5 lg:flex lg:flex-nowrap lg:items-start lg:[&>*:last-child]:-translate-x-4">
         <Campo
           icon={<InboxOutlined className="text-xl" />}
           arriba={`Pedido ${codigo}`}
           abajo={`Cliente: ${destinatario_nombre}`}
           enfasisArriba
         />
+        {/* Línea divisoria como elemento propio, con el mismo gap-x-8 fijo a
+            cada lado (ver flex arriba) — queda centrada en el hueco entre
+            campos, y los 3 huecos miden exactamente lo mismo sin importar el
+            largo del contenido de cada campo. */}
+        <span className="hidden lg:block w-px shrink-0 bg-gray-200 self-stretch" />
         <Campo icon={<BuildingIcon className="w-6 h-6" />} arriba="Empresa" abajo={empresa ?? 'No disponible'} />
-        <Campo icon={<LocationDotIcon className="w-6 h-6" />} arriba="Destino" abajo={destino} abajoUnaLinea />
+        <span className="hidden lg:block w-px shrink-0 bg-gray-200 self-stretch" />
+        <Campo icon={<LocationDotIcon className="w-6 h-6" />} arriba="Destino" abajo={destino} abajoSinAjuste />
+        <span className="hidden lg:block w-px shrink-0 bg-gray-200 self-stretch" />
         <Campo icon={<ClockIcon className="w-6 h-6" />} arriba="Fecha de envío" abajo={fecha_envio ?? 'No disponible'} />
       </div>
 

@@ -9,15 +9,15 @@ import {
 } from '@ant-design/icons'
 import MotorcycleIcon from './icons/MotorcycleIcon'
 
-// Pipeline que ve el cliente para Delivery: 4 pasos, no los ESTADOS SISTEMA
-// internos uno por uno. Pendiente / Asignado / Recepcionado (y el resto de
-// sub-estados previos al despacho) se muestran juntos como "En Gestión" — al
-// cliente no le aporta saber en cuál de esos sub-estados operativos está,
-// solo que su pedido ya está siendo procesado. "Despachado" es su propio paso
-// (antes vivía dentro de "En Gestión"). Luego "En Ruta" y el resultado final
-// (Entregado / Devuelto / Reprogramado). Otros códigos (confirmado,
-// en_preparacion, listo, procesado, registrado, solicitud_portal) de otros
-// tipos de envío también caen en "En Gestión" en vez de desaparecer de la barra.
+// Pipeline que ve el cliente: 4 pasos. El código que llega en `estadoActual`
+// ahora sale de Empaquetado y Entrega en el backend (tickets.estado /
+// tickets.estado_zazu_1, ver TrackingPublicController::determinarEstadoDesdeTicket),
+// no de pedidos.estado — "pendiente" ("En espera" del ticket) = En Gestión,
+// "despachado" = Despachado, "en_ruta" ("En curso" del courier externo) = En
+// Ruta, "entregado" = resultado final. Los códigos viejos de pedidos.estado
+// (confirmado, en_preparacion, listo, procesado, registrado, solicitud_portal,
+// asignado, recepcionado) se mantienen en EN_GESTION solo como respaldo, para
+// pedidos sin ticket vinculado (ver el fallback en el backend).
 const EN_GESTION = [
   'pendiente', 'confirmado', 'registrado', 'solicitud_portal', 'procesado',
   'en_preparacion', 'listo', 'asignado', 'recepcionado',
@@ -45,6 +45,7 @@ function construirHitos(estadoActual) {
 const ESTADOS_ESPECIALES = {
   cancelado: { texto: 'Pedido cancelado', color: '#ef4444', icon: <CloseCircleOutlined /> },
   rechazado_portal: { texto: 'Solicitud rechazada', color: '#ef4444', icon: <CloseCircleOutlined /> },
+  no_entregado: { texto: 'No se pudo entregar tu pedido', color: '#ef4444', icon: <CloseCircleOutlined /> },
 }
 
 function indiceHito(hitos, codigo) {
