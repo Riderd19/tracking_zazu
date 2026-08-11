@@ -1,5 +1,6 @@
 import {
   SettingOutlined,
+  InboxOutlined,
   CheckOutlined,
   CheckCircleOutlined,
   RollbackOutlined,
@@ -8,17 +9,18 @@ import {
 } from '@ant-design/icons'
 import MotorcycleIcon from './icons/MotorcycleIcon'
 
-// Pipeline que ve el cliente para Delivery: 3 pasos, no los ESTADOS SISTEMA
-// internos uno por uno. Pendiente / Despachado / Asignado / Recepcionado se
-// muestran juntos como "En Gestión" — al cliente no le aporta saber en cuál
-// de esos 4 sub-estados operativos está, solo que su pedido ya está siendo
-// procesado. Luego "En Ruta" y el resultado final (Entregado / Devuelto /
-// Reprogramado). Otros códigos (confirmado, en_preparacion, listo, procesado,
-// registrado, solicitud_portal) de otros tipos de envío también caen en
-// "En Gestión" en vez de desaparecer de la barra.
+// Pipeline que ve el cliente para Delivery: 4 pasos, no los ESTADOS SISTEMA
+// internos uno por uno. Pendiente / Asignado / Recepcionado (y el resto de
+// sub-estados previos al despacho) se muestran juntos como "En Gestión" — al
+// cliente no le aporta saber en cuál de esos sub-estados operativos está,
+// solo que su pedido ya está siendo procesado. "Despachado" es su propio paso
+// (antes vivía dentro de "En Gestión"). Luego "En Ruta" y el resultado final
+// (Entregado / Devuelto / Reprogramado). Otros códigos (confirmado,
+// en_preparacion, listo, procesado, registrado, solicitud_portal) de otros
+// tipos de envío también caen en "En Gestión" en vez de desaparecer de la barra.
 const EN_GESTION = [
   'pendiente', 'confirmado', 'registrado', 'solicitud_portal', 'procesado',
-  'en_preparacion', 'listo', 'despachado', 'asignado', 'recepcionado',
+  'en_preparacion', 'listo', 'asignado', 'recepcionado',
 ]
 
 const RESULTADOS_FINALES = {
@@ -32,6 +34,7 @@ function construirHitos(estadoActual) {
 
   return [
     { label: 'En Gestión', codigos: EN_GESTION, icon: <SettingOutlined /> },
+    { label: 'Despachado', codigos: ['despachado'], icon: <InboxOutlined /> },
     { label: 'En ruta', codigos: ['en_ruta', 'enviado'], icon: <MotorcycleIcon /> },
     { label: resultado.label, codigos: ['entregado', 'devuelto', 'reprogramado'], icon: resultado.icon },
   ]

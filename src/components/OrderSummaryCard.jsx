@@ -86,7 +86,8 @@ export default function OrderSummaryCard({ pedido }) {
         <div className="flex-1 min-w-0">
           <OrderTimeline timeline={timeline} estadoActual={estado_actual} fechaPedido={fecha_pedido} />
         </div>
-        {saldo_pendiente > 0 && <SaldoPendiente monto={saldo_pendiente} />}
+        {/* Oculto por ahora a pedido del usuario — ver SaldoPendiente.jsx, no se eliminó el componente. */}
+        {false && saldo_pendiente > 0 && <SaldoPendiente monto={saldo_pendiente} />}
       </div>
     </div>
   )
