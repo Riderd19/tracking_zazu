@@ -1,73 +1,93 @@
-import { Card } from 'antd'
-import { InboxOutlined, ClockCircleOutlined } from '@ant-design/icons'
-import EstadoBadge from './EstadoBadge'
+import { InboxOutlined } from '@ant-design/icons'
+import ClockIcon from './icons/ClockIcon'
+import LocationDotIcon from './icons/LocationDotIcon'
+import BuildingIcon from './icons/BuildingIcon'
 import OrderTimeline from './OrderTimeline'
+import SaldoPendiente from './SaldoPendiente'
 
-// Texto de apoyo bajo el badge de estado. Se indexa por nombre (igual que
-// los íconos del timeline) porque el backend entrega nombres libres, no un
-// enum fijo de códigos. Cubre los 17 estados de tipo "pedido" que existen
-// hoy (ver tabla `estados`, incluye los del flujo de portal cliente).
-const LEYENDAS_ESTADO = {
-  Pendiente: 'Tu pedido está pendiente de confirmación.',
-  Confirmado: 'Tu pedido fue confirmado.',
-  'En preparación': 'Tu pedido se está preparando.',
-  'Listo para envío': 'Tu pedido está listo para ser enviado.',
-  Procesado: 'Tu pedido fue procesado.',
-  Registrado: 'Tu pedido fue registrado y pronto será preparado.',
-  Despachado: 'Tu pedido fue despachado y espera asignación de repartidor.',
-  'En Ruta': 'Tu pedido está en camino con un repartidor asignado.',
-  Enviado: 'Tu pedido fue enviado.',
-  Entregado: 'Tu pedido fue entregado con éxito.',
-  Devuelto: 'Tu pedido fue devuelto.',
-  Cancelado: 'Tu pedido fue cancelado.',
-  'En revisión': 'Tu solicitud está siendo revisada por nuestro equipo.',
-  Rechazado: 'Tu solicitud fue rechazada.',
-  Asignado: 'Tu pedido fue asignado a un repartidor.',
-  Recepcionado: 'Tu pedido fue recepcionado en almacén.',
-  Reprogramado: 'La entrega de tu pedido fue reprogramada.',
+// Bloque ícono + 2 líneas de texto. `enfasisArriba` decide cuál línea va en
+// negrita: el primer campo (Pedido/Cliente) destaca el código arriba, los
+// demás destacan el valor abajo (igual patrón que ya usaba "Entrega estimada").
+// Colores, tamaños y tipografía calcados del inspector de Figma (Dev Mode):
+// círculo bg gray-100/ícono gray-700 a 58px, texto 14px/20px, valores peso 600
+// en gray-900, etiquetas peso 500 en gray-700 (peso 400 solo para "Cliente: ...").
+// Ninguna línea trunca por defecto: un código de pedido o una dirección
+// larga se cortaban con "..." sin forma de leerlos completos. Excepción:
+// `abajoUnaLinea` (usado en Destino) para direcciones largas que deben caber
+// en una sola línea con "..." en vez de partirse en dos.
+function Campo({ icon, arriba, abajo, enfasisArriba = false, abajoUnaLinea = false }) {
+  return (
+    <div className="flex items-start gap-3 min-w-0">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gray-100 text-gray-700">
+        {icon}
+      </span>
+      <div className="min-w-0 flex flex-col gap-2">
+        <p
+          className={`mb-0 break-words text-sm leading-5 ${
+            enfasisArriba ? 'font-semibold text-gray-900' : 'font-medium text-gray-700'
+          }`}
+        >
+          {arriba}
+        </p>
+        <p
+          className={`mb-0 text-sm leading-5 ${abajoUnaLinea ? 'truncate' : 'break-words'} ${
+            enfasisArriba ? 'font-normal text-gray-700' : 'font-semibold text-gray-900'
+          }`}
+          title={abajoUnaLinea ? abajo : undefined}
+        >
+          {abajo}
+        </p>
+      </div>
+    </div>
+  )
 }
 
-function obtenerLeyenda(estado) {
-  return LEYENDAS_ESTADO[estado?.nombre] ?? 'Sigue el detalle de tu pedido más abajo.'
+// El backend a veces guarda la dirección con el Plus Code de Google delante
+// (ej. "V3P7+HXQ, Huaca del Sol...") — es un código interno de geocodificación,
+// no aporta nada al cliente y solo ocupa espacio.
+function quitarPlusCode(direccion) {
+  return direccion.replace(/^\S+\+\S+,\s*/, '')
 }
 
 export default function OrderSummaryCard({ pedido }) {
-  const { codigo, destinatario_nombre, estado_actual, timeline, fecha_estimada_entrega } = pedido
+  const {
+    codigo,
+    destinatario_nombre,
+    destinatario_direccion,
+    empresa,
+    estado_actual,
+    timeline,
+    fecha_pedido,
+    fecha_envio,
+    sede_entrega,
+    saldo_pendiente,
+  } = pedido
+
+  // Si el pedido es de recojo en tienda, el "destino" es la sede, no la
+  // dirección del destinatario (que puede no aplicar o venir vacía).
+  const destinoCompleto = sede_entrega?.direccion ?? destinatario_direccion ?? 'No disponible'
+  const destino = quitarPlusCode(destinoCompleto)
 
   return (
-    <Card className="border-gray-100">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div className="flex items-start gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600 text-lg">
-            <InboxOutlined />
-          </span>
-          <div>
-            <p className="text-sm font-semibold text-gray-900 mb-0.5">Pedido {codigo}</p>
-            <p className="text-xs text-gray-500 mb-0">Cliente: {destinatario_nombre}</p>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600 text-lg">
-            <ClockCircleOutlined />
-          </span>
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">Entrega estimada</p>
-            <p className="text-sm font-semibold text-gray-900 mb-0">
-              {fecha_estimada_entrega ?? 'No disponible'}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:items-end gap-1">
-          <EstadoBadge estado={estado_actual} />
-          <p className="text-xs text-gray-500 mb-0 sm:text-right">{obtenerLeyenda(estado_actual)}</p>
-        </div>
+    <div>
+      <div className="rounded bg-gray-50 p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.1fr_0.9fr_1.4fr_0.9fr] gap-x-8 gap-y-5 lg:items-start lg:divide-x lg:divide-gray-200">
+        <Campo
+          icon={<InboxOutlined className="text-xl" />}
+          arriba={`Pedido ${codigo}`}
+          abajo={`Cliente: ${destinatario_nombre}`}
+          enfasisArriba
+        />
+        <Campo icon={<BuildingIcon className="w-6 h-6" />} arriba="Empresa" abajo={empresa ?? 'No disponible'} />
+        <Campo icon={<LocationDotIcon className="w-6 h-6" />} arriba="Destino" abajo={destino} abajoUnaLinea />
+        <Campo icon={<ClockIcon className="w-6 h-6" />} arriba="Fecha de envío" abajo={fecha_envio ?? 'No disponible'} />
       </div>
 
-      <div className="border-t border-gray-100 mt-4 pt-5">
-        <OrderTimeline timeline={timeline} estadoActual={estado_actual} />
+      <div className="mt-10 flex flex-col sm:flex-row gap-5">
+        <div className="flex-1 min-w-0">
+          <OrderTimeline timeline={timeline} estadoActual={estado_actual} fechaPedido={fecha_pedido} />
+        </div>
+        {saldo_pendiente > 0 && <SaldoPendiente monto={saldo_pendiente} />}
       </div>
-    </Card>
+    </div>
   )
 }

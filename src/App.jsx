@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react'
+import { WhatsAppOutlined } from '@ant-design/icons'
+import SiteHeader from './components/SiteHeader'
+import SiteFooter from './components/SiteFooter'
 import SearchForm from './components/SearchForm'
 import OrderResult from './components/OrderResult'
 import {
@@ -8,6 +11,7 @@ import {
   TrackingValidacionError,
 } from './services/trackingService'
 import { leerCodigoDeUrl, limpiarCodigoDeUrl } from './utils/codigoUrl'
+import { WHATSAPP_SOPORTE_LINK } from './constants/soporte'
 
 function clasificarError(err) {
   if (err instanceof TrackingRateLimitError) return { tipo: 'rate_limit', mensaje: err.message }
@@ -16,11 +20,21 @@ function clasificarError(err) {
   return { tipo: 'desconocido', mensaje: 'Ocurrió un error inesperado. Inténtalo de nuevo.' }
 }
 
+// Cada cuánto se refresca el pedido mientras está "En Ruta" (posición del
+// motorizado, hora estimada). No es push en vivo (eso requeriría un canal de
+// broadcast que hoy no existe) — 20s es suficiente para que el mapa se sienta
+// actualizado sin acercarse al límite de 10 consultas/min por IP del backend.
+const INTERVALO_POLLING_MS = 20000
+const CODIGO_EN_RUTA = 'en_ruta'
+
 export default function App() {
   const [pedido, setPedido] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [codigoInicial, setCodigoInicial] = useState(leerCodigoDeUrl)
+  // Código + identificador de la última búsqueda exitosa, para poder repetirla
+  // en el polling sin pedirle esos datos de nuevo al usuario.
+  const [ultimaBusqueda, setUltimaBusqueda] = useState(null)
 
   // El código de la URL (link de WhatsApp) se consume una sola vez: se usa para
   // precargar el formulario y se borra de inmediato, para que un refresh (F5) o
@@ -37,6 +51,7 @@ export default function App() {
     try {
       const resultado = await buscarPedido(codigo, identificador)
       setPedido(resultado)
+      setUltimaBusqueda({ codigo, identificador })
     } catch (err) {
       setError(clasificarError(err))
     } finally {
@@ -48,61 +63,95 @@ export default function App() {
     setPedido(null)
     setError(null)
     setCodigoInicial('')
+    setUltimaBusqueda(null)
     limpiarCodigoDeUrl()
   }
 
+  // Polling: solo mientras el pedido esté "En Ruta" — antes no hay nada que
+  // se mueva, y después (entregado/etc.) tampoco. Errores de red durante el
+  // polling se ignoran en silencio: no tiene sentido tirar al usuario a una
+  // pantalla de error por un refresh de fondo que falló una vez.
+  useEffect(() => {
+    if (!ultimaBusqueda || pedido?.estado_actual?.codigo !== CODIGO_EN_RUTA) return
+
+    const intervalo = setInterval(async () => {
+      try {
+        const actualizado = await buscarPedido(ultimaBusqueda.codigo, ultimaBusqueda.identificador)
+        setPedido(actualizado)
+      } catch {
+        // silencioso a propósito — se reintenta en el siguiente ciclo
+      }
+    }, INTERVALO_POLLING_MS)
+
+    return () => clearInterval(intervalo)
+  }, [ultimaBusqueda, pedido?.estado_actual?.codigo])
+
   if (pedido) {
     return (
-      <div className="min-h-screen w-full bg-[#faf9fc] px-4 py-10">
-        <div className="w-full max-w-5xl mx-auto flex flex-col gap-6">
-          <OrderResult pedido={pedido} onVolver={handleVolver} />
-          <footer className="text-xs text-gray-400 text-center">
-            Zazu 2026. Todos los derechos reservados.
-          </footer>
+      <div className="min-h-screen w-full bg-white flex flex-col">
+        <SiteHeader onVolver={handleVolver} />
+        <div className="w-full max-w-[1400px] mx-auto flex-1 flex flex-col gap-6 px-4 sm:px-8 py-10">
+          <OrderResult pedido={pedido} />
         </div>
       </div>
     )
   }
 
   return (
-    <div
-      className="min-h-screen w-full flex items-center justify-center px-4 py-10"
-      style={{
-        background:
-          'radial-gradient(circle at 18% 12%, rgba(124,58,237,0.10), transparent 42%), radial-gradient(circle at 84% 0%, rgba(124,58,237,0.07), transparent 38%), #faf9fc',
-      }}
-    >
-      <div className="w-full max-w-md flex flex-col items-center">
-        <div className="w-full flex flex-col items-center sm:bg-white sm:border sm:border-violet-100 sm:rounded-3xl sm:shadow-[0_20px_50px_-20px_rgba(109,40,217,0.25)] sm:p-8 sm:pt-7">
-          <header className="w-full flex flex-col items-center mb-6">
-            <img
-              src="/zazu_logo.png"
-              alt="Zazu Express"
-              className="w-14 h-14 rounded-xl shadow-sm mb-3"
-            />
-            <span className="text-[11px] font-semibold tracking-widest text-violet-600 uppercase mb-1">
-              Seguimiento de pedidos
-            </span>
-            <h1 className="text-2xl font-semibold text-gray-900 mb-1">Zazu Tracking</h1>
-            <p className="text-sm text-gray-500 text-center">
-              Consulta el estado de tu pedido en tiempo real
-            </p>
-          </header>
+    <div className="min-h-screen w-full bg-white flex flex-col">
+      <SiteHeader />
 
-          <main className="w-full">
+      <div className="w-full flex-1 flex items-center justify-center px-4 py-14">
+        <div className="w-full max-w-md flex flex-col items-center">
+          <span className="relative flex h-24 w-24 items-center justify-center rounded-full bg-violet-50 mb-6">
+            <svg viewBox="0 0 24 24" fill="none" className="h-11 w-11 text-violet-600">
+              <path
+                d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5v-9Z"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinejoin="round"
+              />
+              <path d="M4 7.5 12 12m0 0 8-4.5M12 12v9" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+            </svg>
+            <span className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full bg-violet-50 border-4 border-white">
+              <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 text-violet-600">
+                <circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" strokeWidth="2" />
+                <path d="m20 20-4.3-4.3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </span>
+          </span>
+
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 text-center">Rastrea tu pedido</h1>
+          <p className="text-sm text-gray-500 text-center max-w-sm mb-8">
+            Ingresa tu número de pedido y tu DNI o celular para consultar el estado y la ubicación de tu pedido en
+            tiempo real.
+          </p>
+
+          <div className="w-full bg-white rounded-3xl shadow-[0_20px_50px_-20px_rgba(109,40,217,0.25)] border border-violet-50 p-8">
             <SearchForm
               onSubmit={handleSearch}
               loading={loading}
               error={error}
               codigoInicial={codigoInicial}
             />
-          </main>
-        </div>
+          </div>
 
-        <footer className="mt-6 text-xs text-gray-400 text-center">
-          Zazu 2026. Todos los derechos reservados. <br />
-        </footer>
+          <div className="mt-8 text-center">
+            <p className="text-sm font-semibold text-gray-900 mb-1">¿Tienes problemas para rastrear tu pedido?</p>
+            <p className="text-xs text-gray-500 mb-4">Contáctanos por WhatsApp y te ayudaremos a encontrar tu pedido.</p>
+            <a
+              href={WHATSAPP_SOPORTE_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:border-violet-300 hover:text-violet-600 transition-colors"
+            >
+              <WhatsAppOutlined /> Contactar por WhatsApp
+            </a>
+          </div>
+        </div>
       </div>
+
+      <SiteFooter />
     </div>
   )
 }

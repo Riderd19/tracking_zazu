@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Form, Input, Select, Space, Button } from 'antd'
-import { SearchOutlined, CloseOutlined, ClockCircleOutlined } from '@ant-design/icons'
+import { SearchOutlined, CloseOutlined, ClockCircleOutlined, InboxOutlined, LockOutlined } from '@ant-design/icons'
 import { listarEmpresas } from '../services/trackingService'
 import { combinarCodigo, parseCodigo, detectarCodigoCompleto } from '../utils/codigoPedido'
 
@@ -125,7 +125,9 @@ export default function SearchForm({ onSubmit, loading, error, codigoInicial }) 
             rules={[{ required: true, message: 'Ingresa el número de pedido' }]}
           >
             <Input
+              id="pedido-numero-input"
               size="large"
+              prefix={<InboxOutlined className="text-gray-400" />}
               placeholder="Ej. 000908"
               autoComplete="off"
               onChange={handleNumeroChange}
@@ -141,6 +143,7 @@ export default function SearchForm({ onSubmit, loading, error, codigoInicial }) 
       >
         <Input
           size="large"
+          prefix={<LockOutlined className="text-gray-400" />}
           placeholder="Ej. 987654321"
           autoComplete="off"
           autoFocus={Boolean(codigoInicial)}
@@ -156,7 +159,7 @@ export default function SearchForm({ onSubmit, loading, error, codigoInicial }) 
           loading={loading}
           block
         >
-          Consultar
+          Rastrear pedido
         </Button>
       </Form.Item>
 

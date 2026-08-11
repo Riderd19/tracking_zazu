@@ -1,3 +1,14 @@
+/* antd inyecta sus estilos vía CSS-in-JS sin capa propia, y sin esto le gana
+   a las utilities de Tailwind (bg-*, text-*, etc.) en cualquier <a>/elemento
+   que antd también estilice, sin importar el orden en que se escriban las
+   clases. StyleProvider `layer` (en main.jsx) mete los estilos de antd en la
+   capa "antd" declarada acá, entre "base" y "utilities", para que Tailwind
+   siempre gane. Tiene que declararse ANTES del @import: el plugin de Vite
+   expande "tailwindcss" en su lugar durante el build, así que el orden en
+   este archivo es el que termina importando. Ver
+   https://ant.design/docs/react/compatible-style */
+@layer theme, base, antd, components, utilities;
+
 @import "tailwindcss";
 
 @theme {
