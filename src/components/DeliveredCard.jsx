@@ -9,7 +9,7 @@ import { WHATSAPP_SOPORTE_LINK } from '../constants/soporte'
 // fecha_actualizacion — cada vez menos exacto, pero mejor que dejarlo en blanco.
 function fechaEntrega(pedido) {
   const hito = pedido.timeline?.find((h) => h.codigo === 'entregado')
-  return pedido.fecha_entrega_real ?? hito?.fecha ?? pedido.fecha_actualizacion ?? null
+  return pedido.fecha_entregado_zazu1 ?? pedido.fecha_entrega_real ?? hito?.fecha ?? pedido.fecha_actualizacion ?? null
 }
 
 // Vista de confirmación cuando el pedido ya llegó — sin mapa ni tarjeta de

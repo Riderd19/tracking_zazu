@@ -68,6 +68,7 @@ export default function OrderSummaryCard({ pedido }) {
     destinatario_nombre,
     destinatario_direccion,
     empresa,
+    tipo_envio,
     estado_actual,
     timeline,
     fecha_pedido,
@@ -116,8 +117,9 @@ export default function OrderSummaryCard({ pedido }) {
             fechaEntregado={fecha_entregado_zazu1}
           />
         </div>
-        {/* Oculto por ahora a pedido del usuario — ver SaldoPendiente.jsx, no se eliminó el componente. */}
-        {false && saldo_pendiente > 0 && <SaldoPendiente monto={saldo_pendiente} />}
+        {['COURIER', 'DELIVERY'].includes(tipo_envio?.toUpperCase()) && saldo_pendiente > 0 && (
+          <SaldoPendiente monto={saldo_pendiente} />
+        )}
       </div>
     </div>
   )

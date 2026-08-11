@@ -1,9 +1,5 @@
-import { CreditCardOutlined, ArrowRightOutlined } from '@ant-design/icons'
-import { WHATSAPP_SOPORTE_LINK } from '../constants/soporte'
+import { CreditCardOutlined } from '@ant-design/icons'
 
-// "Pagar ahora" no procesa ningún pago real (no hay pasarela integrada acá):
-// abre WhatsApp de soporte, el mismo canal que ya usamos en el resto del sitio,
-// para no dejar un botón muerto ni improvisar un flujo de cobro.
 export default function SaldoPendiente({ monto }) {
   return (
     <div className="w-full sm:w-64 shrink-0 rounded-2xl bg-violet-50 p-4">
@@ -17,16 +13,7 @@ export default function SaldoPendiente({ monto }) {
         </div>
       </div>
 
-      <p className="text-2xl font-bold text-violet-700 mb-3">S/ {monto.toFixed(2)}</p>
-
-      <a
-        href={WHATSAPP_SOPORTE_LINK}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center justify-center gap-2 rounded-xl bg-violet-600 text-white text-sm font-semibold py-2.5 hover:bg-violet-700 transition-colors"
-      >
-        Pagar ahora <ArrowRightOutlined />
-      </a>
+      <p className="text-2xl font-bold text-violet-700 mb-0">S/ {monto.toFixed(2)}</p>
     </div>
   )
 }
