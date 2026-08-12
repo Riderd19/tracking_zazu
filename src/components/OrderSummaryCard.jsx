@@ -2,6 +2,7 @@ import { InboxOutlined } from '@ant-design/icons'
 import ClockIcon from './icons/ClockIcon'
 import LocationDotIcon from './icons/LocationDotIcon'
 import BuildingIcon from './icons/BuildingIcon'
+import FileLinesIcon from './icons/FileLinesIcon'
 import OrderTimeline from './OrderTimeline'
 import SaldoPendiente from './SaldoPendiente'
 
@@ -86,10 +87,11 @@ export default function OrderSummaryCard({ pedido }) {
   // dirección del destinatario (que puede no aplicar o venir vacía).
   const destinoCompleto = sede_entrega?.direccion ?? destinatario_direccion ?? 'No disponible'
   const destino = quitarPlusCode(destinoCompleto)
+  const esCourier = tipo_envio?.toUpperCase() === 'COURIER'
 
   return (
     <div>
-      <div className="rounded bg-gray-50 p-6 grid grid-cols-1 sm:grid-cols-[repeat(2,max-content)] sm:justify-between gap-x-5 gap-y-5 lg:flex lg:flex-nowrap lg:items-start lg:[&>*:last-child]:-translate-x-4">
+      <div className="rounded bg-gray-50 p-6 grid grid-cols-1 sm:grid-cols-[repeat(2,max-content)] sm:justify-between gap-x-5 gap-y-5 2xl:flex 2xl:flex-nowrap 2xl:items-start 2xl:[&>*:last-child]:-translate-x-4">
         <Campo
           icon={<InboxOutlined className="text-xl" />}
           arriba={`Pedido ${codigo}`}
@@ -98,26 +100,25 @@ export default function OrderSummaryCard({ pedido }) {
         />
         {/* Línea divisoria como elemento propio, con el mismo gap-x-8 fijo a
             cada lado (ver flex arriba) — queda centrada en el hueco entre
-            campos, y los 3 huecos miden exactamente lo mismo sin importar el
+            campos, y los huecos miden exactamente lo mismo sin importar el
             largo del contenido de cada campo. */}
-        <span className="hidden lg:block w-px shrink-0 bg-gray-200 self-stretch" />
+        <span className="hidden 2xl:block w-px shrink-0 bg-gray-200 self-stretch" />
         <Campo icon={<BuildingIcon className="w-6 h-6" />} arriba="Empresa" abajo={empresa ?? 'No disponible'} />
-        <span className="hidden lg:block w-px shrink-0 bg-gray-200 self-stretch" />
+        <span className="hidden 2xl:block w-px shrink-0 bg-gray-200 self-stretch" />
         <Campo icon={<LocationDotIcon className="w-6 h-6" />} arriba="Destino" abajo={destino} abajoSinAjuste />
-        <span className="hidden lg:block w-px shrink-0 bg-gray-200 self-stretch" />
-        <div className="flex min-w-0 flex-col gap-2">
-          <Campo icon={<ClockIcon className="w-6 h-6" />} arriba="Fecha de envío" abajo={fecha_envio ?? 'No disponible'} />
-          {(codigo_courier || guia_courier) && (
-            <div className="ml-14 flex min-w-0 gap-x-4 text-xs leading-4 text-gray-700">
-              {codigo_courier && (
-                <p className="mb-0 whitespace-nowrap"><span className="font-medium">Código:</span> {codigo_courier}</p>
-              )}
-              {guia_courier && (
-                <p className="mb-0 whitespace-nowrap"><span className="font-medium">Guía:</span> {guia_courier}</p>
-              )}
-            </div>
-          )}
-        </div>
+        <span className="hidden 2xl:block w-px shrink-0 bg-gray-200 self-stretch" />
+        <Campo icon={<ClockIcon className="w-6 h-6" />} arriba="Fecha de envío" abajo={fecha_envio ?? 'No disponible'} abajoSinAjuste />
+        {esCourier && (
+          <>
+            <span className="hidden 2xl:block w-px shrink-0 bg-gray-200 self-stretch" />
+            <Campo
+              icon={<FileLinesIcon className="w-5 h-6" />}
+              arriba={`Código: ${codigo_courier || '-'}`}
+              abajo={`Guía: ${guia_courier || '-'}`}
+              abajoSinAjuste
+            />
+          </>
+        )}
       </div>
 
       <div className="mt-10 flex flex-col sm:flex-row gap-5">
