@@ -65,15 +65,12 @@ function Articulo({ fila }) {
           {talla && ` · Talla: ${talla}`}
         </p>
         {colores.size > 0 && (
-          <div className="flex flex-wrap gap-1">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1 rounded-lg bg-gray-50 px-2.5 py-2">
             {[...colores].map(([color, cant]) => (
-              <span
-                key={color}
-                className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600"
-              >
-                {color}
-                <span className="text-gray-400">×{cant}</span>
-              </span>
+              <div key={color} className="flex items-center justify-between gap-2">
+                <span className="truncate">{color}</span>
+                <span className="shrink-0 font-semibold text-gray-700">{cant}</span>
+              </div>
             ))}
           </div>
         )}
