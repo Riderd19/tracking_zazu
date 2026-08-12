@@ -27,25 +27,8 @@ function clasificarError(err) {
 const INTERVALO_POLLING_MS = 20000
 const CODIGO_EN_RUTA = 'en_ruta'
 
-const MOCK_PEDIDO_PREVIEW = {
-  codigo: 'Box Prime/002014',
-  destinatario_nombre: 'DAMIAN LEON YUDNA ROSAURA',
-  destinatario_direccion: 'SHALOM - HUARAZ - ANCASH / HUARAZ / HUARAZ',
-  empresa: 'BOX PRIME',
-  tipo_envio: 'COURIER',
-  estado_actual: { codigo: 'despachado' },
-  timeline: [],
-  fecha_pedido: '29/07/2026',
-  fecha_envio: '30/07/2026',
-  codigo_courier: 'NNN9',
-  guia_courier: '91526472',
-  fecha_despacho: '30/07/2026 22:59',
-  sede_entrega: { direccion: 'SHALOM - HUARAZ - ANCASH / HUARAZ / HUARAZ' },
-  saldo_pendiente: 79,
-}
-
 export default function App() {
-  const [pedido, setPedido] = useState(MOCK_PEDIDO_PREVIEW)
+  const [pedido, setPedido] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [codigoInicial, setCodigoInicial] = useState(leerCodigoDeUrl)
