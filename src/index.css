@@ -71,3 +71,14 @@
 body {
   margin: 0;
 }
+
+/* Oculta la barra de scroll visual sin desactivar el scroll (ej. detalle de
+   artículos en OrderItemsSummary) — cubre los 3 motores de renderizado. */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

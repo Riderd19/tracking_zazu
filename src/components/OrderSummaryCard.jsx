@@ -5,6 +5,7 @@ import BuildingIcon from './icons/BuildingIcon'
 import FileLinesIcon from './icons/FileLinesIcon'
 import OrderTimeline from './OrderTimeline'
 import SaldoPendiente from './SaldoPendiente'
+import OrderItemsSummary from './OrderItemsSummary'
 
 // Bloque ícono + 2 líneas de texto. `enfasisArriba` decide cuál línea va en
 // negrita: el primer campo (Pedido/Cliente) destaca el código arriba, los
@@ -132,8 +133,13 @@ export default function OrderSummaryCard({ pedido }) {
             fechaEntregado={fecha_entregado_zazu1}
           />
         </div>
-        {['COURIER', 'DELIVERY'].includes(tipo_envio?.toUpperCase()) && saldo_pendiente > 0 && (
-          <SaldoPendiente monto={saldo_pendiente} />
+        {(saldo_pendiente > 0 || pedido.articulos?.length > 0) && (
+          <div className="w-full sm:w-80 shrink-0 flex flex-col gap-5">
+            <OrderItemsSummary pedido={pedido} />
+            {['COURIER', 'DELIVERY'].includes(tipo_envio?.toUpperCase()) && saldo_pendiente > 0 && (
+              <SaldoPendiente monto={saldo_pendiente} />
+            )}
+          </div>
         )}
       </div>
     </div>

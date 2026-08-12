@@ -102,7 +102,17 @@ export default function OrderTimeline({
     <div className="w-full overflow-x-auto">
       <div className="flex items-start">
         {hitos.map((hito, i) => {
-          const estado = i < indiceActual ? 'completado' : i === indiceActual ? 'actual' : 'pendiente'
+          // El último hito (Entregado/Devuelto/Reprogramado) no tiene "siguiente"
+          // paso — al llegar ahí ya está completo, no "en curso", así que se
+          // pinta relleno igual que los pasos anteriores en vez de con el
+          // círculo blanco pulsante que usan los estados intermedios.
+          const esUltimoHito = i === hitos.length - 1
+          const estado =
+            i < indiceActual || (i === indiceActual && esUltimoHito)
+              ? 'completado'
+              : i === indiceActual
+                ? 'actual'
+                : 'pendiente'
           // El historial casi nunca trae fecha por hito. Para "En Gestión" (el
           // hito más cercano a la creación del pedido) usamos la fecha de venta
           // como respaldo. Para los demás pasos NO se usa fecha_actualizacion
