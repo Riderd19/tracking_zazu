@@ -7,7 +7,7 @@ import {
   CloseCircleOutlined,
   CalendarOutlined,
 } from '@ant-design/icons'
-import MotorcycleIcon from './icons/MotorcycleIcon'
+import TruckFastIcon from './icons/TruckFastIcon'
 
 // Pipeline que ve el cliente: 4 pasos. El código que llega en `estadoActual`
 // ahora sale de Empaquetado y Entrega en el backend (tickets.estado /
@@ -35,7 +35,7 @@ function construirHitos(estadoActual) {
   return [
     { label: 'En Gestión', codigos: EN_GESTION, icon: <SettingOutlined /> },
     { label: 'Despachado', codigos: ['despachado'], icon: <InboxOutlined /> },
-    { label: 'En ruta', codigos: ['en_ruta', 'enviado'], icon: <MotorcycleIcon /> },
+    { label: 'En ruta', codigos: ['en_ruta', 'enviado'], icon: <TruckFastIcon className="h-6 w-6" /> },
     { label: resultado.label, codigos: ['entregado', 'devuelto', 'reprogramado'], icon: resultado.icon },
   ]
 }
