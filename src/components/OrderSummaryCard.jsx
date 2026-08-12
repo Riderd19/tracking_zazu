@@ -34,7 +34,7 @@ function Campo({ icon, arriba, abajo, enfasisArriba = false, abajoSinAjuste = fa
           {arriba}
         </p>
         {abajoSinAjuste ? (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto scrollbar-hide">
             <p
               className={`mb-0 whitespace-nowrap text-sm leading-5 ${
                 enfasisArriba ? 'font-normal text-gray-700' : 'font-semibold text-gray-900'

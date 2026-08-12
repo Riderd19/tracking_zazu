@@ -29,7 +29,7 @@ export default function SiteFooter() {
 
   return (
     <footer className="w-full bg-white border-t-2 border-violet-600 mt-auto">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-8 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div className="max-w-[2000px] mx-auto px-4 sm:px-8 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
         <div>
           <img src="/logo_zazu.svg" alt="Zazu Express" className="h-7 w-auto mb-3" />
           <p className="text-sm text-violet-600 leading-relaxed max-w-xs">
@@ -81,7 +81,7 @@ export default function SiteFooter() {
       </div>
 
       <div className="border-t border-gray-100">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="max-w-[2000px] mx-auto px-4 sm:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-4">
             <p className="text-xs text-gray-400 mb-0">© {anio} Zazu. Todos los derechos reservados.</p>
             <button

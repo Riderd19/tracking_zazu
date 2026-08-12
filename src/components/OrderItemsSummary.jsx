@@ -21,20 +21,27 @@ function agruparArticulos(articulos) {
     // Sin "Color: X / Talla: Y" reconocible (ej. "Servicio de envío", regalos):
     // no hay nada que agrupar, se deja tal cual llegó.
     if (!match) {
-      filas.push({ nombre, talla: null, colores: [], cantidad: Number(cantidad), total })
+      filas.push({ nombre, talla: null, colores: new Map(), cantidad: Number(cantidad), total })
       continue
     }
 
     const [, color, talla] = match
+    const colorTrim = color.trim()
     const clave = `${nombre}__${talla.trim()}`
     const posicion = posicionPorClave.get(clave)
 
     if (posicion === undefined) {
       posicionPorClave.set(clave, filas.length)
-      filas.push({ nombre, talla: talla.trim(), colores: [color.trim()], cantidad: Number(cantidad), total })
+      filas.push({
+        nombre,
+        talla: talla.trim(),
+        colores: new Map([[colorTrim, Number(cantidad)]]),
+        cantidad: Number(cantidad),
+        total,
+      })
     } else {
       const fila = filas[posicion]
-      fila.colores.push(color.trim())
+      fila.colores.set(colorTrim, (fila.colores.get(colorTrim) ?? 0) + Number(cantidad))
       fila.cantidad += Number(cantidad)
       fila.total += total
     }
@@ -52,10 +59,24 @@ function Articulo({ fila }) {
         <p className="mb-0 text-sm font-semibold text-gray-900">{nombre}</p>
         <p className="mb-0 shrink-0 text-sm font-semibold text-violet-700">S/ {total.toFixed(2)}</p>
       </div>
-      <div className="mt-1 flex flex-col gap-0.5 text-xs text-gray-500">
-        <p className="mb-0">Cantidad: {cantidad}</p>
-        {colores.length > 0 && <p className="mb-0">Colores: {colores.join(', ')}</p>}
-        {talla && <p className="mb-0">Talla: {talla}</p>}
+      <div className="mt-1 flex flex-col gap-1.5 text-xs text-gray-500">
+        <p className="mb-0">
+          Cantidad: {cantidad}
+          {talla && ` · Talla: ${talla}`}
+        </p>
+        {colores.size > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {[...colores].map(([color, cant]) => (
+              <span
+                key={color}
+                className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600"
+              >
+                {color}
+                <span className="text-gray-400">×{cant}</span>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -88,7 +109,7 @@ export default function OrderItemsSummary({ pedido }) {
           {articulos.length} artículo{articulos.length === 1 ? '' : 's'}
         </span>
         <span className="flex items-center gap-1 text-xs font-medium text-violet-600">
-          {detalleAbierto ? 'Ocultar detalle' : 'Ver detalle'}
+          {detalleAbierto ? 'Detalles' : 'Ver Detalles'}
           {detalleAbierto ? <UpOutlined /> : <DownOutlined />}
         </span>
       </button>
