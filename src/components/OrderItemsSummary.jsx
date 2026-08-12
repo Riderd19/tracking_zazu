@@ -112,10 +112,10 @@ export default function OrderItemsSummary({ pedido }) {
       </button>
 
       {detalleAbierto && (
-        // Tickets reales pueden traer 10+ líneas (uno por variante/color) — con
-        // muchos artículos la tarjeta estiraba toda la página. Se cap con scroll
-        // propio en vez de recortar la lista, mismo criterio que ya usa Destino.
-        <div className="max-h-96 overflow-y-auto scrollbar-hide divide-y divide-gray-100 border-t border-gray-100">
+        // Sin límite de alto: agrupar por nombre+talla ya reduce las 10+ líneas
+        // crudas del CRM a un puñado de filas, así que cortar con scroll acá
+        // solo escondía artículos a medias. Mejor que la tarjeta crezca entera.
+        <div className="divide-y divide-gray-100 border-t border-gray-100">
           {filas.map((fila, i) => (
             <Articulo key={`${fila.nombre}-${fila.talla}-${i}`} fila={fila} />
           ))}
