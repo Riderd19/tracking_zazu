@@ -84,9 +84,14 @@ function Articulo({ fila }) {
 // `pedido.articulos` no llega, igual que Código/Guía con el courier.
 export default function OrderItemsSummary({ pedido }) {
   const [detalleAbierto, setDetalleAbierto] = useState(true)
-  const { articulos, total_pagado, metodo_pago } = pedido
+  const { articulos, total_pagado, metodo_pago, tipo_pago } = pedido
 
   if (!articulos?.length) return null
+
+  // "Pago Completo" (ver TrackingPublicController::datosPedido en el backend)
+  // significa que ya no hay nada por cobrar contra entrega — el aviso de
+  // seguridad de pago solo aplica cuando todavía va a haber un cobro.
+  const pagoCompleto = tipo_pago === 'Pago Completo'
 
   const filas = agruparArticulos(articulos)
 
@@ -134,10 +139,12 @@ export default function OrderItemsSummary({ pedido }) {
         </div>
       )}
 
-      <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
-        <SafetyCertificateOutlined className="text-emerald-500" />
-        Tus pagos están 100% seguros
-      </div>
+      {!pagoCompleto && (
+        <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
+          <SafetyCertificateOutlined className="text-emerald-500" />
+          Tus pagos están 100% seguros
+        </div>
+      )}
     </div>
   )
 }

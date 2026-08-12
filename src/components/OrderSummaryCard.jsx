@@ -82,6 +82,7 @@ export default function OrderSummaryCard({ pedido }) {
     fecha_entregado_zazu1,
     sede_entrega,
     saldo_pendiente,
+    tipo_pago,
   } = pedido
 
   // Si el pedido es de recojo en tienda, el "destino" es la sede, no la
@@ -136,9 +137,9 @@ export default function OrderSummaryCard({ pedido }) {
         {(saldo_pendiente > 0 || pedido.articulos?.length > 0) && (
           <div className="w-full sm:w-80 shrink-0 flex flex-col gap-5">
             <OrderItemsSummary pedido={pedido} />
-            {['COURIER', 'DELIVERY'].includes(tipo_envio?.toUpperCase()) && saldo_pendiente > 0 && (
-              <SaldoPendiente monto={saldo_pendiente} />
-            )}
+            {['COURIER', 'DELIVERY'].includes(tipo_envio?.toUpperCase()) &&
+              saldo_pendiente > 0 &&
+              tipo_pago !== 'Pago Completo' && <SaldoPendiente monto={saldo_pendiente} />}
           </div>
         )}
       </div>
