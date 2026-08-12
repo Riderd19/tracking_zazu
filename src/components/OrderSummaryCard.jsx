@@ -73,6 +73,8 @@ export default function OrderSummaryCard({ pedido }) {
     timeline,
     fecha_pedido,
     fecha_envio,
+    codigo_courier,
+    guia_courier,
     fecha_despacho,
     fecha_en_ruta,
     fecha_entregado_zazu1,
@@ -103,7 +105,19 @@ export default function OrderSummaryCard({ pedido }) {
         <span className="hidden lg:block w-px shrink-0 bg-gray-200 self-stretch" />
         <Campo icon={<LocationDotIcon className="w-6 h-6" />} arriba="Destino" abajo={destino} abajoSinAjuste />
         <span className="hidden lg:block w-px shrink-0 bg-gray-200 self-stretch" />
-        <Campo icon={<ClockIcon className="w-6 h-6" />} arriba="Fecha de envío" abajo={fecha_envio ?? 'No disponible'} />
+        <div className="flex min-w-0 flex-col gap-2">
+          <Campo icon={<ClockIcon className="w-6 h-6" />} arriba="Fecha de envío" abajo={fecha_envio ?? 'No disponible'} />
+          {(codigo_courier || guia_courier) && (
+            <div className="ml-14 flex min-w-0 gap-x-4 text-xs leading-4 text-gray-700">
+              {codigo_courier && (
+                <p className="mb-0 whitespace-nowrap"><span className="font-medium">Código:</span> {codigo_courier}</p>
+              )}
+              {guia_courier && (
+                <p className="mb-0 whitespace-nowrap"><span className="font-medium">Guía:</span> {guia_courier}</p>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="mt-10 flex flex-col sm:flex-row gap-5">
