@@ -1,18 +1,15 @@
 import OrderSummaryCard from './OrderSummaryCard'
 import DriverCard from './DriverCard'
 import DeliveryMap from './DeliveryMap'
-import DeliveredCard from './DeliveredCard'
 
 // El repartidor y el mapa solo tienen sentido cuando ya hay alguien en camino
 // Y el pedido trae un motorizado asignado (ver TrackingPublicController::mapMotorizado).
 // Antes de "En Ruta", o si por algún motivo no hay match de motorizado, mostrarlos
 // sería engañoso.
 const CODIGO_EN_RUTA = 'en_ruta'
-const CODIGO_ENTREGADO = 'entregado'
 
 export default function OrderResult({ pedido }) {
   const enRuta = pedido.estado_actual?.codigo === CODIGO_EN_RUTA && pedido.motorizado
-  const entregado = pedido.estado_actual?.codigo === CODIGO_ENTREGADO
 
   return (
     <div className="w-full flex flex-col gap-5 animate-fade-in-up">
@@ -35,8 +32,6 @@ export default function OrderResult({ pedido }) {
           />
         </div>
       )}
-
-      {entregado && <DeliveredCard pedido={pedido} />}
     </div>
   )
 }

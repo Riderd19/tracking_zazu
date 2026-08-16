@@ -28,7 +28,7 @@ export default function SiteFooter() {
   const anio = new Date().getFullYear()
 
   return (
-    <footer className="w-full bg-white border-t-2 border-violet-600 mt-auto">
+    <footer className="w-full bg-white border-t border-gray-100 shadow-[0_-8px_16px_-12px_rgba(15,23,42,0.12)] mt-auto">
       <div className="max-w-[2000px] mx-auto px-4 sm:px-8 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
         <div>
           <img src="/logo_zazu.svg" alt="Zazu Express" className="h-7 w-auto mb-3" />
