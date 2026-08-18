@@ -21,6 +21,7 @@ function fechaEntrega(pedido) {
 export default function DeliveredCard({ pedido }) {
   const [detalleAbierto, setDetalleAbierto] = useState(false)
   const fecha = formatearFecha(fechaEntrega(pedido))
+  const esCourier = pedido.tipo_envio?.toUpperCase() === 'COURIER'
   const lugarCompleto = pedido.sede_entrega?.nombre
     ?? pedido.sede_entrega?.direccion
     ?? pedido.destinatario_direccion
@@ -43,17 +44,19 @@ export default function DeliveredCard({ pedido }) {
           </p>
 
           <div className="divide-y divide-gray-100 border-y border-gray-100">
-            <div className="flex items-start gap-3 py-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-50 text-violet-700">
-                <FileTextOutlined />
-              </span>
-              <div>
-                <p className="mb-0.5 text-xs font-medium text-gray-400">Código</p>
-                <p className="mb-0 text-xs font-semibold text-gray-700">
-                  {pedido.codigo_courier || 'No Disponible'}
-                </p>
+            {esCourier && (
+              <div className="flex items-start gap-3 py-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-50 text-violet-700">
+                  <FileTextOutlined />
+                </span>
+                <div>
+                  <p className="mb-0.5 text-xs font-medium text-gray-400">Código</p>
+                  <p className="mb-0 text-xs font-semibold text-gray-700">
+                    {pedido.codigo_courier || 'No Disponible'}
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex items-start gap-3 py-3">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-50 text-violet-700">

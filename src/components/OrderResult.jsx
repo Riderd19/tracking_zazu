@@ -1,6 +1,8 @@
 import OrderSummaryCard from './OrderSummaryCard'
 import DriverCard from './DriverCard'
 import DeliveryMap from './DeliveryMap'
+import OrderItemsSummary from './OrderItemsSummary'
+import SaldoPendiente from './SaldoPendiente'
 
 // El repartidor y el mapa solo tienen sentido cuando ya hay alguien en camino
 // Y el pedido trae un motorizado asignado (ver TrackingPublicController::mapMotorizado).
@@ -10,6 +12,9 @@ const CODIGO_EN_RUTA = 'en_ruta'
 
 export default function OrderResult({ pedido }) {
   const enRuta = pedido.estado_actual?.codigo === CODIGO_EN_RUTA && pedido.motorizado
+  // Mismo criterio que OrderSummaryCard para el courier en ruta: sin artículos
+  // ni saldo pendiente, la columna de resumen no tiene nada que mostrar.
+  const hayResumen = pedido.saldo_pendiente > 0 || pedido.articulos?.length > 0
 
   return (
     <div className="w-full flex flex-col gap-5 animate-fade-in-up">
@@ -23,13 +28,27 @@ export default function OrderResult({ pedido }) {
       <OrderSummaryCard pedido={pedido} />
 
       {enRuta && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <DriverCard motorizado={pedido.motorizado} className="lg:col-span-1" />
+        <div
+          className={
+            hayResumen
+              ? 'grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(280px,360px)_minmax(360px,1fr)_minmax(260px,320px)]'
+              : 'grid grid-cols-1 gap-5 lg:grid-cols-3'
+          }
+        >
+          <DriverCard motorizado={pedido.motorizado} className={hayResumen ? '' : 'lg:col-span-1'} />
           <DeliveryMap
             motorizado={pedido.motorizado}
             destino={pedido.destino_coordenadas}
-            className="lg:col-span-2"
+            className={hayResumen ? '' : 'lg:col-span-2'}
           />
+          {hayResumen && (
+            <div className="flex flex-col gap-5">
+              <OrderItemsSummary pedido={pedido} compactoConModal />
+              {pedido.saldo_pendiente > 0 && pedido.tipo_pago !== 'Pago Completo' && (
+                <SaldoPendiente monto={pedido.saldo_pendiente} />
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

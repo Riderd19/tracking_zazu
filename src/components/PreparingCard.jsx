@@ -24,10 +24,13 @@ export default function PreparingCard({ pedido, lugar, className = "" }) {
       descripcion="Estamos organizando y validando tu pedido para dejarlo listo para el envío."
       campos={[
         { label: "Pedido", valor: codigo },
-        { label: "Código", valor: pedido.codigo_courier || "No Disponible" },
+        tipoEnvio?.toUpperCase() === "COURIER" && {
+          label: "Código",
+          valor: pedido.codigo_courier || "No Disponible",
+        },
         { label: "Tipo de entrega", valor: tipoEntrega(tipoEnvio, lugar) },
         { label: "Próximo paso", valor: "En ruta" },
-      ]}
+      ].filter(Boolean)}
     />
   );
 }
