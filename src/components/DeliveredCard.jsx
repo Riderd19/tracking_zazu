@@ -3,6 +3,7 @@ import {
   CheckCircleFilled,
   EnvironmentFilled,
   EyeOutlined,
+  FileTextOutlined,
   WhatsAppOutlined,
 } from '@ant-design/icons'
 import { Button, Modal } from 'antd'
@@ -42,6 +43,18 @@ export default function DeliveredCard({ pedido }) {
           </p>
 
           <div className="divide-y divide-gray-100 border-y border-gray-100">
+            <div className="flex items-start gap-3 py-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-50 text-violet-700">
+                <FileTextOutlined />
+              </span>
+              <div>
+                <p className="mb-0.5 text-xs font-medium text-gray-400">Código</p>
+                <p className="mb-0 text-xs font-semibold text-gray-700">
+                  {pedido.codigo_courier || 'No Disponible'}
+                </p>
+              </div>
+            </div>
+
             <div className="flex items-start gap-3 py-3">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-50 text-violet-700">
                 <EnvironmentFilled />

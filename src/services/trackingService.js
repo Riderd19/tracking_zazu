@@ -1,4 +1,9 @@
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000/api'
+import {
+  CODIGO_PEDIDO_ANULADO_DEMO,
+  IDENTIFICADOR_PEDIDO_ANULADO_DEMO,
+  PEDIDO_ANULADO_DEMO,
+} from '../constants/pedidoAnuladoDemo'
 
 export class TrackingNoEncontradoError extends Error {}
 export class TrackingRateLimitError extends Error {}
@@ -7,6 +12,14 @@ export class TrackingValidacionError extends Error {}
 // Llama al endpoint público de tracking. Lanza un error tipado según el
 // código HTTP para que la UI pueda mostrar un mensaje distinto en cada caso.
 export async function buscarPedido(codigo, verificacion) {
+  if (
+    import.meta.env.DEV &&
+    codigo === CODIGO_PEDIDO_ANULADO_DEMO &&
+    verificacion === IDENTIFICADOR_PEDIDO_ANULADO_DEMO
+  ) {
+    return PEDIDO_ANULADO_DEMO
+  }
+
   const response = await fetch(`${API_URL}/public/tracking`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -40,13 +53,23 @@ export async function buscarPedido(codigo, verificacion) {
 // Empresas activas para poblar el selector del formulario (ver
 // TrackingPublicController::empresas en el backend).
 export async function listarEmpresas() {
-  const response = await fetch(`${API_URL}/public/empresas`, {
-    headers: { Accept: 'application/json' },
-  })
+  const empresaDemo = { label: 'Demo Zazu', value: 'DEMO' }
+  let response
+
+  try {
+    response = await fetch(`${API_URL}/public/empresas`, {
+      headers: { Accept: 'application/json' },
+    })
+  } catch (error) {
+    if (import.meta.env.DEV) return [empresaDemo]
+    throw error
+  }
 
   if (!response.ok) {
+    if (import.meta.env.DEV) return [empresaDemo]
     throw new Error('No se pudo cargar el listado de empresas.')
   }
 
-  return response.json()
+  const empresas = await response.json()
+  return import.meta.env.DEV ? [empresaDemo, ...empresas] : empresas
 }

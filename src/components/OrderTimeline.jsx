@@ -29,6 +29,15 @@ const RESULTADOS_FINALES = {
 };
 
 function construirHitos(estadoActual) {
+  if (estadoActual?.codigo === "cancelado") {
+    return [
+      { label: "Pedido registrado", codigos: EN_GESTION },
+      { label: "Preparando pedido", codigos: ["despachado"] },
+      { label: "En ruta", codigos: ["en_ruta", "enviado"] },
+      { label: "Pedido anulado", codigos: ["cancelado"] },
+    ];
+  }
+
   const resultado =
     RESULTADOS_FINALES[estadoActual?.codigo] ?? RESULTADOS_FINALES.entregado;
 
@@ -59,11 +68,6 @@ function construirHitos(estadoActual) {
 // Estados que quedan totalmente fuera del camino feliz: mostrarlos dentro de
 // la barra de pasos daría a entender un avance de ruta que no ocurrió.
 const ESTADOS_ESPECIALES = {
-  cancelado: {
-    texto: "Pedido cancelado",
-    color: "#ef4444",
-    icon: <CloseCircleOutlined />,
-  },
   rechazado_portal: {
     texto: "Solicitud rechazada",
     color: "#ef4444",
@@ -103,6 +107,7 @@ export default function OrderTimeline({
   fechaEnRuta,
   fechaEntregado,
 }) {
+  const esCancelado = estadoActual?.codigo === "cancelado";
   const especial = estadoActual
     ? ESTADOS_ESPECIALES[estadoActual.codigo]
     : null;
@@ -124,7 +129,9 @@ export default function OrderTimeline({
   }
 
   const hitos = construirHitos(estadoActual);
-  const indiceActual = estadoActual
+  const indiceActual = esCancelado
+    ? hitos.length - 1
+    : estadoActual
     ? indiceHito(hitos, estadoActual.codigo)
     : -1;
 
@@ -144,12 +151,17 @@ export default function OrderTimeline({
     <div className="w-full overflow-x-auto overflow-y-visible">
       <div className="flex items-start">
         {hitos.map((hito, i) => {
+          const esPasoCancelado = esCancelado && i === hitos.length - 1;
           // El último hito (Entregado/Devuelto/Reprogramado) no tiene "siguiente"
           // paso — al llegar ahí ya está completo, no "en curso", así que se
           // pinta relleno igual que los pasos anteriores en vez de con el
           // círculo blanco pulsante que usan los estados intermedios.
           const esUltimoHito = i === hitos.length - 1;
-          const estado =
+          const estado = esCancelado
+            ? esPasoCancelado
+              ? "cancelado"
+              : "completado"
+            :
             i < indiceActual || (i === indiceActual && esUltimoHito)
               ? "completado"
               : i === indiceActual
@@ -170,7 +182,8 @@ export default function OrderTimeline({
             fechaEntregado,
           ];
           const fecha = formatearFecha(
-            fechasPorPaso[i] ?? fechaParaHito(hito, timeline),
+            (esPasoCancelado ? null : fechasPorPaso[i]) ??
+              fechaParaHito(hito, timeline),
           );
 
           // Colores calcados del inspector de Figma (Dev Mode): línea/círculo
@@ -191,7 +204,16 @@ export default function OrderTimeline({
                     right: "50%",
                     width: "100%",
                     backgroundColor:
-                      estado === "pendiente" ? "#F3F4F6" : "#560591",
+                      estado === "pendiente"
+                        ? "#F3F4F6"
+                        : estado === "cancelado"
+                          ? "transparent"
+                          : "#560591",
+                    ...(estado === "cancelado" && {
+                      backgroundImage:
+                        "linear-gradient(to right, #ef2b2d 55%, transparent 55%)",
+                      backgroundSize: "8px 4px",
+                    }),
                   }}
                 />
               )}
@@ -213,10 +235,14 @@ export default function OrderTimeline({
                           color: "#560591",
                           border: "2px solid #330753",
                         }
-                      : { backgroundColor: "#5C009C", color: "#fff" }),
+                      : estado === "cancelado"
+                        ? { backgroundColor: "#ef2b2d", color: "#fff" }
+                        : { backgroundColor: "#5C009C", color: "#fff" }),
                 }}
               >
-                {estado === "completado" ? (
+                {estado === "cancelado" ? (
+                  <CloseCircleOutlined />
+                ) : estado === "completado" ? (
                   <CheckOutlined />
                 ) : estado === "actual" ? (
                   hito.icon

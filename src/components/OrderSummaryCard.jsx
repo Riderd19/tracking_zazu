@@ -2,7 +2,6 @@ import { InboxOutlined } from "@ant-design/icons";
 import ClockIcon from "./icons/ClockIcon";
 import LocationDotIcon from "./icons/LocationDotIcon";
 import BuildingIcon from "./icons/BuildingIcon";
-import FileLinesIcon from "./icons/FileLinesIcon";
 import OrderTimeline from "./OrderTimeline";
 import { EN_GESTION } from "../constants/estadosPedido";
 import SaldoPendiente from "./SaldoPendiente";
@@ -12,6 +11,7 @@ import CourierTrackingCard from "./CourierTrackingCard";
 import AgencyMap from "./AgencyMap";
 import PreparingCard from "./PreparingCard";
 import RegisteredCard from "./RegisteredCard";
+import CancelledCard from "./CancelledCard";
 
 // Bloque ícono + 2 líneas de texto. `enfasisArriba` decide cuál línea va en
 // negrita: el primer campo (Pedido/Cliente) destaca el código arriba, los
@@ -98,7 +98,6 @@ export default function OrderSummaryCard({ pedido }) {
     timeline,
     fecha_pedido,
     fecha_envio,
-    codigo_courier,
     fecha_despacho,
     fecha_en_ruta,
     fecha_entregado_zazu1,
@@ -115,6 +114,7 @@ export default function OrderSummaryCard({ pedido }) {
   const destino = quitarPlusCode(destinoCompleto);
   const esCourier = tipo_envio?.toUpperCase() === "COURIER";
   const entregado = estado_actual?.codigo === "entregado";
+  const cancelado = estado_actual?.codigo === "cancelado";
   // Courier en ruta: el paquete está en manos de un courier externo (Shalom,
   // etc.), no de un motorizado propio — ver CourierTrackingCard/AgencyMap.
   const courierEnRuta = esCourier && estado_actual?.codigo === "en_ruta";
@@ -177,18 +177,9 @@ export default function OrderSummaryCard({ pedido }) {
           abajo={fecha_envio ?? "Pendiente"}
           abajoSinAjuste
         />
-        {esCourier && (
-          <>
-            <span className="hidden 2xl:block w-px shrink-0 bg-gray-200 self-stretch" />
-            <Campo
-              icon={<FileLinesIcon className="w-5 h-6" />}
-              arriba={`Código: ${codigo_courier || "Pendiente"}`}
-            />
-          </>
-        )}
       </div>
 
-      {courierEnRuta || tarjetaEstado ? (
+      {courierEnRuta || tarjetaEstado || cancelado ? (
         // Courier en ruta / Preparando Pedido / Pedido Registrado: tarjeta de estado, mapa
         // o imagen, y resumen van en una sola fila de 3 columnas (igual
         // altura de inicio) — a diferencia del layout de abajo, acá el
@@ -208,7 +199,18 @@ export default function OrderSummaryCard({ pedido }) {
               Gestión" y "Entregado" quedan a 1/8 del ancho total desde cada
               borde, no pegados al borde. Este mismo inset alinea el borde de
               las tarjetas con esos círculos en vez de con el contenedor. */}
-          {courierEnRuta ? (
+          {cancelado ? (
+            <div className="grid grid-cols-1 items-center gap-6 md:grid-cols-[minmax(300px,390px)_minmax(440px,680px)] md:px-[3%] lg:justify-center lg:gap-12">
+              <CancelledCard pedido={pedido} />
+              <div className="h-72 w-full md:h-105 lg:h-115">
+                <img
+                  src="/images/pedido-anulado-zazu.png"
+                  alt="Repartidor de Zazu junto a un teléfono que indica pedido anulado"
+                  className="h-full w-full object-contain object-center"
+                />
+              </div>
+            </div>
+          ) : courierEnRuta ? (
             <div
               className={
                 hayResumen

@@ -22,14 +22,14 @@ function Fila({ label, valor, destacado = false }) {
 // externo (Shalom, etc.), no de un motorizado propio de Zazu — por eso no
 // hay DriverCard/DeliveryMap acá, sino esta tarjeta con los datos de
 // seguimiento que sí expone el tracking público (guía/agencia/estado). El
-// código/clave del courier ya se muestra arriba, en la barra de info
-// (OrderSummaryCard) — no se repite acá.
+// El código/clave del courier se muestra dentro de esta tarjeta, igual que en
+// las tarjetas de los demás estados, y no en la barra de información superior.
 // `lugar` es el mismo string ya usado para "Destino" en OrderSummaryCard
 // (agencia - sucursal - ubicación), del que se derivan agencia/sucursal acá
 // para no repetir el parseo. El botón "Rastrear en X" varía según la
 // agencia (ver courierTracking.js) y se omite si no hay URL conocida.
 export default function CourierTrackingCard({ pedido, lugar, className = '' }) {
-  const { guia_courier: guia, estado_actual: estadoActual } = pedido
+  const { codigo_courier: codigo, guia_courier: guia, estado_actual: estadoActual } = pedido
   const agencia = agenciaBase(lugar) || 'el courier'
   const sucursal = nombreYAgencia(lugar)
   const urlRastreo = urlRastreoAgencia(agencia)
@@ -47,6 +47,7 @@ export default function CourierTrackingCard({ pedido, lugar, className = '' }) {
       </p>
 
       <div className="divide-y divide-gray-100 border-y border-gray-100">
+        <Fila label="Código" valor={codigo || 'No Disponible'} />
         <Fila label="Guía" valor={guia || 'Pendiente'} />
         <Fila label="Agencia" valor={sucursal || 'Pendiente'} />
         <Fila label={`Estado en ${agencia}`} valor={estadoActual?.nombre ?? 'Pendiente'} destacado />

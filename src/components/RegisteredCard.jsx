@@ -20,6 +20,7 @@ export default function RegisteredCard({ pedido, lugar, className = "" }) {
       descripcion="En breve comenzaremos a preparar tu pedido para su entrega."
       campos={[
         { label: "Pedido", valor: codigo },
+        { label: "Código", valor: pedido.codigo_courier || "No Disponible" },
         { label: "Tipo de entrega", valor: tipoEntrega(tipoEnvio, lugar) },
         { label: "Próximo paso", valor: "Preparando pedido" },
       ]}
