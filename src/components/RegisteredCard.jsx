@@ -24,6 +24,10 @@ export default function RegisteredCard({ pedido, lugar, className = "" }) {
           label: "Código",
           valor: pedido.codigo_courier || "No Disponible",
         },
+        tipoEnvio?.toUpperCase() === "COURIER" && {
+          label: "Guía",
+          valor: pedido.guia_courier || "Pendiente",
+        },
         { label: "Tipo de entrega", valor: tipoEntrega(tipoEnvio, lugar) },
         { label: "Próximo paso", valor: "Preparando pedido" },
       ].filter(Boolean)}
