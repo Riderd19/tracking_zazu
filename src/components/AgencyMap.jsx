@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { GoogleMap, Marker } from '@react-google-maps/api'
 import { useGoogleMaps } from '../contexts/GoogleMapsContext'
 import AgencyMapIlustrativo from './AgencyMapIlustrativo'
@@ -9,6 +9,32 @@ const MAP_OPTIONS = {
   disableDefaultUI: true,
   zoomControl: true,
   clickableIcons: false,
+}
+
+// Cache en memoria (dura lo que dura la pestaña) para no volver a geocodificar
+// la misma dirección si el componente se re-renderiza. No reemplaza cachear
+// esto en el backend junto a la agencia — eso evitaría el round-trip y el
+// consumo de cuota de Geocoding API en cada visita de cada usuario, esto solo
+// evita repetirlo dentro de la misma sesión.
+const cacheGeocodificacion = new Map()
+
+// Arma un string geocodificable a partir de "agencia - sucursal/dirección -
+// departamento/provincia/distrito" (ver segmentosAgencia). Se invierte el
+// tercer segmento (dept/prov/distrito -> distrito, prov, dept) porque así es
+// como se escriben las direcciones para el geocoder, de más específico a más
+// general.
+function direccionParaGeocodificar(lugar) {
+  const segmentos = segmentosAgencia(lugar)
+  if (segmentos.length < 2) return null
+  const calle = segmentos[1]
+  const ubicacionPolitica = segmentos[2]
+    ? segmentos[2]
+        .split('/')
+        .map((s) => s.trim())
+        .reverse()
+        .join(', ')
+    : ''
+  return [calle, ubicacionPolitica, 'Perú'].filter(Boolean).join(', ')
 }
 
 // Mapa de la agencia de destino (pedidos COURIER en ruta) — a diferencia de
@@ -23,12 +49,48 @@ export default function AgencyMap({ coordenadas, lugar, className = '' }) {
   const mapRef = useRef(null)
   const titulo = nombreYAgencia(lugar)
   const subtitulo = segmentosAgencia(lugar)[2] ?? null
+  // Lazy init: si ya geocodificamos esta dirección antes en la sesión, se lee
+  // del cache en el primer render en vez de disparar un efecto solo para eso.
+  const [coordenadasGeocodificadas, setCoordenadasGeocodificadas] = useState(() => {
+    if (coordenadas) return null
+    const direccion = direccionParaGeocodificar(lugar)
+    return direccion ? (cacheGeocodificacion.get(direccion) ?? null) : null
+  })
+
+  // Solo se dispara cuando el backend no trajo coordenadas y no había cache —
+  // la agencia no está geocodificada ahí todavía. Resuelve la dirección de
+  // texto (siempre presente) a lat/lng en el cliente para no depender de esa
+  // carga previa.
+  useEffect(() => {
+    if (coordenadas || coordenadasGeocodificadas || !isLoaded || loadError) return
+
+    const direccion = direccionParaGeocodificar(lugar)
+    if (!direccion) return
+
+    let cancelado = false
+    new window.google.maps.Geocoder().geocode(
+      { address: direccion, region: 'pe' },
+      (resultados, status) => {
+        if (cancelado || status !== 'OK' || !resultados?.[0]) return
+        const punto = resultados[0].geometry.location
+        const resuelto = { lat: punto.lat(), lng: punto.lng() }
+        cacheGeocodificacion.set(direccion, resuelto)
+        setCoordenadasGeocodificadas(resuelto)
+      },
+    )
+
+    return () => {
+      cancelado = true
+    }
+  }, [coordenadas, coordenadasGeocodificadas, lugar, isLoaded, loadError])
+
+  const coordenadasFinal = coordenadas ?? coordenadasGeocodificadas
 
   const onLoad = useCallback((map) => {
     mapRef.current = map
   }, [])
 
-  if (!coordenadas || !isLoaded || loadError) {
+  if (!coordenadasFinal || !isLoaded || loadError) {
     return <AgencyMapIlustrativo titulo={titulo} subtitulo={subtitulo} className={className} />
   }
 
@@ -57,12 +119,12 @@ export default function AgencyMap({ coordenadas, lugar, className = '' }) {
     >
       <GoogleMap
         mapContainerStyle={{ width: '100%', height: '100%' }}
-        center={coordenadas}
+        center={coordenadasFinal}
         zoom={17}
         options={MAP_OPTIONS}
         onLoad={onLoad}
       >
-        <Marker position={coordenadas} icon={icon} title={titulo} />
+        <Marker position={coordenadasFinal} icon={icon} title={titulo} />
       </GoogleMap>
 
       {/* Globo tipo Google Maps info window: centrado sobre el pin (que

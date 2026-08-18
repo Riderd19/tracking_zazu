@@ -1,0 +1,77 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - img "Zazu Express"
+  - generic [ref=e7]:
+    - heading "Rastrea tu pedido" [level=1] [ref=e16]
+    - paragraph [ref=e17]: Ingresa tu número de pedido y tu DNI o celular para consultar el estado y la ubicación de tu pedido en tiempo real.
+    - generic [ref=e19]:
+      - generic [ref=e21]:
+        - generic "N° de pedido" [ref=e23]
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - combobox [ref=e30]
+            - img "loading" [ref=e32]
+          - generic [ref=e35]:
+            - img "inbox" [ref=e37]
+            - textbox "Ej. 000908" [ref=e40]
+      - generic [ref=e42]:
+        - generic "DNI o celular" [ref=e44]
+        - generic [ref=e48]:
+          - img "lock" [ref=e50]
+          - textbox "DNI o celular" [ref=e53]:
+            - /placeholder: Ej. 987654321
+      - button "search Rastrear pedido" [ref=e59] [cursor=pointer]:
+        - img "search" [ref=e61]
+        - generic [ref=e64]: Rastrear pedido
+      - paragraph [ref=e65]: Tus datos solo se usan para verificar la propiedad del pedido.
+    - generic [ref=e66]:
+      - paragraph [ref=e67]: ¿Tienes problemas para rastrear tu pedido?
+      - paragraph [ref=e68]: Contáctanos por WhatsApp y te ayudaremos a encontrar tu pedido.
+      - link [ref=e69] [cursor=pointer]:
+        - /url: https://wa.me/51918152385
+        - img "whats-app" [ref=e70]
+        - text: Contactar por WhatsApp
+  - contentinfo [ref=e74]:
+    - generic [ref=e75]:
+      - generic [ref=e76]:
+        - img "Zazu Express"
+        - paragraph [ref=e77]: Soluciones inteligentes para una operación de transporte más eficiente.
+      - generic [ref=e78]:
+        - paragraph [ref=e79]: Navegación
+        - list [ref=e80]:
+          - listitem [ref=e81]: Inicio
+          - listitem [ref=e82]: Servicios
+          - listitem [ref=e83]: Nosotros
+      - generic [ref=e84]:
+        - paragraph [ref=e85]: Servicios
+        - list [ref=e86]:
+          - listitem [ref=e87]: Ruteo inteligente
+          - listitem [ref=e88]: Recepción gratuita
+          - listitem [ref=e89]: Recaudación en tiempo real
+          - listitem [ref=e90]: Choferes certificados
+      - generic [ref=e91]:
+        - paragraph [ref=e92]: Contacto
+        - paragraph [ref=e93]: ¿Necesitas ayuda?
+        - link [ref=e94] [cursor=pointer]:
+          - /url: https://wa.me/51918152385
+          - img "whats-app" [ref=e95]
+          - text: Escríbenos por WhatsApp
+        - list [ref=e99]:
+          - listitem [ref=e100]:
+            - img "check" [ref=e101]
+            - text: Cobertura creciente
+          - listitem [ref=e104]:
+            - img "check" [ref=e105]
+            - text: Soporte en tiempo real
+          - listitem [ref=e108]:
+            - img "check" [ref=e109]
+            - text: Tecnología propia
+    - generic [ref=e113]:
+      - generic [ref=e114]:
+        - paragraph [ref=e115]: © 2026 Zazu. Todos los derechos reservados.
+        - button "Libro de Reclamaciones" [ref=e116]
+      - generic [ref=e117]:
+        - img "facebook" [ref=e118]
+        - img "instagram" [ref=e123]
+        - img "whats-app" [ref=e126]
