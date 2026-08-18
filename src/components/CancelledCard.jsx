@@ -1,8 +1,6 @@
 import {
   CloseCircleFilled,
-  CreditCardOutlined,
   FileTextOutlined,
-  InfoCircleFilled,
   SyncOutlined,
 } from "@ant-design/icons";
 import { formatearFecha } from "../utils/fecha";
@@ -46,17 +44,6 @@ export default function CancelledCard({ pedido }) {
     ["fecha_cancelacion", "fecha_anulacion"],
     eventoCancelado?.fecha,
   );
-  const motivo = dato(
-    pedido,
-    ["motivo_cancelacion", "motivo_anulacion", "motivo"],
-    "Solicitud del cliente",
-  );
-  const reembolso = dato(
-    pedido,
-    ["estado_reembolso", "reembolso"],
-    "En proceso",
-  );
-
   return (
     <article className="w-full rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
       <div className="mb-3 inline-flex items-center gap-2 rounded-md border border-red-400 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600">
@@ -79,11 +66,6 @@ export default function CancelledCard({ pedido }) {
 
       <div className="divide-y divide-gray-100 border-y border-gray-200">
         <Fila
-          icono={<InfoCircleFilled />}
-          label="Motivo"
-          valor={motivo}
-        />
-        <Fila
           icono={<FileTextOutlined />}
           label="Código"
           valor={pedido.codigo_courier || "No Disponible"}
@@ -98,11 +80,6 @@ export default function CancelledCard({ pedido }) {
           label="Estado actual"
           valor="Anulado"
           destacado
-        />
-        <Fila
-          icono={<CreditCardOutlined />}
-          label="Reembolso"
-          valor={reembolso}
         />
       </div>
 
