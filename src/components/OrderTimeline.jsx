@@ -8,6 +8,7 @@ import {
   CalendarOutlined,
 } from "@ant-design/icons";
 import TruckFastIcon from "./icons/TruckFastIcon";
+import MotorcycleIcon from "./icons/MotorcycleIcon";
 import { EN_GESTION } from "../constants/estadosPedido";
 
 // Pipeline que ve el cliente: 4 pasos. El código que llega en `estadoActual`
@@ -28,7 +29,7 @@ const RESULTADOS_FINALES = {
   reprogramado: { label: "Reprogramado", icon: <CalendarOutlined /> },
 };
 
-function construirHitos(estadoActual) {
+function construirHitos(estadoActual, tipoEnvio) {
   if (estadoActual?.codigo === "cancelado") {
     return [
       { label: "Pedido registrado", codigos: EN_GESTION },
@@ -40,6 +41,15 @@ function construirHitos(estadoActual) {
 
   const resultado =
     RESULTADOS_FINALES[estadoActual?.codigo] ?? RESULTADOS_FINALES.entregado;
+  // DELIVERY va en motorizado propio; COURIER y el resto de tipos, en
+  // vehículo del courier externo — mismo criterio que el resto del tracking
+  // (ver esCourier en OrderSummaryCard) para elegir el ícono de "En ruta".
+  const iconoEnRuta =
+    tipoEnvio?.toUpperCase() === "DELIVERY" ? (
+      <MotorcycleIcon className="h-6 w-6" />
+    ) : (
+      <TruckFastIcon className="h-6 w-6" />
+    );
 
   return [
     {
@@ -55,7 +65,7 @@ function construirHitos(estadoActual) {
     {
       label: "En ruta",
       codigos: ["en_ruta", "enviado"],
-      icon: <TruckFastIcon className="h-6 w-6" />,
+      icon: iconoEnRuta,
     },
     {
       label: resultado.label,
@@ -106,6 +116,7 @@ export default function OrderTimeline({
   fechaDespacho,
   fechaEnRuta,
   fechaEntregado,
+  tipoEnvio,
 }) {
   const esCancelado = estadoActual?.codigo === "cancelado";
   const especial = estadoActual
@@ -128,7 +139,7 @@ export default function OrderTimeline({
     );
   }
 
-  const hitos = construirHitos(estadoActual);
+  const hitos = construirHitos(estadoActual, tipoEnvio);
   const indiceActual = esCancelado
     ? hitos.length - 1
     : estadoActual

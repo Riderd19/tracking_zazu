@@ -1,17 +1,20 @@
 import OrderSummaryCard from './OrderSummaryCard'
-import DriverCard from './DriverCard'
 import DeliveryMap from './DeliveryMap'
 import OrderItemsSummary from './OrderItemsSummary'
 import SaldoPendiente from './SaldoPendiente'
 
-// El repartidor y el mapa solo tienen sentido cuando ya hay alguien en camino
-// Y el pedido trae un motorizado asignado (ver TrackingPublicController::mapMotorizado).
-// Antes de "En Ruta", o si por algún motivo no hay match de motorizado, mostrarlos
-// sería engañoso.
+// El mapa de destino solo tiene sentido cuando el pedido ya está en camino —
+// antes de "En Ruta" mostrarlo sería engañoso. Sin tarjeta de motorizado: hoy
+// no hay GPS en vivo, así que solo se ubica el punto de entrega (ver
+// DeliveryMap) junto al resumen del pedido. Solo aplica a DELIVERY (motorizado
+// propio) — COURIER en ruta ya tiene su propia tarjeta + mapa de agencia en
+// OrderSummaryCard (ver courierEnRuta ahí), este bloque no debe duplicarlo.
 const CODIGO_EN_RUTA = 'en_ruta'
 
 export default function OrderResult({ pedido }) {
-  const enRuta = pedido.estado_actual?.codigo === CODIGO_EN_RUTA && pedido.motorizado
+  const enRuta =
+    pedido.estado_actual?.codigo === CODIGO_EN_RUTA &&
+    pedido.tipo_envio?.toUpperCase() === 'DELIVERY'
   // Mismo criterio que OrderSummaryCard para el courier en ruta: sin artículos
   // ni saldo pendiente, la columna de resumen no tiene nada que mostrar.
   const hayResumen = pedido.saldo_pendiente > 0 || pedido.articulos?.length > 0
@@ -31,16 +34,11 @@ export default function OrderResult({ pedido }) {
         <div
           className={
             hayResumen
-              ? 'grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(280px,360px)_minmax(360px,1fr)_minmax(260px,320px)]'
-              : 'grid grid-cols-1 gap-5 lg:grid-cols-3'
+              ? 'grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(360px,1fr)_minmax(260px,320px)]'
+              : 'grid grid-cols-1 gap-5'
           }
         >
-          <DriverCard motorizado={pedido.motorizado} className={hayResumen ? '' : 'lg:col-span-1'} />
-          <DeliveryMap
-            motorizado={pedido.motorizado}
-            destino={pedido.destino_coordenadas}
-            className={hayResumen ? '' : 'lg:col-span-2'}
-          />
+          <DeliveryMap destino={pedido.destino_coordenadas} className="lg:h-105" />
           {hayResumen && (
             <div className="flex flex-col gap-5">
               <OrderItemsSummary pedido={pedido} compactoConModal />

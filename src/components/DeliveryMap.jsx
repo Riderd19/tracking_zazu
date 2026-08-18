@@ -10,12 +10,11 @@ const MAP_OPTIONS = {
   clickableIcons: false,
 };
 
-// Mapa real con el pin fijo de destino — no hay GPS en vivo del motorizado
-// todavía, así que no se traza ruta ni se dibuja un ícono que "se mueve"; solo
-// se ubica el punto de entrega con las coordenadas del pedido
-// (destino_coordenadas). Se cae al mapa ilustrativo si no hay esas
+// Mapa real con el pin fijo de destino — sin datos de motorizado (ni GPS en
+// vivo ni su tarjeta), solo se ubica el punto de entrega con las coordenadas
+// del pedido (destino_coordenadas). Se cae al mapa ilustrativo si no hay esas
 // coordenadas o si el script de Google Maps no cargó.
-export default function DeliveryMap({ motorizado, destino, className = "" }) {
+export default function DeliveryMap({ destino, className = "" }) {
   const { isLoaded, loadError } = useGoogleMaps();
   const mapRef = useRef(null);
 
@@ -24,9 +23,7 @@ export default function DeliveryMap({ motorizado, destino, className = "" }) {
   }, []);
 
   if (!destino || !isLoaded || loadError) {
-    return (
-      <DeliveryMapIlustrativo motorizado={motorizado} className={className} />
-    );
+    return <DeliveryMapIlustrativo className={className} />;
   }
 
   // Mismo círculo violeta con marca Zazu que el resto de los mapas, con el
@@ -60,15 +57,6 @@ export default function DeliveryMap({ motorizado, destino, className = "" }) {
       >
         <Marker position={destino} icon={destinoIcon} title="Destino" />
       </GoogleMap>
-
-      <div className="absolute left-3 bottom-3 w-52 rounded-xl bg-white shadow-lg px-3 py-2.5 animate-fade-in-up">
-        <p className="text-xs font-semibold text-gray-900 mb-1">
-          Motorizado: {motorizado.nombre.split(" ")[0]}
-        </p>
-        <p className="text-[11px] text-gray-500 mb-0">
-          Llegada aprox.: {motorizado.hora_llegada_estimada ?? "no disponible"}
-        </p>
-      </div>
     </div>
   );
 }

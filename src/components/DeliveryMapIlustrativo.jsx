@@ -1,19 +1,9 @@
-import MotorcycleIcon from './icons/MotorcycleIcon'
 import HomeIcon from './icons/HomeIcon'
 
-// Rotación fija para que el ícono "mire" hacia el pin de destino de esta
-// ilustración (posiciones fijas en % más abajo) — mismo cálculo y misma base
-// de rotación (90°) que DeliveryMap.jsx, ver ese archivo para el detalle.
-const ROTACION_ILUSTRATIVA = 135
-
-// Mapa ilustrativo: respaldo cuando no hay GPS reciente del motorizado, o no
-// hay coordenadas del destino, o el mapa real (Google Maps) no cargó. El
-// nombre del motorizado y la hora estimada sí son reales (vienen del
-// pedido); la ruta punteada y la posición del pin son decorativas.
-export default function DeliveryMapIlustrativo({ motorizado, className = '' }) {
-  const { nombre, hora_llegada_estimada: horaLlegadaEstimada } = motorizado
-  const primerNombre = nombre.split(' ')[0]
-
+// Respaldo cuando no hay coordenadas de destino, o el mapa real (Google Maps)
+// no cargó — mismo patrón que AgencyMapIlustrativo: solo el punto fijo de
+// entrega, sin nada que sugiera movimiento en vivo.
+export default function DeliveryMapIlustrativo({ className = '' }) {
   return (
     <div
       className={`relative w-full min-h-[320px] h-full rounded-2xl overflow-hidden border border-gray-100 bg-[#e9edf5] ${className}`}
@@ -41,38 +31,13 @@ export default function DeliveryMapIlustrativo({ motorizado, className = '' }) {
           <line x1="200" y1="0" x2="200" y2="320" />
           <line x1="300" y1="0" x2="300" y2="320" />
         </g>
-        <path
-          d="M 68 250 C 68 190, 140 190, 140 150 S 258 112, 258 90 S 322 52, 332 42"
-          fill="none"
-          stroke="#6d28d9"
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeDasharray="1 10"
-        />
       </svg>
 
       <div
-        className="absolute flex h-9 w-9 items-center justify-center rounded-full bg-violet-600 text-white text-base shadow-lg animate-pulse-soft"
-        style={{ left: '17%', top: '78%', transform: 'translate(-50%, -50%)' }}
-      >
-        <MotorcycleIcon style={{ transform: `rotate(${ROTACION_ILUSTRATIVA}deg)` }} />
-      </div>
-
-      <div
         className="absolute flex h-9 w-9 items-center justify-center rounded-full bg-violet-600 text-white text-base shadow-lg"
-        style={{ left: '83%', top: '13%', transform: 'translate(-50%, -50%)' }}
+        style={{ left: '50%', top: '48%', transform: 'translate(-50%, -50%)' }}
       >
         <HomeIcon />
-      </div>
-
-      <div
-        className="absolute w-48 rounded-xl bg-white shadow-lg px-3 py-2.5 animate-fade-in-up"
-        style={{ left: '17%', top: '78%', transform: 'translate(8%, -175%)' }}
-      >
-        <p className="text-xs font-semibold text-gray-900 mb-1">Motorizado: {primerNombre}</p>
-        <p className="text-[11px] text-gray-500 mb-0">
-          Llegada aprox.: {horaLlegadaEstimada ?? 'no disponible'}
-        </p>
       </div>
     </div>
   )

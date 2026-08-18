@@ -193,6 +193,7 @@ export default function OrderSummaryCard({ pedido }) {
             fechaDespacho={fecha_despacho}
             fechaEnRuta={fecha_en_ruta}
             fechaEntregado={fecha_entregado_zazu1}
+            tipoEnvio={tipo_envio}
           />
           {/* md:px-[12.5%]: OrderTimeline reparte sus 4 pasos en columnas
               iguales con el círculo centrado en cada una, así que "En
@@ -269,6 +270,7 @@ export default function OrderSummaryCard({ pedido }) {
               fechaDespacho={fecha_despacho}
               fechaEnRuta={fecha_en_ruta}
               fechaEntregado={fecha_entregado_zazu1}
+              tipoEnvio={tipo_envio}
             />
             {entregado && <DeliveredCard pedido={pedido} />}
           </div>
