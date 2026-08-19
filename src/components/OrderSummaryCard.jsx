@@ -102,7 +102,7 @@ const ILUSTRACION_SEGUIMIENTO = {
   },
 };
 
-export default function OrderSummaryCard({ pedido }) {
+export default function OrderSummaryCard({ pedido, identidad, onPedidoUpdate }) {
   const {
     codigo,
     destinatario_nombre,
@@ -262,7 +262,11 @@ export default function OrderSummaryCard({ pedido }) {
                   ) &&
                     saldo_pendiente > 0 &&
                     tipo_pago !== "Pago Completo" && (
-                      <SaldoPendiente monto={saldo_pendiente} />
+                      <SaldoPendiente
+                        pedido={pedido}
+                        identidad={identidad}
+                        onPedidoUpdate={onPedidoUpdate}
+                      />
                     )}
                 </div>
               )}
