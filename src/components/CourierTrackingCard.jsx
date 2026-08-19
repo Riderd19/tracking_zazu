@@ -3,6 +3,7 @@ import { CheckOutlined, ExclamationCircleFilled } from '@ant-design/icons'
 import TruckFastIcon from './icons/TruckFastIcon'
 import { agenciaBase, nombreYAgencia } from '../utils/agencia'
 import { urlRastreoAgencia } from '../constants/courierTracking'
+import { formatearFecha } from '../utils/fecha'
 
 function Fila({ label, valor, destacado = false }) {
   return (
@@ -17,6 +18,30 @@ function Fila({ label, valor, destacado = false }) {
       )}
     </div>
   )
+}
+
+// Diseño especial por sub-estado de Shalom (mockup propio con ilustración —
+// ver ILUSTRACION_SEGUIMIENTO en OrderSummaryCard.jsx para la imagen de cada
+// uno). Solo 'origen' y 'transito' tienen mockup por ahora; cualquier otro
+// estado (o sin seguimiento_courier) cae al diseño genérico con mini-timeline
+// de abajo. mostrarAgenciaDestino existe porque en 'origen' ese campo no
+// estaba en el mockup (se decidió no inventarlo ahí), pero en 'transito' sí
+// es un dato real que ya tenemos (sucursal).
+const VARIANTES_SEGUIMIENTO = {
+  origen: {
+    titulo: (agencia) => `${agencia} ya recibió tu pedido`,
+    pasoFecha: 'origen',
+    descripcion:
+      'Tu pedido se encuentra en la agencia de origen y está siendo preparado para continuar hacia la agencia de destino.',
+    mostrarAgenciaDestino: false,
+  },
+  transito: {
+    badge: 'En tránsito',
+    titulo: () => 'Tu pedido está en tránsito',
+    pasoFecha: 'transito',
+    descripcion: (agencia) => `${agencia} está trasladando tu pedido hacia la agencia de destino.`,
+    mostrarAgenciaDestino: true,
+  },
 }
 
 // Mismo orden que ShalomTrackingService::PASOS en el backend — "alcanzado"
@@ -88,42 +113,67 @@ export default function CourierTrackingCard({ pedido, lugar, className = '' }) {
   const agencia = agenciaBase(lugar) || 'el courier'
   const sucursal = nombreYAgencia(lugar)
   const urlRastreo = urlRastreoAgencia(agencia)
+  // Sub-estados con mockup propio (sin mapa de destino que mostrar todavía —
+  // ver ILUSTRACION_SEGUIMIENTO en OrderSummaryCard.jsx, que reemplaza el
+  // mapa por una ilustración para estos mismos casos). codigo_courier se
+  // muestra acá como "Clave" (mismo dato, otra etiqueta) en ambos.
+  const variante = seguimiento?.estado ? VARIANTES_SEGUIMIENTO[seguimiento.estado] : null
+  const fechaPaso = variante ? formatearFecha(seguimiento.pasos?.[variante.pasoFecha]?.fecha) : null
 
   return (
     <div className={`w-full rounded-xl border border-gray-200 bg-white p-5 shadow-sm ${className}`}>
       <div className="mb-3 inline-flex items-center gap-2 rounded-md border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-700">
         <TruckFastIcon className="text-sm" />
-        Seguimiento de envío
+        {variante?.badge ?? 'Seguimiento de envío'}
       </div>
 
-      <h2 className="mb-1 text-xl font-bold tracking-tight text-gray-900">Tu pedido está en manos de {agencia}</h2>
-      <p className="mb-3 text-xs leading-5 text-gray-500">
-        Consulta el seguimiento de tu envío directamente en {agencia}.
-      </p>
+      {variante ? (
+        <>
+          <h2 className="mb-1 text-xl font-bold tracking-tight text-gray-900">{variante.titulo(agencia)}</h2>
+          {fechaPaso && <p className="mb-2 text-xs font-medium text-gray-500">{fechaPaso}</p>}
+          <p className="mb-3 text-xs leading-5 text-gray-500">
+            {typeof variante.descripcion === 'function' ? variante.descripcion(agencia) : variante.descripcion}
+          </p>
 
-      <div className="divide-y divide-gray-100 border-y border-gray-100">
-        <Fila label="Código" valor={codigo || 'No Disponible'} />
-        <Fila label="Guía" valor={guia || 'Pendiente'} />
-        <Fila label="Agencia" valor={sucursal || 'Pendiente'} />
-        {seguimiento ? (
-          <div className="py-3">
-            <div className="mb-2 flex items-center justify-between gap-3">
-              <span className="text-xs font-medium text-gray-500">Estado en {agencia}</span>
-              <span className="text-xs font-semibold text-violet-700">
-                {seguimiento.mensaje ?? estadoActual?.nombre ?? 'Pendiente'}
-              </span>
-            </div>
-            <MiniTimelineCourier seguimiento={seguimiento} />
-            {seguimiento.demora && (
-              <p className="mb-0 mt-3 flex items-center gap-1.5 text-xs font-medium text-amber-600">
-                <ExclamationCircleFilled /> Este envío está demorado
-              </p>
+          <div className="divide-y divide-gray-100 border-y border-gray-100">
+            <Fila label="Guía" valor={guia || 'Pendiente'} />
+            <Fila label="Clave" valor={codigo || 'No Disponible'} />
+            {variante.mostrarAgenciaDestino && <Fila label="Agencia destino" valor={sucursal || 'Pendiente'} />}
+            <Fila label={`Estado en ${agencia}`} valor={seguimiento.mensaje ?? 'Pendiente'} destacado />
+          </div>
+        </>
+      ) : (
+        <>
+          <h2 className="mb-1 text-xl font-bold tracking-tight text-gray-900">Tu pedido está en manos de {agencia}</h2>
+          <p className="mb-3 text-xs leading-5 text-gray-500">
+            Consulta el seguimiento de tu envío directamente en {agencia}.
+          </p>
+
+          <div className="divide-y divide-gray-100 border-y border-gray-100">
+            <Fila label="Código" valor={codigo || 'No Disponible'} />
+            <Fila label="Guía" valor={guia || 'Pendiente'} />
+            <Fila label="Agencia" valor={sucursal || 'Pendiente'} />
+            {seguimiento ? (
+              <div className="py-3">
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <span className="text-xs font-medium text-gray-500">Estado en {agencia}</span>
+                  <span className="text-xs font-semibold text-violet-700">
+                    {seguimiento.mensaje ?? estadoActual?.nombre ?? 'Pendiente'}
+                  </span>
+                </div>
+                <MiniTimelineCourier seguimiento={seguimiento} />
+                {seguimiento.demora && (
+                  <p className="mb-0 mt-3 flex items-center gap-1.5 text-xs font-medium text-amber-600">
+                    <ExclamationCircleFilled /> Este envío está demorado
+                  </p>
+                )}
+              </div>
+            ) : (
+              <Fila label={`Estado en ${agencia}`} valor={estadoActual?.nombre ?? 'Pendiente'} destacado />
             )}
           </div>
-        ) : (
-          <Fila label={`Estado en ${agencia}`} valor={estadoActual?.nombre ?? 'Pendiente'} destacado />
-        )}
-      </div>
+        </>
+      )}
 
       {urlRastreo && (
         <a className="mt-4 block" href={urlRastreo} target="_blank" rel="noopener noreferrer">

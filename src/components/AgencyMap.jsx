@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { GoogleMap, Marker } from '@react-google-maps/api'
+import { GoogleMap, Marker, OverlayView } from '@react-google-maps/api'
 import { useGoogleMaps } from '../contexts/GoogleMapsContext'
 import AgencyMapIlustrativo from './AgencyMapIlustrativo'
 import { BUILDING_ICON_PATH } from '../constants/buildingIconPath'
@@ -125,22 +125,27 @@ export default function AgencyMap({ coordenadas, lugar, className = '' }) {
         onLoad={onLoad}
       >
         <Marker position={coordenadasFinal} icon={icon} title={titulo} />
-      </GoogleMap>
 
-      {/* Globo tipo Google Maps info window: centrado sobre el pin (que
-          queda al centro del mapa, ya que coordenadas = center), con la
-          "colita" apuntando hacia abajo. bottom: 50% + radio del pin (19px)
-          + margen, para que el globo no se pegue al círculo. */}
-      <div
-        className="absolute left-1/2 flex -translate-x-1/2 flex-col items-center"
-        style={{ bottom: 'calc(50% + 27px)' }}
-      >
-        <div className="max-w-60 rounded-xl bg-white px-4 py-3 shadow-lg animate-fade-in-up">
-          <p className="mb-0.5 text-sm font-semibold text-gray-900">{titulo}</p>
-          {subtitulo && <p className="mb-0 text-xs text-gray-500">{subtitulo}</p>}
-        </div>
-        <div className="-mt-1.5 h-3 w-3 rotate-45 bg-white shadow-md" />
-      </div>
+        {/* Globo tipo Google Maps info window, anclado a la coordenada real
+            (no al centro del contenedor) — así se mueve junto con el pin al
+            hacer pan/zoom en vez de quedar pegado en el mismo punto de la
+            pantalla. getPixelPositionOffset centra el globo horizontalmente
+            y lo sube por su alto + 27px, para que quede justo encima del pin
+            con la "colita" apuntando hacia abajo, sin tocar el círculo. */}
+        <OverlayView
+          position={coordenadasFinal}
+          mapPaneName={OverlayView.FLOAT_PANE}
+          getPixelPositionOffset={(width, height) => ({ x: -width / 2, y: -height - 27 })}
+        >
+          <div className="flex flex-col items-center">
+            <div className="max-w-60 rounded-xl bg-white px-4 py-3 shadow-lg animate-fade-in-up">
+              <p className="mb-0.5 text-sm font-semibold text-gray-900">{titulo}</p>
+              {subtitulo && <p className="mb-0 text-xs text-gray-500">{subtitulo}</p>}
+            </div>
+            <div className="-mt-1.5 h-3 w-3 rotate-45 bg-white shadow-md" />
+          </div>
+        </OverlayView>
+      </GoogleMap>
     </div>
   )
 }

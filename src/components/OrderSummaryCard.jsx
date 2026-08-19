@@ -87,6 +87,21 @@ function quitarPlusCode(direccion) {
   return direccion.replace(/^\S+\+\S+,\s*/, "");
 }
 
+// Ilustración que reemplaza al mapa de destino para los sub-estados de
+// Shalom que tienen su propio mockup (ver VARIANTES_SEGUIMIENTO en
+// CourierTrackingCard.jsx). Los estados sin entrada acá siguen mostrando
+// AgencyMap normalmente.
+const ILUSTRACION_SEGUIMIENTO = {
+  origen: {
+    src: "/images/pedido-en-origen-zazu.png",
+    alt: "Paquete recibido en la agencia de origen, listo para continuar hacia destino",
+  },
+  transito: {
+    src: "/images/pedido-en-transito-zazu.png",
+    alt: "Camión de Zazu trasladando el pedido hacia la agencia de destino",
+  },
+};
+
 export default function OrderSummaryCard({ pedido }) {
   const {
     codigo,
@@ -118,6 +133,10 @@ export default function OrderSummaryCard({ pedido }) {
   // Courier en ruta: el paquete está en manos de un courier externo (Shalom,
   // etc.), no de un motorizado propio — ver CourierTrackingCard/AgencyMap.
   const courierEnRuta = esCourier && estado_actual?.codigo === "en_ruta";
+  // Sub-estados de Shalom con mockup propio (ver VARIANTES_SEGUIMIENTO en
+  // CourierTrackingCard.jsx) — el mapa de destino no aporta nada útil en
+  // estos puntos del recorrido, se muestra una ilustración en su lugar.
+  const ilustracionCourier = ILUSTRACION_SEGUIMIENTO[pedido.seguimiento_courier?.estado];
   const despachado = estado_actual?.codigo === "despachado";
   const enGestion = EN_GESTION.includes(estado_actual?.codigo);
   const hayResumen = saldo_pendiente > 0 || pedido.articulos?.length > 0;
@@ -220,11 +239,21 @@ export default function OrderSummaryCard({ pedido }) {
               }
             >
               <CourierTrackingCard pedido={pedido} lugar={destino} />
-              <AgencyMap
-                coordenadas={destinoCoordenadas}
-                lugar={destino}
-                className="md:h-95 lg:h-105"
-              />
+              {ilustracionCourier ? (
+                <div className="h-64 w-full rounded-2xl md:h-95 lg:h-105">
+                  <img
+                    src={ilustracionCourier.src}
+                    alt={ilustracionCourier.alt}
+                    className="h-full w-full object-contain object-center"
+                  />
+                </div>
+              ) : (
+                <AgencyMap
+                  coordenadas={destinoCoordenadas}
+                  lugar={destino}
+                  className="md:h-95 lg:h-105"
+                />
+              )}
               {hayResumen && (
                 <div className="flex flex-col gap-5">
                   <OrderItemsSummary pedido={pedido} compactoConModal />
