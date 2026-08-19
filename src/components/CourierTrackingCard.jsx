@@ -115,8 +115,7 @@ export default function CourierTrackingCard({ pedido, lugar, className = '' }) {
   const urlRastreo = urlRastreoAgencia(agencia)
   // Sub-estados con mockup propio (sin mapa de destino que mostrar todavía —
   // ver ILUSTRACION_SEGUIMIENTO en OrderSummaryCard.jsx, que reemplaza el
-  // mapa por una ilustración para estos mismos casos). codigo_courier se
-  // muestra acá como "Clave" (mismo dato, otra etiqueta) en ambos.
+  // mapa por una ilustración para estos mismos casos).
   const variante = seguimiento?.estado ? VARIANTES_SEGUIMIENTO[seguimiento.estado] : null
   const fechaPaso = variante ? formatearFecha(seguimiento.pasos?.[variante.pasoFecha]?.fecha) : null
 
@@ -137,7 +136,7 @@ export default function CourierTrackingCard({ pedido, lugar, className = '' }) {
 
           <div className="divide-y divide-gray-100 border-y border-gray-100">
             <Fila label="Guía" valor={guia || 'Pendiente'} />
-            <Fila label="Clave" valor={codigo || 'No Disponible'} />
+            <Fila label="Código" valor={codigo || 'No Disponible'} />
             {variante.mostrarAgenciaDestino && <Fila label="Agencia destino" valor={sucursal || 'Pendiente'} />}
             <Fila label={`Estado en ${agencia}`} valor={seguimiento.mensaje ?? 'Pendiente'} destacado />
           </div>
