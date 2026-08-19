@@ -101,7 +101,11 @@ export default function App() {
       <div className="min-h-screen w-full bg-white flex flex-col">
         <SiteHeader onVolver={handleVolver} />
         <div className="w-full max-w-[2000px] min-h-screen mx-auto flex-1 flex flex-col gap-6 px-4 pt-6 pb-10 sm:px-8">
-          <OrderResult pedido={pedido} />
+          <OrderResult
+            pedido={pedido}
+            identidad={ultimaBusqueda}
+            onPedidoUpdate={setPedido}
+          />
         </div>
         <SiteFooter />
       </div>

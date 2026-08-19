@@ -11,7 +11,7 @@ import SaldoPendiente from './SaldoPendiente'
 // OrderSummaryCard (ver courierEnRuta ahí), este bloque no debe duplicarlo.
 const CODIGO_EN_RUTA = 'en_ruta'
 
-export default function OrderResult({ pedido }) {
+export default function OrderResult({ pedido, identidad, onPedidoUpdate }) {
   const enRuta =
     pedido.estado_actual?.codigo === CODIGO_EN_RUTA &&
     pedido.tipo_envio?.toUpperCase() === 'DELIVERY'
@@ -28,7 +28,7 @@ export default function OrderResult({ pedido }) {
         </p>
       </div>
 
-      <OrderSummaryCard pedido={pedido} />
+      <OrderSummaryCard pedido={pedido} identidad={identidad} onPedidoUpdate={onPedidoUpdate} />
 
       {enRuta && (
         <div
@@ -43,7 +43,7 @@ export default function OrderResult({ pedido }) {
             <div className="flex flex-col gap-5">
               <OrderItemsSummary pedido={pedido} compactoConModal />
               {pedido.saldo_pendiente > 0 && pedido.tipo_pago !== 'Pago Completo' && (
-                <SaldoPendiente monto={pedido.saldo_pendiente} />
+                <SaldoPendiente pedido={pedido} identidad={identidad} onPedidoUpdate={onPedidoUpdate} />
               )}
             </div>
           )}

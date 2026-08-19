@@ -50,6 +50,24 @@ export async function buscarPedido(codigo, verificacion) {
   throw new Error(body.message ?? 'Ocurrió un error inesperado. Inténtalo de nuevo.')
 }
 
+// Genera (o reutiliza, si ya hay uno vigente) el QR de Ligo Pay para el saldo
+// pendiente del pedido — ver TrackingligoQrController en el backend.
+export async function generarQrSaldo(codigo, verificacion) {
+  const response = await fetch(`${API_URL}/public/trackingligo/qr`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ codigo, verificacion }),
+  })
+
+  const body = await response.json().catch(() => ({}))
+
+  if (!response.ok) {
+    throw new Error(body.message ?? 'No se pudo generar el QR de pago. Inténtalo nuevamente.')
+  }
+
+  return body
+}
+
 // Empresas activas para poblar el selector del formulario (ver
 // TrackingPublicController::empresas en el backend).
 export async function listarEmpresas() {
