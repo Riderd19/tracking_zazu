@@ -121,7 +121,7 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
           </span>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-gray-900 mb-0">
-              {pagado ? 'Pago confirmado' : 'Saldo pendiente'}
+              {pagado ? 'Pago realizado' : 'Saldo pendiente'}
             </p>
             <p className="text-xs text-gray-500 mb-0">
               {pagado ? 'Tu pedido ya no tiene saldo pendiente.' : 'Haz clic para pagar mediante un QR seguro.'}
@@ -163,7 +163,7 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
         {!loading && pagado && (
           <div className="py-10 text-center text-emerald-700">
             <CheckCircleFilled className="text-5xl" />
-            <h3 className="mt-3 text-lg font-bold">Pago confirmado</h3>
+            <h3 className="mt-3 text-lg font-bold">Pago realizado</h3>
             <p>Tu pedido ya no tiene saldo pendiente.</p>
           </div>
         )}
