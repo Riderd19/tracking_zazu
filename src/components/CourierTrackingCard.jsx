@@ -1,5 +1,5 @@
 import { Button } from 'antd'
-import { CheckOutlined, ExclamationCircleFilled } from '@ant-design/icons'
+import { ExclamationCircleFilled } from '@ant-design/icons'
 import TruckFastIcon from './icons/TruckFastIcon'
 import { agenciaBase, nombreYAgencia } from '../utils/agencia'
 import { urlRastreoAgencia } from '../constants/courierTracking'
@@ -42,55 +42,6 @@ const VARIANTES_SEGUIMIENTO = {
     descripcion: (agencia) => `${agencia} está trasladando tu pedido hacia la agencia de destino.`,
     mostrarAgenciaDestino: true,
   },
-}
-
-// Mismo orden que ShalomTrackingService::PASOS en el backend — "alcanzado"
-// ya viene resuelto de ahí (true si ese paso tiene fecha), acá solo se pinta.
-const PASOS_COURIER = [
-  { clave: 'origen', label: 'En origen' },
-  { clave: 'transito', label: 'En tránsito' },
-  { clave: 'destino', label: 'En destino' },
-  { clave: 'entregado', label: 'Entregado' },
-]
-
-// Mini-timeline de 4 pasos (mismo patrón visual que OrderTimeline, a menor
-// escala) para el sub-estado real dentro de Shalom — más preciso que el
-// "Estado en X" genérico que se muestra si no hay seguimiento_courier.
-function MiniTimelineCourier({ seguimiento }) {
-  return (
-    <div className="flex items-start pt-1">
-      {PASOS_COURIER.map((paso, i) => {
-        const alcanzado = Boolean(seguimiento.pasos?.[paso.clave]?.alcanzado)
-        return (
-          <div key={paso.clave} className="relative flex flex-1 flex-col items-center">
-            {i > 0 && (
-              <span
-                className="absolute top-[9px] h-0.5"
-                style={{
-                  right: '50%',
-                  width: '100%',
-                  backgroundColor: alcanzado ? '#6d28d9' : '#E5E7EB',
-                }}
-              />
-            )}
-            <span
-              className="relative z-10 flex h-[19px] w-[19px] shrink-0 items-center justify-center rounded-full text-[10px]"
-              style={
-                alcanzado
-                  ? { backgroundColor: '#6d28d9', color: '#fff' }
-                  : { backgroundColor: '#fff', border: '2px solid #E5E7EB' }
-              }
-            >
-              {alcanzado && <CheckOutlined style={{ fontSize: 10 }} />}
-            </span>
-            <p className="mb-0 mt-1.5 px-0.5 text-center text-[10px] font-medium leading-tight text-gray-500">
-              {paso.label}
-            </p>
-          </div>
-        )
-      })}
-    </div>
-  )
 }
 
 // Pedidos COURIER en "en_ruta": el paquete ya está en manos del courier
@@ -152,25 +103,17 @@ export default function CourierTrackingCard({ pedido, lugar, className = '' }) {
             <Fila label="Código" valor={codigo || 'No Disponible'} />
             <Fila label="Guía" valor={guia || 'Pendiente'} />
             <Fila label="Agencia" valor={sucursal || 'Pendiente'} />
-            {seguimiento ? (
-              <div className="py-3">
-                <div className="mb-2 flex items-center justify-between gap-3">
-                  <span className="text-xs font-medium text-gray-500">Estado en {agencia}</span>
-                  <span className="text-xs font-semibold text-violet-700">
-                    {seguimiento.mensaje ?? estadoActual?.nombre ?? 'Pendiente'}
-                  </span>
-                </div>
-                <MiniTimelineCourier seguimiento={seguimiento} />
-                {seguimiento.demora && (
-                  <p className="mb-0 mt-3 flex items-center gap-1.5 text-xs font-medium text-amber-600">
-                    <ExclamationCircleFilled /> Este envío está demorado
-                  </p>
-                )}
-              </div>
-            ) : (
-              <Fila label={`Estado en ${agencia}`} valor={estadoActual?.nombre ?? 'Pendiente'} destacado />
-            )}
+            <Fila
+              label={`Estado en ${agencia}`}
+              valor={seguimiento?.mensaje ?? estadoActual?.nombre ?? 'Pendiente'}
+              destacado
+            />
           </div>
+          {seguimiento?.demora && (
+            <p className="mb-0 mt-3 flex items-center gap-1.5 text-xs font-medium text-amber-600">
+              <ExclamationCircleFilled /> Este envío está demorado
+            </p>
+          )}
         </>
       )}
 

@@ -138,7 +138,7 @@ export default function AgencyMap({ coordenadas, lugar, className = '' }) {
           getPixelPositionOffset={(width, height) => ({ x: -width / 2, y: -height - 27 })}
         >
           <div className="flex flex-col items-center">
-            <div className="max-w-60 rounded-xl bg-white px-4 py-3 shadow-lg animate-fade-in-up">
+            <div className="max-w-80 min-w-max rounded-xl bg-white px-4 py-3 shadow-lg animate-fade-in-up">
               <p className="mb-0.5 text-sm font-semibold text-gray-900">{titulo}</p>
               {subtitulo && <p className="mb-0 text-xs text-gray-500">{subtitulo}</p>}
             </div>
