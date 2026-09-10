@@ -1,4 +1,17 @@
-# React + Vite
+# Tracking Zazu
+
+Frontend publico para consultar pedidos de la Plataforma Zazu.
+
+## Configuracion de la API
+
+La API se define al compilar con `VITE_API_URL`:
+
+- Desarrollo: copia `.env.example` a `.env`.
+- Produccion: copia `.env.production.example` a `.env.production` antes de ejecutar `npm run build`.
+
+Si no se define la variable, el build de produccion usa `https://zazu.com.pe/api` como respaldo.
+
+La API debe exponer `/api/public/tracking`, `/api/public/empresas` y `/api/public/trackingligo/qr`.
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

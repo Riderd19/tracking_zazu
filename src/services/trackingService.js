@@ -1,4 +1,10 @@
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000/api'
+// VITE_API_URL se inyecta al compilar. En produccion dejamos un valor seguro
+// para que el tracking publicado no intente llamar a localhost si el servidor
+// de build no recibio la variable de entorno.
+const API_URL = (
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD ? 'https://zazu.com.pe/api' : 'http://127.0.0.1:8000/api')
+).replace(/\/$/, '')
 import {
   CODIGO_PEDIDO_ANULADO_DEMO,
   IDENTIFICADOR_PEDIDO_ANULADO_DEMO,
