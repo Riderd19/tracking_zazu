@@ -15,14 +15,6 @@ export class TrackingNoEncontradoError extends Error {}
 export class TrackingRateLimitError extends Error {}
 export class TrackingValidacionError extends Error {}
 
-// Respaldo para que una caída temporal de /public/empresas no inutilice todo
-// el formulario. Los values son los prefijos reales usados en external_ref.
-const EMPRESAS_RESPALDO = [
-  { label: 'BOX PRIME', value: 'Box Prime' },
-  { label: 'BRAVOS', value: 'Bravos' },
-  { label: 'OVERSHARK PERU S.A.C', value: 'Overshark' },
-]
-
 // Llama al endpoint público de tracking. Lanza un error tipado según el
 // código HTTP para que la UI pueda mostrar un mensaje distinto en cada caso.
 export async function buscarPedido(codigo, verificacion) {
@@ -92,16 +84,16 @@ export async function listarEmpresas() {
     response = await fetch(`${API_URL}/public/empresas`, {
       headers: { Accept: 'application/json' },
     })
-  } catch {
-    return import.meta.env.DEV ? [empresaDemo, ...EMPRESAS_RESPALDO] : EMPRESAS_RESPALDO
+  } catch (error) {
+    if (import.meta.env.DEV) return [empresaDemo]
+    throw error
   }
 
   if (!response.ok) {
-    return import.meta.env.DEV ? [empresaDemo, ...EMPRESAS_RESPALDO] : EMPRESAS_RESPALDO
+    if (import.meta.env.DEV) return [empresaDemo]
+    throw new Error('No se pudo cargar el listado de empresas.')
   }
 
   const empresas = await response.json()
-  const lista = Array.isArray(empresas) && empresas.length > 0 ? empresas : EMPRESAS_RESPALDO
-
-  return import.meta.env.DEV ? [empresaDemo, ...lista] : lista
+  return import.meta.env.DEV ? [empresaDemo, ...empresas] : empresas
 }
