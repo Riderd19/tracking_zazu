@@ -15,33 +15,26 @@ export class TrackingNoEncontradoError extends Error {}
 export class TrackingRateLimitError extends Error {}
 export class TrackingValidacionError extends Error {}
 
-// Llama al endpoint público de tracking. Lanza un error tipado según el
-// código HTTP para que la UI pueda mostrar un mensaje distinto en cada caso.
-export async function buscarPedido(codigo, verificacion) {
-  if (
-    import.meta.env.DEV &&
-    codigo === CODIGO_PEDIDO_ANULADO_DEMO &&
-    verificacion === IDENTIFICADOR_PEDIDO_ANULADO_DEMO
-  ) {
-    return PEDIDO_ANULADO_DEMO
-  }
-
+// POST compartido por buscarPedido/buscarPedidoPorToken. Lanza un error
+// tipado según el código HTTP para que la UI pueda mostrar un mensaje
+// distinto en cada caso.
+async function llamarTracking(body) {
   const response = await fetch(`${API_URL}/public/tracking`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ codigo, verificacion }),
+    body: JSON.stringify(body),
   })
 
   if (response.ok) {
     return response.json()
   }
 
-  const body = await response.json().catch(() => ({}))
+  const errBody = await response.json().catch(() => ({}))
 
   if (response.status === 404) {
     // El backend ya da un mensaje claro y seguro (no revela si el pedido existe).
     throw new TrackingNoEncontradoError(
-      body.message ?? 'No encontramos un pedido con esos datos.',
+      errBody.message ?? 'No encontramos un pedido con esos datos.',
     )
   }
   if (response.status === 429) {
@@ -53,7 +46,26 @@ export async function buscarPedido(codigo, verificacion) {
     throw new TrackingValidacionError('Revisa los datos ingresados e inténtalo de nuevo.')
   }
 
-  throw new Error(body.message ?? 'Ocurrió un error inesperado. Inténtalo de nuevo.')
+  throw new Error(errBody.message ?? 'Ocurrió un error inesperado. Inténtalo de nuevo.')
+}
+
+// Llama al endpoint público de tracking con código + DNI/celular.
+export async function buscarPedido(codigo, verificacion) {
+  if (
+    import.meta.env.DEV &&
+    codigo === CODIGO_PEDIDO_ANULADO_DEMO &&
+    verificacion === IDENTIFICADOR_PEDIDO_ANULADO_DEMO
+  ) {
+    return PEDIDO_ANULADO_DEMO
+  }
+
+  return llamarTracking({ codigo, verificacion })
+}
+
+// Llama al mismo endpoint, pero con el token opaco que manda el bot en vez de
+// código + DNI/celular (ver leerTokenDeUrl / TrackingLinkService).
+export async function buscarPedidoPorToken(token) {
+  return llamarTracking({ token })
 }
 
 // Genera (o reutiliza, si ya hay uno vigente) el QR de Ligo Pay para el saldo

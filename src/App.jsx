@@ -6,11 +6,16 @@ import SearchForm from "./components/SearchForm";
 import OrderResult from "./components/OrderResult";
 import {
   buscarPedido,
+  buscarPedidoPorToken,
   TrackingNoEncontradoError,
   TrackingRateLimitError,
   TrackingValidacionError,
 } from "./services/trackingService";
-import { leerCodigoDeUrl, limpiarCodigoDeUrl } from "./utils/codigoUrl";
+import {
+  leerCodigoDeUrl,
+  leerTokenDeUrl,
+  limpiarCodigoDeUrl,
+} from "./utils/codigoUrl";
 import { WHATSAPP_SOPORTE_LINK } from "./constants/soporte";
 
 function clasificarError(err) {
@@ -35,7 +40,9 @@ const CODIGO_EN_RUTA = "en_ruta";
 
 export default function App() {
   const [pedido, setPedido] = useState(null);
-  const [loading, setLoading] = useState(false);
+  // Si llega un token en la URL, arranca en loading para no mostrar el
+  // formulario vacío un instante antes de que la búsqueda automática resuelva.
+  const [loading, setLoading] = useState(() => Boolean(leerTokenDeUrl()));
   const [error, setError] = useState(null);
   const [codigoInicial, setCodigoInicial] = useState(leerCodigoDeUrl);
   // Código + identificador de la última búsqueda exitosa, para poder repetirla
@@ -48,6 +55,25 @@ export default function App() {
   useEffect(() => {
     if (codigoInicial) limpiarCodigoDeUrl();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // El link que manda el bot lleva un token en vez de código + DNI/celular (ver
+  // leerTokenDeUrl): si llega uno, se busca de una sola vez al abrir, sin que
+  // el cliente tenga que tocar el formulario. Si el token ya expiró o es
+  // inválido, el error queda visible en el formulario para que lo intente a mano.
+  useEffect(() => {
+    const token = leerTokenDeUrl();
+    if (!token) return;
+
+    limpiarCodigoDeUrl();
+
+    buscarPedidoPorToken(token)
+      .then((resultado) => {
+        setPedido(resultado);
+        setUltimaBusqueda({ token });
+      })
+      .catch((err) => setError(clasificarError(err)))
+      .finally(() => setLoading(false));
   }, []);
 
   async function handleSearch(codigo, identificador) {
@@ -83,10 +109,9 @@ export default function App() {
 
     const intervalo = setInterval(async () => {
       try {
-        const actualizado = await buscarPedido(
-          ultimaBusqueda.codigo,
-          ultimaBusqueda.identificador,
-        );
+        const actualizado = ultimaBusqueda.token
+          ? await buscarPedidoPorToken(ultimaBusqueda.token)
+          : await buscarPedido(ultimaBusqueda.codigo, ultimaBusqueda.identificador);
         setPedido(actualizado);
       } catch {
         // silencioso a propósito — se reintenta en el siguiente ciclo
