@@ -7,9 +7,9 @@ import {
   CloseCircleOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
-import TruckFastIcon from "./icons/TruckFastIcon";
-import MotorcycleIcon from "./icons/MotorcycleIcon";
-import { EN_GESTION } from "../constants/estadosPedido";
+import TruckFastIcon from "../icons/TruckFastIcon";
+import MotorcycleIcon from "../icons/MotorcycleIcon";
+import { EN_GESTION } from "../../constants/estadosPedido";
 
 // Pipeline que ve el cliente: 4 pasos. El código que llega en `estadoActual`
 // ahora sale de Empaquetado y Entrega en el backend (tickets.estado /
@@ -125,7 +125,7 @@ export default function OrderTimeline({
 
   if (especial) {
     return (
-      <div className="flex items-center gap-3 py-1">
+      <div className="flex items-center gap-2 py-1">
         <span
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white text-base"
           style={{ backgroundColor: especial.color }}

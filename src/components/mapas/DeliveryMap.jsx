@@ -1,8 +1,8 @@
 import { useCallback, useRef } from "react";
 import { GoogleMap, Marker } from "@react-google-maps/api";
-import { useGoogleMaps } from "../contexts/GoogleMapsContext";
+import { useGoogleMaps } from "../../contexts/GoogleMapsContext";
 import DeliveryMapIlustrativo from "./DeliveryMapIlustrativo";
-import { HOME_ICON_PATH } from "../constants/homeIconPath";
+import { HOME_ICON_PATH } from "../../constants/homeIconPath";
 
 const MAP_OPTIONS = {
   disableDefaultUI: true,

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { WhatsAppOutlined, FacebookFilled, InstagramFilled, CheckOutlined } from '@ant-design/icons'
-import { WHATSAPP_SOPORTE_LINK } from '../constants/soporte'
+import { WHATSAPP_SOPORTE_LINK } from '../../constants/soporte'
 import LibroReclamacionesModal from './LibroReclamacionesModal'
 
 // No hay ícono de TikTok en @ant-design/icons — se dibuja a mano, mismo trazo

@@ -1,6 +1,6 @@
 import { FileDoneOutlined } from "@ant-design/icons";
-import { tipoEntrega } from "../utils/agencia";
-import { formatearFecha } from "../utils/fecha";
+import { tipoEntrega } from "../../utils/agencia";
+import { formatearFecha } from "../../utils/fecha";
 import StatusInfoCard from "./StatusInfoCard";
 
 // Pedidos en "en_gestión" (pendiente/confirmado/registrado/etc., ver

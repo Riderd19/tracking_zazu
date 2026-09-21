@@ -6,8 +6,8 @@ import { ArrowLeftOutlined } from '@ant-design/icons'
 // muestra "Buscar otro" a la derecha, en vez de repetirlo abajo del mapa.
 export default function SiteHeader({ onVolver }) {
   return (
-    <header className="w-full border-b border-gray-100 bg-white">
-      <div className="max-w-[1900px] mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
+    <nav className="p-3 w-full border-b border-gray-100 bg-white">
+      <div className="max-w-[1900px] px-4 sm:px-8 py-5 flex items-center justify-between">
         <img src="/logo_zazu.svg" alt="Zazu Express" className="h-8 w-auto shrink-0" />
         {onVolver && (
           <Button icon={<ArrowLeftOutlined />} onClick={onVolver}>
@@ -15,6 +15,6 @@ export default function SiteHeader({ onVolver }) {
           </Button>
         )}
       </div>
-    </header>
+    </nav>
   )
 }
