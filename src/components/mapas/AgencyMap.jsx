@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { GoogleMap, Marker, OverlayView } from '@react-google-maps/api'
-import { useGoogleMaps } from '../contexts/GoogleMapsContext'
+import { useGoogleMaps } from '../../contexts/GoogleMapsContext'
 import AgencyMapIlustrativo from './AgencyMapIlustrativo'
-import { BUILDING_ICON_PATH } from '../constants/buildingIconPath'
-import { nombreYAgencia, segmentosAgencia } from '../utils/agencia'
+import { BUILDING_ICON_PATH } from '../../constants/buildingIconPath'
+import { nombreYAgencia, segmentosAgencia } from '../../utils/agencia'
 
 const MAP_OPTIONS = {
   disableDefaultUI: true,

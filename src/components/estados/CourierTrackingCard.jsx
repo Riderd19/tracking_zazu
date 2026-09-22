@@ -1,9 +1,9 @@
 import { Button } from 'antd'
 import { ExclamationCircleFilled } from '@ant-design/icons'
-import TruckFastIcon from './icons/TruckFastIcon'
-import { agenciaBase, nombreYAgencia } from '../utils/agencia'
-import { urlRastreoAgencia } from '../constants/courierTracking'
-import { formatearFecha } from '../utils/fecha'
+import TruckFastIcon from '../icons/TruckFastIcon'
+import { agenciaBase, nombreYAgencia } from '../../utils/agencia'
+import { urlRastreoAgencia } from '../../constants/courierTracking'
+import { formatearFecha } from '../../utils/fecha'
 
 function Fila({ label, valor, destacado = false }) {
   return (

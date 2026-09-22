@@ -1,6 +1,6 @@
 import { InboxOutlined } from "@ant-design/icons";
-import { tipoEntrega } from "../utils/agencia";
-import { formatearFecha } from "../utils/fecha";
+import { tipoEntrega } from "../../utils/agencia";
+import { formatearFecha } from "../../utils/fecha";
 import StatusInfoCard from "./StatusInfoCard";
 
 // Pedidos en "Preparando Pedido": ya salieron de venta y están siendo alistados

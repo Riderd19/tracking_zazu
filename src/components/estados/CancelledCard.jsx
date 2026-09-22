@@ -3,8 +3,8 @@ import {
   FileTextOutlined,
   SyncOutlined,
 } from "@ant-design/icons";
-import { formatearFecha } from "../utils/fecha";
-import { WHATSAPP_SOPORTE_LINK } from "../constants/soporte";
+import { formatearFecha } from "../../utils/fecha";
+import { WHATSAPP_SOPORTE_LINK } from "../../constants/soporte";
 
 function dato(pedido, nombres, respaldo) {
   const encontrado = nombres.map((nombre) => pedido?.[nombre]).find(Boolean);

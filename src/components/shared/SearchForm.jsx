@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Form, Input, Select, Space, Button } from 'antd'
 import { SearchOutlined, CloseOutlined, ClockCircleOutlined, InboxOutlined, LockOutlined } from '@ant-design/icons'
-import { listarEmpresas } from '../services/trackingService'
-import { combinarCodigo, parseCodigo, detectarCodigoCompleto } from '../utils/codigoPedido'
+import { listarEmpresas } from '../../services/trackingService'
+import { combinarCodigo, parseCodigo, detectarCodigoCompleto } from '../../utils/codigoPedido'
 
 const ERROR_CONFIG = {
   no_encontrado: {

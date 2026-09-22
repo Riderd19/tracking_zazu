@@ -6,7 +6,7 @@ import {
   CreditCardOutlined,
   ReloadOutlined,
 } from '@ant-design/icons'
-import { buscarPedido, generarQrSaldo } from '../services/trackingService'
+import { buscarPedido, generarQrSaldo } from '../../services/trackingService'
 
 const POLL_MS = 10000
 

@@ -9,10 +9,10 @@ import {
 } from '@ant-design/icons'
 import { Button, Modal } from 'antd'
 import { useState } from 'react'
-import { WHATSAPP_SOPORTE_LINK } from '../constants/soporte'
-import { nombreYAgencia } from '../utils/agencia'
-import { formatearFecha } from '../utils/fecha'
-import OrderItemsSummary from './OrderItemsSummary'
+import { WHATSAPP_SOPORTE_LINK } from '../../constants/soporte'
+import { nombreYAgencia } from '../../utils/agencia'
+import { formatearFecha } from '../../utils/fecha'
+import OrderItemsSummary from '../seguimiento/OrderItemsSummary'
 
 function fechaEntrega(pedido) {
   const hito = pedido.timeline?.find((item) => item.codigo === 'entregado')

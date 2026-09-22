@@ -1,8 +1,8 @@
 import { EyeOutlined, WhatsAppOutlined } from "@ant-design/icons";
 import { Button, Modal } from "antd";
 import { useState } from "react";
-import { WHATSAPP_SOPORTE_LINK } from "../constants/soporte";
-import OrderItemsSummary from "./OrderItemsSummary";
+import { WHATSAPP_SOPORTE_LINK } from "../../constants/soporte";
+import OrderItemsSummary from "../seguimiento/OrderItemsSummary";
 
 function Fila({ label, valor }) {
   return (

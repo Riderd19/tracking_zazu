@@ -86,6 +86,46 @@ export async function generarQrSaldo(codigo, verificacion) {
   return body
 }
 
+// El voucher de Shalom del pedido (ver TrackingPublicController::voucher).
+// Devuelve { url, nombre } — el frontend abre `url` en una pestaña nueva, no
+// hay que descargarlo acá: es el mismo PDF público que ya usa la plantilla
+// de WhatsApp.
+export async function obtenerVoucherShalom(codigo, verificacion) {
+  const response = await fetch(`${API_URL}/public/tracking/voucher`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ codigo, verificacion }),
+  })
+
+  const body = await response.json().catch(() => ({}))
+
+  if (!response.ok) {
+    throw new Error(body.message ?? 'No se pudo obtener el voucher.')
+  }
+
+  return body
+}
+
+// La clave de recojo de Shalom (ver TrackingPublicController::clave). Responde
+// siempre 200: { ok: true, clave } si coincide, { ok: false, mensaje } si no —
+// nunca un 403, para no delatarle a quien prueba documentos al azar cuándo
+// acertó. Solo tiene sentido pedirla cuando el pedido ya está "Pago Completo".
+export async function pedirClaveDeRecojo(codigo, verificacion) {
+  const response = await fetch(`${API_URL}/public/tracking/clave`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ codigo, verificacion }),
+  })
+
+  const body = await response.json().catch(() => ({}))
+
+  if (!response.ok) {
+    throw new Error(body.message ?? 'No se pudo consultar la clave de recojo.')
+  }
+
+  return body
+}
+
 // Empresas activas para poblar el selector del formulario (ver
 // TrackingPublicController::empresas en el backend).
 export async function listarEmpresas() {

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Modal, Form, Input, Select, Radio, Button, Space } from 'antd'
-import { WHATSAPP_SOPORTE_NUMERO } from '../constants/soporte'
+import { WHATSAPP_SOPORTE_NUMERO } from '../../constants/soporte'
 
 const { TextArea } = Input
 
