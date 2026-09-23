@@ -44,7 +44,10 @@ const VISTAS = {
  */
 function etapaDe(estadoCodigo) {
   if (estadoCodigo === 'cancelado') return 'cancelado'
-  if (estadoCodigo === 'despachado') return 'preparando'
+  // 'picking' pasa por acá camino a 'despachado': para el cliente es el mismo
+  // momento ("estamos preparando tu pedido"), y sin este caso esos pedidos se
+  // quedaban sin ninguna tarjeta —solo la línea de tiempo— hasta que despachaban.
+  if (estadoCodigo === 'despachado' || estadoCodigo === 'picking') return 'preparando'
   if (estadoCodigo === 'en_ruta') return 'en_ruta'
   if (estadoCodigo === 'entregado') return 'entregado'
   if (EN_GESTION.includes(estadoCodigo)) return 'registrado'

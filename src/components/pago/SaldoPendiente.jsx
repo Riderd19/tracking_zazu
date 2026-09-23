@@ -4,9 +4,10 @@ import {
   CheckCircleFilled,
   ClockCircleOutlined,
   CreditCardOutlined,
+  KeyOutlined,
   ReloadOutlined,
 } from '@ant-design/icons'
-import { buscarPedido, generarQrSaldo } from '../../services/trackingService'
+import { buscarPedido, generarQrSaldo, pedirClaveDeRecojo } from '../../services/trackingService'
 
 const POLL_MS = 10000
 
@@ -34,6 +35,11 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  // La clave de recojo de Shalom, pedida sola en cuanto el polling ve el pago
+  // confirmado: null = todavía no se pidió, { cargando: true } mientras llega,
+  // y después la respuesta tal cual de pedirClaveDeRecojo ({ ok, clave } o
+  // { ok: false, mensaje }) — los mismos tres estados que BotonClave.
+  const [clave, setClave] = useState(null)
 
   const pago = pedido.ligo_payment ?? {}
   const monto = Number(pago.amount ?? pedido.saldo_pendiente ?? 0)
@@ -59,11 +65,27 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
     if (!open || !qrVigente || !identidad?.codigo) return undefined
 
     const polling = setInterval(async () => {
+      let actualizado
       try {
-        const actualizado = await buscarPedido(identidad.codigo, identidad.identificador)
+        actualizado = await buscarPedido(identidad.codigo, identidad.identificador)
         onPedidoUpdate?.(actualizado)
       } catch {
         // Un fallo temporal de la consulta no debe tumbar un QR que sigue vigente.
+        return
+      }
+
+      // En Shalom, pagar es justamente lo que libera la clave de recojo: se
+      // pide acá mismo, en el ciclo que detectó el pago, para que aparezca en
+      // la pantalla de "Pago realizado" sin que el cliente tenga que encontrar
+      // el botón de la clave por su cuenta. Este intervalo se limpia apenas el
+      // QR deja de estar vigente, así que esto corre una sola vez.
+      if (actualizado?.es_shalom && actualizado.ligo_payment?.status === 'pagado') {
+        setClave({ cargando: true })
+        try {
+          setClave(await pedirClaveDeRecojo(identidad.codigo, identidad.identificador))
+        } catch (err) {
+          setClave({ ok: false, mensaje: err.message })
+        }
       }
     }, POLL_MS)
 
@@ -165,6 +187,27 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
             <CheckCircleFilled className="text-5xl" />
             <h3 className="mt-3 text-lg font-bold">Pago realizado</h3>
             <p>Tu pedido ya no tiene saldo pendiente.</p>
+
+            {pedido.es_shalom && clave && (
+              <div className="mt-6 rounded-2xl bg-violet-50 p-5 text-gray-700">
+                <p className="mb-3 flex items-center justify-center gap-2 text-sm font-semibold text-gray-900">
+                  <KeyOutlined /> Tu clave de recojo
+                </p>
+
+                {clave.cargando && <Spin />}
+
+                {!clave.cargando && clave.ok && (
+                  <>
+                    <div className="text-4xl font-bold tracking-widest text-violet-700">{clave.clave}</div>
+                    <p className="mt-2 mb-0 text-xs font-medium text-gray-500">
+                      Muéstrala en la agencia junto a tu documento
+                    </p>
+                  </>
+                )}
+
+                {!clave.cargando && !clave.ok && <p className="mb-0 text-sm text-gray-600">{clave.mensaje}</p>}
+              </div>
+            )}
           </div>
         )}
       </Modal>
