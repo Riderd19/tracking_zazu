@@ -1,6 +1,7 @@
 import { FileDoneOutlined } from "@ant-design/icons";
 import { tipoEntrega } from "../../utils/agencia";
 import { formatearFecha } from "../../utils/fecha";
+import CourierShalomExtras from "../shalom/CourierShalomExtras";
 import DeliveryExtras from "../delivery/DeliveryExtras";
 import StatusInfoCard from "./StatusInfoCard";
 
@@ -39,6 +40,7 @@ export default function RegisteredCard({
         { label: "Próximo paso", valor: "Preparando pedido" },
       ].filter(Boolean)}
     >
+      <CourierShalomExtras pedido={pedido} identidad={identidad} />
       <DeliveryExtras
         pedido={pedido}
         identidad={identidad}

@@ -1,6 +1,7 @@
 import { InboxOutlined } from "@ant-design/icons";
 import { tipoEntrega } from "../../utils/agencia";
 import { formatearFecha } from "../../utils/fecha";
+import CourierShalomExtras from "../shalom/CourierShalomExtras";
 import DeliveryExtras from "../delivery/DeliveryExtras";
 import StatusInfoCard from "./StatusInfoCard";
 
@@ -43,6 +44,7 @@ export default function PreparingCard({
         { label: "Próximo paso", valor: "En ruta" },
       ].filter(Boolean)}
     >
+      <CourierShalomExtras pedido={pedido} identidad={identidad} />
       <DeliveryExtras
         pedido={pedido}
         identidad={identidad}

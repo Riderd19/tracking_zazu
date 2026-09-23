@@ -13,13 +13,14 @@ import { WHATSAPP_SOPORTE_LINK } from '../../constants/soporte'
 import { nombreYAgencia } from '../../utils/agencia'
 import { formatearFecha } from '../../utils/fecha'
 import OrderItemsSummary from '../seguimiento/OrderItemsSummary'
+import CourierShalomExtras from '../shalom/CourierShalomExtras'
 
 function fechaEntrega(pedido) {
   const hito = pedido.timeline?.find((item) => item.codigo === 'entregado')
   return pedido.fecha_entregado_zazu1 ?? pedido.fecha_entrega_real ?? hito?.fecha ?? pedido.fecha_actualizacion ?? null
 }
 
-export default function DeliveredCard({ pedido }) {
+export default function DeliveredCard({ pedido, identidad }) {
   const [detalleAbierto, setDetalleAbierto] = useState(false)
   const fecha = formatearFecha(fechaEntrega(pedido))
   const esCourier = pedido.tipo_envio?.toUpperCase() === 'COURIER'
@@ -92,6 +93,10 @@ export default function DeliveredCard({ pedido }) {
                 <p className="mb-0 text-xs font-semibold text-gray-700">{fecha ?? 'Fecha no disponible'}</p>
               </div>
             </div>
+          </div>
+
+          <div className="mt-4">
+            <CourierShalomExtras pedido={pedido} identidad={identidad} />
           </div>
 
           <Button
