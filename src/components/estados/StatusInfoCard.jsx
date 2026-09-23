@@ -17,6 +17,9 @@ function Fila({ label, valor }) {
 // registrado, Preparando pedido) — mismo look que CourierTrackingCard, pero
 // sin datos de courier. El detalle se abre en un modal para mantener limpia
 // esta vista y evitar una columna adicional junto a la ilustración.
+//
+// `children` va debajo de los botones: son acciones que dependen del tipo de
+// envío (hoy DeliveryExtras) y que cada tarjeta decide si montar.
 export default function StatusInfoCard({
   pedido,
   badgeIcon,
@@ -26,6 +29,7 @@ export default function StatusInfoCard({
   descripcion,
   campos,
   className = "",
+  children,
 }) {
   const [detalleAbierto, setDetalleAbierto] = useState(false);
 
@@ -77,6 +81,8 @@ export default function StatusInfoCard({
           ¿Necesitas ayuda?
         </Button>
         </a>
+
+        {children}
       </div>
 
       <Modal

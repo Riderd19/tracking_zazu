@@ -126,6 +126,56 @@ export async function pedirClaveDeRecojo(codigo, verificacion) {
   return body
 }
 
+// A diferencia de voucher y clave, reprogramar y cambiar la ubicación aceptan
+// las mismas dos identidades que /public/tracking: el token del link del bot o
+// código + DNI/celular. Quien llegó por el link nunca escribió su DNI, así que
+// sin el token no tendría cómo confirmar el cambio.
+function cuerpoDeIdentidad(identidad) {
+  return identidad?.token
+    ? { token: identidad.token }
+    : { codigo: identidad?.codigo, verificacion: identidad?.identificador }
+}
+
+// POST compartido por reprogramarEntrega/actualizarUbicacion. Como la clave,
+// responden 200 con { ok, mensaje } para cualquier desenlace del cambio (fecha
+// fuera de plazo, pedido que ya no admite cambios...): solo lanza cuando la
+// consulta en sí falla.
+async function cambiarEntrega(ruta, identidad, datos, mensajePorDefecto) {
+  const response = await fetch(`${API_URL}/public/tracking/${ruta}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ ...cuerpoDeIdentidad(identidad), ...datos }),
+  })
+
+  const body = await response.json().catch(() => ({}))
+
+  if (response.status === 429) {
+    // El límite es por hora (ver AppServiceProvider): "espera un momento" no alcanza.
+    throw new Error('Alcanzaste el límite de cambios por ahora. Inténtalo más tarde o escríbenos por WhatsApp.')
+  }
+  if (response.status === 422 && body.errors) {
+    // Copy propio: el mensaje de validación de Laravel nombra campos internos.
+    throw new Error('Revisa los datos ingresados e inténtalo de nuevo.')
+  }
+  if (!response.ok) {
+    throw new Error(body.message ?? mensajePorDefecto)
+  }
+
+  return body
+}
+
+// Mueve la entrega a otro día (ver TrackingPublicController::reprogramar).
+// `fecha` en 'YYYY-MM-DD'.
+export async function reprogramarEntrega(identidad, fecha) {
+  return cambiarEntrega('reprogramar', identidad, { fecha }, 'No se pudo reprogramar la entrega.')
+}
+
+// Cambia el punto de entrega por el que el cliente marcó en el mapa (ver
+// TrackingPublicController::ubicacion).
+export async function actualizarUbicacion(identidad, lat, lng) {
+  return cambiarEntrega('ubicacion', identidad, { lat, lng }, 'No se pudo actualizar la ubicación de entrega.')
+}
+
 // Empresas activas para poblar el selector del formulario (ver
 // TrackingPublicController::empresas en el backend).
 export async function listarEmpresas() {

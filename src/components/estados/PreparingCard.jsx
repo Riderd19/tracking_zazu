@@ -1,12 +1,19 @@
 import { InboxOutlined } from "@ant-design/icons";
 import { tipoEntrega } from "../../utils/agencia";
 import { formatearFecha } from "../../utils/fecha";
+import DeliveryExtras from "../delivery/DeliveryExtras";
 import StatusInfoCard from "./StatusInfoCard";
 
 // Pedidos en "Preparando Pedido": ya salieron de venta y están siendo alistados
 // para el envío (courier, delivery propio, almacén o tienda), todavía sin
 // datos de seguimiento externo.
-export default function PreparingCard({ pedido, lugar, className = "" }) {
+export default function PreparingCard({
+  pedido,
+  lugar,
+  identidad,
+  onPedidoUpdate,
+  className = "",
+}) {
   const {
     codigo,
     tipo_envio: tipoEnvio,
@@ -35,6 +42,12 @@ export default function PreparingCard({ pedido, lugar, className = "" }) {
         { label: "Tipo de entrega", valor: tipoEntrega(tipoEnvio, lugar) },
         { label: "Próximo paso", valor: "En ruta" },
       ].filter(Boolean)}
-    />
+    >
+      <DeliveryExtras
+        pedido={pedido}
+        identidad={identidad}
+        onPedidoUpdate={onPedidoUpdate}
+      />
+    </StatusInfoCard>
   );
 }
