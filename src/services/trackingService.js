@@ -3,7 +3,8 @@
 // de build no recibio la variable de entorno.
 const API_URL = (
   import.meta.env.VITE_API_URL ||
-  (import.meta.env.PROD ? 'https://zazu.com.pe/api' : 'http://127.0.0.1:8000/api')
+  (import.meta.env.PROD ? 'https://zazu.com.pe/api' : 'http://127.0.0.1:8000/api' | 'https://dev.zazu.com.pe/api'
+  )
 ).replace(/\/$/, '')
 import {
   CODIGO_PEDIDO_ANULADO_DEMO,

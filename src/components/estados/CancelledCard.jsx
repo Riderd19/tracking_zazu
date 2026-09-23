@@ -5,6 +5,7 @@ import {
 } from "@ant-design/icons";
 import { formatearFecha } from "../../utils/fecha";
 import { WHATSAPP_SOPORTE_LINK } from "../../constants/soporte";
+import CourierShalomExtras from "../shalom/CourierShalomExtras";
 
 function dato(pedido, nombres, respaldo) {
   const encontrado = nombres.map((nombre) => pedido?.[nombre]).find(Boolean);
@@ -33,7 +34,7 @@ function Fila({ icono, label, valor, destacado = false }) {
   );
 }
 
-export default function CancelledCard({ pedido }) {
+export default function CancelledCard({ pedido, identidad }) {
   const eventoCancelado = pedido?.timeline
     ?.filter((evento) =>
       ["cancelado", "anulado"].includes(evento?.codigo),
@@ -81,6 +82,10 @@ export default function CancelledCard({ pedido }) {
           valor="Anulado"
           destacado
         />
+      </div>
+
+      <div className="mt-4">
+        <CourierShalomExtras pedido={pedido} identidad={identidad} />
       </div>
 
       <a
