@@ -137,12 +137,16 @@ export default function CourierShalomExtras({ pedido, identidad }) {
   if (!pedido.es_shalom) return null
 
   const pagoCompleto = pedido.tipo_pago === 'Pago Completo'
+  // Los pedidos viejos sin ticket tienen voucher (sale de Supabase) pero no una
+  // clave que el backend pueda entregar. `!== false` para no esconderla si el
+  // backend todavía no manda el campo.
+  const claveDisponible = pedido.clave_disponible !== false
 
   return (
     <div className="flex flex-col gap-3">
       <FotoPacking pedido={pedido} />
       <BotonVoucher identidad={identidad} />
-      {pagoCompleto && <BotonClave identidad={identidad} />}
+      {pagoCompleto && claveDisponible && <BotonClave identidad={identidad} />}
     </div>
   )
 }
