@@ -11,17 +11,14 @@ import TruckFastIcon from "../icons/TruckFastIcon";
 import MotorcycleIcon from "../icons/MotorcycleIcon";
 import { EN_GESTION } from "../../constants/estadosPedido";
 
-// Pipeline que ve el cliente: 4 pasos. El código que llega en `estadoActual`
-// ahora sale de Empaquetado y Entrega en el backend (tickets.estado /
-// tickets.estado_zazu_1, ver TrackingPublicController::determinarEstadoDesdeTicket),
-// no de pedidos.estado — "pendiente" ("En espera" del ticket) = Pedido Registrado,
-// "despachado" = Preparando Pedido, "en_ruta" ("En curso" del courier externo) = En
-// Ruta, "entregado" = resultado final. Los códigos viejos de pedidos.estado
-// (confirmado, en_preparacion, listo, procesado, registrado, solicitud_portal,
-// asignado, recepcionado) se mantienen en EN_GESTION solo como respaldo, para
-// pedidos sin ticket vinculado (ver el fallback en el backend). EN_GESTION
-// vive en su propio archivo (no acá) para no romper Fast Refresh — un
-// archivo de componente solo puede exportar componentes.
+// Pipeline que ve el cliente: 4 pasos. El código que llega en `estadoActual` lo
+// traduce el backend desde el estado del pedido en Zazu 2 (pedidos.estado, ver
+// TrackingPublicController::estadoParaElTracking): "pendiente" = Pedido
+// Registrado, "despachado" = Preparando Pedido, "en_ruta" = En Ruta (courier:
+// Registrado con guía de la agencia), "entregado"/"devuelto"/"reprogramado" =
+// resultado final. Los demás códigos de EN_GESTION quedan como respaldo por si
+// llega uno sin traducir. EN_GESTION vive en su propio archivo (no acá) para no
+// romper Fast Refresh — un archivo de componente solo puede exportar componentes.
 
 const RESULTADOS_FINALES = {
   entregado: { label: "Entregado", icon: <CheckCircleOutlined /> },
