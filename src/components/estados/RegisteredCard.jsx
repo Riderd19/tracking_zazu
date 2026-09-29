@@ -2,6 +2,7 @@ import { FileDoneOutlined } from "@ant-design/icons";
 import { tipoEntrega } from "../../utils/agencia";
 import { formatearFecha } from "../../utils/fecha";
 import CourierShalomExtras from "../shalom/CourierShalomExtras";
+import { campoClaveRecojo } from "../shalom/campoClaveRecojo";
 import DeliveryExtras from "../delivery/DeliveryExtras";
 import StatusInfoCard from "./StatusInfoCard";
 
@@ -36,6 +37,7 @@ export default function RegisteredCard({
           label: "Guía",
           valor: pedido.guia_courier || "Pendiente",
         },
+        campoClaveRecojo(pedido, identidad),
         { label: "Tipo de entrega", valor: tipoEntrega(tipoEnvio, lugar) },
         { label: "Próximo paso", valor: "Preparando pedido" },
       ].filter(Boolean)}

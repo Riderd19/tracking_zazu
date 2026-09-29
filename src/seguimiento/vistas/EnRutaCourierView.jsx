@@ -38,7 +38,7 @@ export default function EnRutaCourierView({ pedido, identidad, onPedidoUpdate, d
           : 'grid grid-cols-1 items-start gap-5 md:grid-cols-[minmax(260px,320px)_1fr] md:px-[8%] lg:grid-cols-[minmax(300px,360px)_minmax(460px,700px)] lg:justify-center lg:gap-8'
       }
     >
-      <CourierTrackingCard pedido={pedido} lugar={destino} />
+      <CourierTrackingCard pedido={pedido} lugar={destino} identidad={identidad} />
       {ilustracion ? (
         <div className="h-64 w-full rounded-2xl md:h-95 lg:h-105">
           <img

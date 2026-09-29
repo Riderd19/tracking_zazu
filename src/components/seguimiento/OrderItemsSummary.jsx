@@ -102,6 +102,63 @@ function Articulo({ fila }) {
   );
 }
 
+const soles = (monto) => `S/ ${Number(monto).toFixed(2)}`;
+
+/**
+ * Total, pagado y por pagar del pedido.
+ *
+ * `total_pagado` fue durante un tiempo el monto total tal cual (un Contra
+ * Entrega sin pagar figuraba "pagado" entero). El backend nuevo manda
+ * `total_pedido` / `total_pagado` / `por_pagar`; con el anterior se reconstruye
+ * igual: su `total_pagado` es el total, y lo que falta es `saldo_pendiente`
+ * salvo que el pedido ya sea Pago Completo.
+ */
+function montosDelPedido(pedido) {
+  const total = Number(pedido.total_pedido ?? pedido.total_pagado ?? 0);
+  const porPagar =
+    pedido.por_pagar !== undefined
+      ? Number(pedido.por_pagar)
+      : pedido.tipo_pago === "Pago Completo"
+        ? 0
+        : Math.min(total, Math.max(0, Number(pedido.saldo_pendiente ?? 0)));
+
+  return { total, porPagar, pagado: Math.max(0, total - porPagar) };
+}
+
+/**
+ * Los montos del resumen. Sin nada por cobrar, "Total pagado" como siempre; con
+ * saldo, el total, lo pagado y lo que falta, que es lo que más importa ver.
+ */
+function MontosDelPedido({ pedido, destacado = "text-lg" }) {
+  const { total, porPagar, pagado } = montosDelPedido(pedido);
+
+  if (porPagar <= 0) {
+    return (
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-semibold text-gray-900">Total pagado</span>
+        <span className={`${destacado} font-bold text-violet-700`}>{soles(total)}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-gray-500">Total del pedido</span>
+        <span className="font-medium text-gray-900">{soles(total)}</span>
+      </div>
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-gray-500">Pagado</span>
+        <span className="font-medium text-gray-900">{soles(pagado)}</span>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-semibold text-gray-900">Por pagar</span>
+        <span className={`${destacado} font-bold text-violet-700`}>{soles(porPagar)}</span>
+      </div>
+    </div>
+  );
+}
+
 // Detalle de artículos del ticket — el backend público de tracking hoy no
 // manda esto (ver TrackingPublicController), así que se oculta solo si
 // `pedido.articulos` no llega, igual que Código/Guía con el courier.
@@ -117,7 +174,7 @@ export default function OrderItemsSummary({
     inicialmenteAbierto || siempreAbierto,
   );
   const [modalAbierto, setModalAbierto] = useState(false);
-  const { articulos, total_pagado, metodo_pago, tipo_pago } = pedido;
+  const { articulos, metodo_pago, tipo_pago } = pedido;
 
   if (!articulos?.length) return null;
 
@@ -150,13 +207,8 @@ export default function OrderItemsSummary({
             </div>
           </div>
 
-          <div className="flex items-center justify-between py-4">
-            <span className="text-sm font-semibold text-gray-900">
-              Total pagado
-            </span>
-            <span className="text-xl font-bold text-violet-700">
-              S/ {Number(total_pagado).toFixed(2)}
-            </span>
+          <div className="py-4">
+            <MontosDelPedido pedido={pedido} destacado="text-xl" />
           </div>
 
           {metodo_pago && (
@@ -234,13 +286,8 @@ export default function OrderItemsSummary({
         </div>
       )}
 
-      <div className="border-t border-gray-100 pt-3 flex items-center justify-between">
-        <span className="text-sm font-semibold text-gray-900">
-          Total pagado
-        </span>
-        <span className="text-lg font-bold text-violet-700">
-          S/ {Number(total_pagado).toFixed(2)}
-        </span>
+      <div className="border-t border-gray-100 pt-3">
+        <MontosDelPedido pedido={pedido} />
       </div>
 
       {metodo_pago && (
