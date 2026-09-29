@@ -69,13 +69,20 @@ export async function buscarPedidoPorToken(token) {
   return llamarTracking({ token })
 }
 
+// Vuelve a consultar el pedido con la identidad de la búsqueda, sea cual sea.
+export async function buscarPedidoDeIdentidad(identidad) {
+  return identidad?.token
+    ? buscarPedidoPorToken(identidad.token)
+    : buscarPedido(identidad.codigo, identidad.identificador)
+}
+
 // Genera (o reutiliza, si ya hay uno vigente) el QR de Ligo Pay para el saldo
 // pendiente del pedido — ver TrackingligoQrController en el backend.
-export async function generarQrSaldo(codigo, verificacion) {
+export async function generarQrSaldo(identidad) {
   const response = await fetch(`${API_URL}/public/trackingligo/qr`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ codigo, verificacion }),
+    body: JSON.stringify(cuerpoDeIdentidad(identidad)),
   })
 
   const body = await response.json().catch(() => ({}))
@@ -91,11 +98,11 @@ export async function generarQrSaldo(codigo, verificacion) {
 // Devuelve { url, nombre } — el frontend abre `url` en una pestaña nueva, no
 // hay que descargarlo acá: es el mismo PDF público que ya usa la plantilla
 // de WhatsApp.
-export async function obtenerVoucherShalom(codigo, verificacion) {
+export async function obtenerVoucherShalom(identidad) {
   const response = await fetch(`${API_URL}/public/tracking/voucher`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ codigo, verificacion }),
+    body: JSON.stringify(cuerpoDeIdentidad(identidad)),
   })
 
   const body = await response.json().catch(() => ({}))
@@ -107,15 +114,19 @@ export async function obtenerVoucherShalom(codigo, verificacion) {
   return body
 }
 
-// La clave de recojo de Shalom (ver TrackingPublicController::clave). Responde
-// siempre 200: { ok: true, clave } si coincide, { ok: false, mensaje } si no —
-// nunca un 403, para no delatarle a quien prueba documentos al azar cuándo
-// acertó. Solo tiene sentido pedirla cuando el pedido ya está "Pago Completo".
-export async function pedirClaveDeRecojo(codigo, verificacion) {
+// La clave de recojo de Shalom (ver TrackingPublicController::clave). Con los
+// datos verificados responde 200: { ok: true, estado: 'liberada', clave } o
+// { ok: false, estado, mensaje } con estado 'bloqueada' (falta pagar) o
+// 'generando' (pagado, pero la clave aún no está cargada). Se pide solo cuando
+// el tracking dice `clave_recojo.estado === 'liberada'` (ver ClaveRecojo.jsx).
+//
+// `identidad` es la de useSeguimientoPedido: { codigo, identificador } si buscó a
+// mano, o { token } si entró por el enlace del bot.
+export async function pedirClaveDeRecojo(identidad) {
   const response = await fetch(`${API_URL}/public/tracking/clave`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ codigo, verificacion }),
+    body: JSON.stringify(cuerpoDeIdentidad(identidad)),
   })
 
   const body = await response.json().catch(() => ({}))
@@ -127,10 +138,10 @@ export async function pedirClaveDeRecojo(codigo, verificacion) {
   return body
 }
 
-// A diferencia de voucher y clave, reprogramar y cambiar la ubicación aceptan
-// las mismas dos identidades que /public/tracking: el token del link del bot o
-// código + DNI/celular. Quien llegó por el link nunca escribió su DNI, así que
-// sin el token no tendría cómo confirmar el cambio.
+// El voucher, la clave, reprogramar y cambiar la ubicación aceptan las mismas dos
+// identidades que /public/tracking: el token del link del bot o código +
+// DNI/celular. Quien llegó por el link nunca escribió su DNI, así que sin el
+// token no tendría cómo pedir nada de esto.
 function cuerpoDeIdentidad(identidad) {
   return identidad?.token
     ? { token: identidad.token }

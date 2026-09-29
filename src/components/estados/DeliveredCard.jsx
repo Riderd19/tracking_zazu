@@ -5,6 +5,7 @@ import {
   EyeOutlined,
   FileDoneOutlined,
   FileTextOutlined,
+  KeyOutlined,
   WhatsAppOutlined,
 } from '@ant-design/icons'
 import { Button, Modal } from 'antd'
@@ -14,6 +15,8 @@ import { nombreYAgencia } from '../../utils/agencia'
 import { formatearFecha } from '../../utils/fecha'
 import OrderItemsSummary from '../seguimiento/OrderItemsSummary'
 import CourierShalomExtras from '../shalom/CourierShalomExtras'
+import ValorClaveRecojo from '../shalom/ClaveRecojo'
+import { estadoClaveRecojo } from '../../services/claveRecojo'
 
 function fechaEntrega(pedido) {
   const hito = pedido.timeline?.find((item) => item.codigo === 'entregado')
@@ -70,6 +73,18 @@ export default function DeliveredCard({ pedido, identidad }) {
                   <p className="mb-0 text-xs font-semibold text-gray-700">
                     {pedido.guia_courier || 'Pendiente'}
                   </p>
+                </div>
+              </div>
+            )}
+
+            {estadoClaveRecojo(pedido) && (
+              <div className="flex items-start gap-3 py-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-50 text-violet-700">
+                  <KeyOutlined />
+                </span>
+                <div>
+                  <p className="mb-0.5 text-xs font-medium text-gray-400">Clave de recojo</p>
+                  <ValorClaveRecojo pedido={pedido} identidad={identidad} />
                 </div>
               </div>
             )}

@@ -7,7 +7,8 @@ import {
   KeyOutlined,
   ReloadOutlined,
 } from '@ant-design/icons'
-import { buscarPedido, generarQrSaldo, pedirClaveDeRecojo } from '../../services/trackingService'
+import { buscarPedidoDeIdentidad, generarQrSaldo } from '../../services/trackingService'
+import { pedirClaveUnaVez } from '../../services/claveRecojo'
 
 const POLL_MS = 10000
 
@@ -35,10 +36,9 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  // La clave de recojo de Shalom, pedida sola en cuanto el polling ve el pago
-  // confirmado: null = todavía no se pidió, { cargando: true } mientras llega,
-  // y después la respuesta tal cual de pedirClaveDeRecojo ({ ok, clave } o
-  // { ok: false, mensaje }) — los mismos tres estados que BotonClave.
+  // La clave de recojo de Shalom, pedida sola con el pago confirmado y la
+  // ventana abierta: null mientras llega, y después la respuesta tal cual de
+  // pedirClaveDeRecojo ({ ok, clave } o { ok: false, mensaje }).
   const [clave, setClave] = useState(null)
 
   const pago = pedido.ligo_payment ?? {}
@@ -62,38 +62,44 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
   // consultar el tracking cada 10s (mismo endpoint que ya usa App.jsx para el
   // polling de "en ruta") para detectar el cambio de estado.
   useEffect(() => {
-    if (!open || !qrVigente || !identidad?.codigo) return undefined
+    if (!open || !qrVigente || (!identidad?.codigo && !identidad?.token)) return undefined
 
     const polling = setInterval(async () => {
       let actualizado
       try {
-        actualizado = await buscarPedido(identidad.codigo, identidad.identificador)
+        actualizado = await buscarPedidoDeIdentidad(identidad)
         onPedidoUpdate?.(actualizado)
       } catch {
         // Un fallo temporal de la consulta no debe tumbar un QR que sigue vigente.
         return
-      }
-
-      // En Shalom, pagar es justamente lo que libera la clave de recojo: se
-      // pide acá mismo, en el ciclo que detectó el pago, para que aparezca en
-      // la pantalla de "Pago realizado" sin que el cliente tenga que encontrar
-      // el botón de la clave por su cuenta. Este intervalo se limpia apenas el
-      // QR deja de estar vigente, así que esto corre una sola vez.
-      if (actualizado?.es_shalom && actualizado.ligo_payment?.status === 'pagado') {
-        setClave({ cargando: true })
-        try {
-          setClave(await pedirClaveDeRecojo(identidad.codigo, identidad.identificador))
-        } catch (err) {
-          setClave({ ok: false, mensaje: err.message })
-        }
       }
     }, POLL_MS)
 
     return () => clearInterval(polling)
   }, [open, qrVigente, identidad, onPedidoUpdate])
 
+  // En Shalom, pagar es justamente lo que libera la clave de recojo: con la
+  // ventana abierta y el pago confirmado se pide acá, para que aparezca en la
+  // pantalla de "Pago realizado". Aparte del polling de arriba a propósito: el
+  // pago puede detectarlo también el refresco general de la página (en ruta), y
+  // en ese caso el polling de acá ya se habría cortado sin pedirla.
+  //
+  // Es la misma consulta que la fila "Clave de recojo" de la tarjeta, que se
+  // desbloquea en el mismo momento: comparten el resultado para no gastar dos
+  // intentos del límite de la clave.
+  useEffect(() => {
+    if (!open || !pagado || !pedido.es_shalom || !identidad) return undefined
+    let vigente = true
+    pedirClaveUnaVez(identidad).then((resultado) => {
+      if (vigente) setClave(resultado)
+    })
+    return () => {
+      vigente = false
+    }
+  }, [open, pagado, pedido.es_shalom, identidad])
+
   async function generar() {
-    if (!identidad?.codigo) {
+    if (!identidad?.codigo && !identidad?.token) {
       setError('Vuelve a buscar tu pedido para poder generar el QR.')
       return
     }
@@ -102,7 +108,7 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
     setError('')
 
     try {
-      const generado = await generarQrSaldo(identidad.codigo, identidad.identificador)
+      const generado = await generarQrSaldo(identidad)
       onPedidoUpdate?.({
         ...pedido,
         saldo_pendiente: generado.amount,
@@ -188,15 +194,15 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
             <h3 className="mt-3 text-lg font-bold">Pago realizado</h3>
             <p>Tu pedido ya no tiene saldo pendiente.</p>
 
-            {pedido.es_shalom && clave && (
+            {pedido.es_shalom && (
               <div className="mt-6 rounded-2xl bg-violet-50 p-5 text-gray-700">
                 <p className="mb-3 flex items-center justify-center gap-2 text-sm font-semibold text-gray-900">
                   <KeyOutlined /> Tu clave de recojo
                 </p>
 
-                {clave.cargando && <Spin />}
+                {!clave && <Spin />}
 
-                {!clave.cargando && clave.ok && (
+                {clave?.ok && (
                   <>
                     <div className="text-4xl font-bold tracking-widest text-violet-700">{clave.clave}</div>
                     <p className="mt-2 mb-0 text-xs font-medium text-gray-500">
@@ -205,7 +211,7 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
                   </>
                 )}
 
-                {!clave.cargando && !clave.ok && <p className="mb-0 text-sm text-gray-600">{clave.mensaje}</p>}
+                {clave && !clave.ok && <p className="mb-0 text-sm text-gray-600">{clave.mensaje}</p>}
               </div>
             )}
           </div>

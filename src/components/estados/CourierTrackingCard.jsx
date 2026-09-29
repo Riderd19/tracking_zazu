@@ -4,6 +4,7 @@ import TruckFastIcon from '../icons/TruckFastIcon'
 import { agenciaBase, nombreYAgencia } from '../../utils/agencia'
 import { urlRastreoAgencia } from '../../constants/courierTracking'
 import { formatearFecha } from '../../utils/fecha'
+import { campoClaveRecojo } from '../shalom/campoClaveRecojo'
 
 function Fila({ label, valor, destacado = false }) {
   return (
@@ -54,7 +55,7 @@ const VARIANTES_SEGUIMIENTO = {
 // (agencia - sucursal - ubicación), del que se derivan agencia/sucursal acá
 // para no repetir el parseo. El botón "Rastrear en X" varía según la
 // agencia (ver courierTracking.js) y se omite si no hay URL conocida.
-export default function CourierTrackingCard({ pedido, lugar, className = '' }) {
+export default function CourierTrackingCard({ pedido, lugar, identidad, className = '' }) {
   const {
     codigo_courier: codigo,
     guia_courier: guia,
@@ -69,6 +70,8 @@ export default function CourierTrackingCard({ pedido, lugar, className = '' }) {
   // mapa por una ilustración para estos mismos casos).
   const variante = seguimiento?.estado ? VARIANTES_SEGUIMIENTO[seguimiento.estado] : null
   const fechaPaso = variante ? formatearFecha(seguimiento.pasos?.[variante.pasoFecha]?.fecha) : null
+  const claveRecojo = campoClaveRecojo(pedido, identidad)
+  const filaClave = claveRecojo && <Fila label={claveRecojo.label} valor={claveRecojo.valor} />
 
   return (
     <div className={`w-full rounded-xl border border-gray-200 bg-white p-5 shadow-sm ${className}`}>
@@ -88,6 +91,7 @@ export default function CourierTrackingCard({ pedido, lugar, className = '' }) {
           <div className="divide-y divide-gray-100 border-y border-gray-100">
             <Fila label="Guía" valor={guia || 'Pendiente'} />
             <Fila label="Código" valor={codigo || 'No Disponible'} />
+            {filaClave}
             {variante.mostrarAgenciaDestino && <Fila label="Agencia destino" valor={sucursal || 'Pendiente'} />}
             <Fila label={`Estado en ${agencia}`} valor={seguimiento.mensaje ?? 'Pendiente'} destacado />
           </div>
@@ -102,6 +106,7 @@ export default function CourierTrackingCard({ pedido, lugar, className = '' }) {
           <div className="divide-y divide-gray-100 border-y border-gray-100">
             <Fila label="Código" valor={codigo || 'No Disponible'} />
             <Fila label="Guía" valor={guia || 'Pendiente'} />
+            {filaClave}
             <Fila label="Agencia" valor={sucursal || 'Pendiente'} />
             <Fila
               label={`Estado en ${agencia}`}
