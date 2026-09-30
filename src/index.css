@@ -12,6 +12,9 @@
 @import "tailwindcss";
 
 @theme {
+  /* Inter en 400 / 600 / 700, que son los únicos pesos que se cargan (ver
+     index.html): usar font-normal, font-semibold o font-bold. */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --animate-fade-in-up: fade-in-up 0.35s ease-out both;
   --animate-shake: shake 0.4s ease-in-out;
   --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
@@ -81,4 +84,36 @@ body {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* Formulario de búsqueda: en móvil va todo apilado, un campo por fila; en
+   escritorio todo va en una sola fila, con cada etiqueta encima de sus campos. Las columnas son fracciones (no px) para que el campo
+   de DNI caiga siempre en el hueco entre la nota de venta y la ayuda, que es
+   donde sube su flecha (ver ConectoresNota). */
+.buscar-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "l1" "sel" "num" "l2" "dni" "btn";
+}
+
+@media (min-width: 1024px) {
+  .buscar-grid {
+    grid-template-columns:
+      minmax(0, 287fr) minmax(0, 360fr) minmax(0, 388fr) minmax(0, 250fr);
+    grid-template-areas:
+      "l1 l1 l2 ."
+      "sel num dni btn";
+    column-gap: 12px;
+  }
+}
+
+/* La nota de ejemplo es lo más alto de la búsqueda: en escritorio se achica
+   con el alto de la ventana para que la pantalla entera entre sin scroll.
+   520/468 es su proporción; 470px, lo que ocupa todo lo demás (cabecera, pie,
+   título y formulario). Por debajo de ~300px de alto ya no se lee, así que ahí
+   se deja de achicar y la página pasa a tener scroll. */
+@media (min-width: 1024px) {
+  .nota-ejemplo {
+    width: clamp(333px, calc((100dvh - 470px) * 520 / 468), 520px);
+  }
 }

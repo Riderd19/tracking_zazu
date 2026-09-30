@@ -26,7 +26,7 @@ function Campo({ icon, arriba, abajo, enfasisArriba = false, abajoSinAjuste = fa
       <div className="min-w-0 flex flex-col gap-2">
         <p
           className={`mb-0 break-words text-sm leading-5 ${
-            enfasisArriba ? 'font-semibold text-gray-900' : 'font-medium text-gray-700'
+            enfasisArriba ? 'font-semibold text-gray-900' : 'font-semibold text-gray-700'
           }`}
         >
           {arriba}

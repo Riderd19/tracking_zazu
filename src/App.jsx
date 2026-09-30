@@ -17,7 +17,7 @@ export default function App() {
     useSeguimientoPedido()
 
   return (
-    <PublicLayout onVolver={pedido ? volver : undefined}>
+    <PublicLayout onVolver={pedido ? volver : undefined} amplio={Boolean(pedido)}>
       {pedido ? (
         <SeguimientoPage
           pedido={pedido}

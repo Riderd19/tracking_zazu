@@ -43,7 +43,7 @@ export default function DeliveredCard({ pedido, identidad }) {
           </div>
 
           <h2 className="mb-1 text-xl font-bold tracking-tight text-gray-900">Pedido entregado</h2>
-          {fecha && <p className="mb-2 text-xs font-medium text-gray-500">{fecha}</p>}
+          {fecha && <p className="mb-2 text-xs font-semibold text-gray-500">{fecha}</p>}
           <p className="mb-3 text-xs leading-5 text-gray-500">
             Tu pedido fue entregado correctamente. Gracias por confiar en Zazu Express.
           </p>
@@ -55,7 +55,7 @@ export default function DeliveredCard({ pedido, identidad }) {
                   <FileTextOutlined />
                 </span>
                 <div>
-                  <p className="mb-0.5 text-xs font-medium text-gray-400">Código</p>
+                  <p className="mb-0.5 text-xs font-semibold text-gray-400">Código</p>
                   <p className="mb-0 text-xs font-semibold text-gray-700">
                     {pedido.codigo_courier || 'No Disponible'}
                   </p>
@@ -69,7 +69,7 @@ export default function DeliveredCard({ pedido, identidad }) {
                   <FileDoneOutlined />
                 </span>
                 <div>
-                  <p className="mb-0.5 text-xs font-medium text-gray-400">Guía</p>
+                  <p className="mb-0.5 text-xs font-semibold text-gray-400">Guía</p>
                   <p className="mb-0 text-xs font-semibold text-gray-700">
                     {pedido.guia_courier || 'Pendiente'}
                   </p>
@@ -83,7 +83,7 @@ export default function DeliveredCard({ pedido, identidad }) {
                   <KeyOutlined />
                 </span>
                 <div>
-                  <p className="mb-0.5 text-xs font-medium text-gray-400">Clave de recojo</p>
+                  <p className="mb-0.5 text-xs font-semibold text-gray-400">Clave de recojo</p>
                   <ValorClaveRecojo pedido={pedido} identidad={identidad} />
                 </div>
               </div>
@@ -94,7 +94,7 @@ export default function DeliveredCard({ pedido, identidad }) {
                 <EnvironmentFilled />
               </span>
               <div className="min-w-0">
-                <p className="mb-0.5 text-xs font-medium text-gray-400">Lugar de entrega</p>
+                <p className="mb-0.5 text-xs font-semibold text-gray-400">Lugar de entrega</p>
                 <p className="mb-0 text-xs font-semibold leading-5 text-gray-700">{lugar}</p>
               </div>
             </div>
@@ -104,7 +104,7 @@ export default function DeliveredCard({ pedido, identidad }) {
                 <CalendarOutlined />
               </span>
               <div>
-                <p className="mb-0.5 text-xs font-medium text-gray-400">Fecha de entrega</p>
+                <p className="mb-0.5 text-xs font-semibold text-gray-400">Fecha de entrega</p>
                 <p className="mb-0 text-xs font-semibold text-gray-700">{fecha ?? 'Fecha no disponible'}</p>
               </div>
             </div>

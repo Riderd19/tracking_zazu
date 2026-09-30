@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Form, Input, Select, Space, Button } from 'antd'
-import { SearchOutlined, CloseOutlined, ClockCircleOutlined, InboxOutlined, LockOutlined } from '@ant-design/icons'
+import { Form, Input, Select, Button } from 'antd'
+import { CloseOutlined, ClockCircleOutlined } from '@ant-design/icons'
 import { listarEmpresas } from '../../services/trackingService'
 import { combinarCodigo, parseCodigo, detectarCodigoCompleto } from '../../utils/codigoPedido'
+import PasoNumero from '../buscar/PasoNumero'
 
 const ERROR_CONFIG = {
   no_encontrado: {
@@ -35,7 +36,24 @@ const ERROR_CONFIG = {
   },
 }
 
-export default function SearchForm({ onSubmit, loading, error, codigoInicial }) {
+function Etiqueta({ numero, htmlFor, area, children }) {
+  return (
+    <label
+      htmlFor={htmlFor}
+      style={{ gridArea: area }}
+      className={`mb-2.5 flex items-center gap-2.5 text-base font-semibold text-gray-900 ${area === 'l2' ? 'lg:ml-2.5' : ''}`}
+    >
+      <PasoNumero numero={numero} />
+      {children}
+    </label>
+  )
+}
+
+/**
+ * `numeroRef` e `identificadorRef` marcan los dos campos a los que apuntan las
+ * flechas que salen de la nota de venta de ejemplo (ver ConectoresNota).
+ */
+export default function SearchForm({ onSubmit, loading, error, codigoInicial, numeroRef, identificadorRef }) {
   const [form] = Form.useForm()
   // empresas: [{ label, value }] — el "value" es el prefijo real que usa external_ref
   // en el backend (no siempre igual a label, ver TrackingPublicController::empresas).
@@ -107,65 +125,66 @@ export default function SearchForm({ onSubmit, loading, error, codigoInicial }) 
         </div>
       )}
 
-      <Form.Item label="N° de pedido" required>
-        <Space.Compact block>
-          <Form.Item name="empresa" noStyle rules={[{ required: true, message: 'Selecciona la empresa' }]}>
-            <Select
-              size="large"
-              style={{ width: '42%' }}
-              showSearch
-              optionFilterProp="label"
-              loading={empresasLoading}
-              options={empresas}
-            />
-          </Form.Item>
+      <div className="buscar-grid">
+        <Etiqueta numero={1} htmlFor="pedido-numero-input" area="l1">N° de pedido</Etiqueta>
+        <Etiqueta numero={2} htmlFor="pedido-identificador-input" area="l2">DNI o celular</Etiqueta>
+
+        <Form.Item
+          name="empresa"
+          style={{ gridArea: 'sel' }}
+          className="mb-2 lg:mb-0"
+          rules={[{ required: true, message: 'Selecciona tu tienda' }]}
+        >
+          <Select
+            size="large"
+            aria-label="Tienda"
+            placeholder="Selecciona tu tienda"
+            showSearch
+            optionFilterProp="label"
+            loading={empresasLoading}
+            options={empresas}
+          />
+        </Form.Item>
+
+        <div ref={numeroRef} style={{ gridArea: 'num' }}>
           <Form.Item
             name="numero"
-            noStyle
+            className="mb-4 lg:mb-0"
             rules={[{ required: true, message: 'Ingresa el número de pedido' }]}
           >
             <Input
               id="pedido-numero-input"
               size="large"
-              prefix={<InboxOutlined className="text-gray-400" />}
-              placeholder="Ej. 000908"
+              placeholder="Ej. 067812"
               autoComplete="off"
               onChange={handleNumeroChange}
             />
           </Form.Item>
-        </Space.Compact>
-      </Form.Item>
+        </div>
 
-      <Form.Item
-        name="identificador"
-        label="DNI o celular"
-        rules={[{ required: true, message: 'Ingresa tu DNI o celular' }]}
-      >
-        <Input
-          size="large"
-          prefix={<LockOutlined className="text-gray-400" />}
-          placeholder="Ej. 987654321"
-          autoComplete="off"
-          autoFocus={Boolean(codigoInicial)}
-        />
-      </Form.Item>
+        <div ref={identificadorRef} style={{ gridArea: 'dni' }} className="lg:ml-2.5">
+          <Form.Item
+            name="identificador"
+            className="mb-5 lg:mb-0"
+            rules={[{ required: true, message: 'Ingresa tu DNI o celular' }]}
+          >
+            <Input
+              id="pedido-identificador-input"
+              size="large"
+              inputMode="tel"
+              placeholder="Ej. 45678912 o 987654321"
+              autoComplete="off"
+              autoFocus={Boolean(codigoInicial)}
+            />
+          </Form.Item>
+        </div>
 
-      <Form.Item className="mb-3">
-        <Button
-          type="primary"
-          htmlType="submit"
-          size="large"
-          icon={<SearchOutlined />}
-          loading={loading}
-          block
-        >
-          Rastrear pedido
-        </Button>
-      </Form.Item>
-
-      <p className="text-xs text-gray-400 text-center mb-0">
-        Tus datos solo se usan para verificar la propiedad del pedido.
-      </p>
+        <Form.Item style={{ gridArea: 'btn' }} className="mb-0 lg:ml-2.5">
+          <Button type="primary" htmlType="submit" size="large" loading={loading} block>
+            Rastrear pedido
+          </Button>
+        </Form.Item>
+      </div>
     </Form>
   )
 }

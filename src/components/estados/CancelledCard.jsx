@@ -24,8 +24,8 @@ function Fila({ icono, label, valor, destacado = false }) {
       <span
         className={`text-right text-xs ${
           destacado
-            ? "rounded-md border border-red-400 bg-red-50 px-2 py-1 font-medium text-red-600"
-            : "font-medium text-gray-600"
+            ? "rounded-md border border-red-400 bg-red-50 px-2 py-1 font-semibold text-red-600"
+            : "font-semibold text-gray-600"
         }`}
       >
         {valor}
@@ -47,7 +47,7 @@ export default function CancelledCard({ pedido, identidad }) {
   );
   return (
     <article className="w-full rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="mb-3 inline-flex items-center gap-2 rounded-md border border-red-400 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600">
+      <div className="mb-3 inline-flex items-center gap-2 rounded-md border border-red-400 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600">
         <CloseCircleFilled />
         Pedido anulado
       </div>
@@ -56,7 +56,7 @@ export default function CancelledCard({ pedido, identidad }) {
         Tu pedido ha sido anulado
       </h2>
       {fechaCancelacion && (
-        <p className="mb-3 text-xs font-medium text-gray-500">
+        <p className="mb-3 text-xs font-semibold text-gray-500">
           {formatearFecha(fechaCancelacion)}
         </p>
       )}
