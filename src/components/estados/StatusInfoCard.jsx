@@ -7,7 +7,7 @@ import OrderItemsSummary from "../seguimiento/OrderItemsSummary";
 function Fila({ label, valor }) {
   return (
     <div className="flex items-center justify-between gap-3 py-3">
-      <span className="text-xs font-medium text-gray-500">{label}</span>
+      <span className="text-xs font-semibold text-gray-500">{label}</span>
       <span className="text-xs font-semibold text-gray-900">{valor}</span>
     </div>
   );
@@ -47,7 +47,7 @@ export default function StatusInfoCard({
         {titulo}
       </h2>
       {fecha && (
-        <p className="mb-2 text-xs font-medium text-gray-500">{fecha}</p>
+        <p className="mb-2 text-xs font-semibold text-gray-500">{fecha}</p>
       )}
       <p className="mb-3 text-xs leading-5 text-gray-500">{descripcion}</p>
 

@@ -9,7 +9,7 @@ import { campoClaveRecojo } from '../shalom/campoClaveRecojo'
 function Fila({ label, valor, destacado = false }) {
   return (
     <div className="flex items-center justify-between gap-3 py-3">
-      <span className="text-xs font-medium text-gray-500">{label}</span>
+      <span className="text-xs font-semibold text-gray-500">{label}</span>
       {destacado ? (
         <span className="inline-flex items-center rounded-full bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-700">
           {valor}
@@ -83,7 +83,7 @@ export default function CourierTrackingCard({ pedido, lugar, identidad, classNam
       {variante ? (
         <>
           <h2 className="mb-1 text-xl font-bold tracking-tight text-gray-900">{variante.titulo(agencia)}</h2>
-          {fechaPaso && <p className="mb-2 text-xs font-medium text-gray-500">{fechaPaso}</p>}
+          {fechaPaso && <p className="mb-2 text-xs font-semibold text-gray-500">{fechaPaso}</p>}
           <p className="mb-3 text-xs leading-5 text-gray-500">
             {typeof variante.descripcion === 'function' ? variante.descripcion(agencia) : variante.descripcion}
           </p>
@@ -115,7 +115,7 @@ export default function CourierTrackingCard({ pedido, lugar, identidad, classNam
             />
           </div>
           {seguimiento?.demora && (
-            <p className="mb-0 mt-3 flex items-center gap-1.5 text-xs font-medium text-amber-600">
+            <p className="mb-0 mt-3 flex items-center gap-1.5 text-xs font-semibold text-amber-600">
               <ExclamationCircleFilled /> Este envío está demorado
             </p>
           )}

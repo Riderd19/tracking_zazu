@@ -145,11 +145,11 @@ function MontosDelPedido({ pedido, destacado = "text-lg" }) {
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between text-sm">
         <span className="text-gray-500">Total del pedido</span>
-        <span className="font-medium text-gray-900">{soles(total)}</span>
+        <span className="font-semibold text-gray-900">{soles(total)}</span>
       </div>
       <div className="flex items-center justify-between text-sm">
         <span className="text-gray-500">Pagado</span>
-        <span className="font-medium text-gray-900">{soles(pagado)}</span>
+        <span className="font-semibold text-gray-900">{soles(pagado)}</span>
       </div>
       <div className="flex items-center justify-between">
         <span className="text-sm font-semibold text-gray-900">Por pagar</span>
@@ -198,7 +198,7 @@ export default function OrderItemsSummary({
               <ShoppingOutlined />
             </span>
             <div className="min-w-0">
-              <p className="mb-0 text-sm font-medium text-gray-900">
+              <p className="mb-0 text-sm font-semibold text-gray-900">
                 {articulos.length} artículo{articulos.length === 1 ? "" : "s"}
               </p>
               <p className="mb-0 text-xs text-gray-500">
@@ -214,7 +214,7 @@ export default function OrderItemsSummary({
           {metodo_pago && (
             <div className="mb-4 flex items-center justify-between gap-2 text-sm">
               <span className="text-gray-500">Método de pago</span>
-              <span className="text-right font-medium text-gray-900">
+              <span className="text-right font-semibold text-gray-900">
                 {metodo_pago}
               </span>
             </div>
@@ -268,7 +268,7 @@ export default function OrderItemsSummary({
           {articulos.length} artículo{articulos.length === 1 ? "" : "s"}
         </span>
         {!siempreAbierto && (
-          <span className="flex items-center gap-1 text-xs font-medium text-violet-600">
+          <span className="flex items-center gap-1 text-xs font-semibold text-violet-600">
             {detalleAbierto ? "Detalles" : "Ver Detalles"}
             {detalleAbierto ? <UpOutlined /> : <DownOutlined />}
           </span>
@@ -293,7 +293,7 @@ export default function OrderItemsSummary({
       {metodo_pago && (
         <div className="mt-3 flex items-center justify-between gap-2 text-sm">
           <span className="text-gray-500">Método de pago</span>
-          <span className="text-right font-medium text-gray-900">
+          <span className="text-right font-semibold text-gray-900">
             {metodo_pago}
           </span>
         </div>

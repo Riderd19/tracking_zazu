@@ -205,7 +205,7 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
                 {clave?.ok && (
                   <>
                     <div className="text-4xl font-bold tracking-widest text-violet-700">{clave.clave}</div>
-                    <p className="mt-2 mb-0 text-xs font-medium text-gray-500">
+                    <p className="mt-2 mb-0 text-xs font-semibold text-gray-500">
                       Muéstrala en la agencia junto a tu documento
                     </p>
                   </>
