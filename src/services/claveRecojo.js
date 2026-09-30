@@ -20,7 +20,10 @@ const clavesPedidas = new Map()
 export function estadoClaveRecojo(pedido) {
   if (pedido.clave_recojo !== undefined) return pedido.clave_recojo?.estado ?? null
   if (!pedido.es_shalom || pedido.clave_disponible === false) return null
-  return pedido.tipo_pago === 'Pago Completo' ? 'liberada' : 'bloqueada'
+  // `tipo_pago` viene de Supabase y no se entera de un pago por Ligo: el cobro
+  // pagado libera la clave igual, que es lo que el backend exige para entregarla.
+  const pagadoPorLigo = pedido.ligo_payment?.status === 'pagado'
+  return pedido.tipo_pago === 'Pago Completo' || pagadoPorLigo ? 'liberada' : 'bloqueada'
 }
 
 /**
