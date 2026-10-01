@@ -13,3 +13,8 @@ export const EN_GESTION = [
   "asignado",
   "recepcionado",
 ];
+
+// `pedidos.estado_id` con el que el cliente ya puede pagar su saldo antes de
+// que el pedido salga en ruta: la tarjeta de pago aparece también en las de
+// Registrado y Preparando. En ruta se ofrece siempre (ver ResumenLateral).
+export const ESTADO_ID_CON_PAGO = 2;

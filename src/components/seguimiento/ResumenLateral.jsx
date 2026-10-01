@@ -1,5 +1,6 @@
 import OrderItemsSummary from './OrderItemsSummary'
 import SaldoPendiente from '../pago/SaldoPendiente'
+import saldoCobrable from '../pago/saldoCobrable'
 import CourierShalomExtras from '../shalom/CourierShalomExtras'
 import DeliveryExtras from '../delivery/DeliveryExtras'
 
@@ -20,18 +21,10 @@ import DeliveryExtras from '../delivery/DeliveryExtras'
  * "preparando": deja que el backend decida.
  */
 export default function ResumenLateral({ pedido, identidad, onPedidoUpdate }) {
-  // Pagado por Ligo sigue a la vista: al confirmarse el pago el saldo baja a 0,
-  // y sin esto la tarjeta —con la ventana del QR abierta adentro— desaparecía
-  // justo cuando tenía que mostrar "Pago realizado" y la clave de recojo.
-  const pagadoPorLigo = pedido.ligo_payment?.status === 'pagado'
-  const cobrable =
-    ['COURIER', 'DELIVERY'].includes(pedido.tipo_envio?.toUpperCase()) &&
-    ((pedido.saldo_pendiente > 0 && pedido.tipo_pago !== 'Pago Completo') || pagadoPorLigo)
-
   return (
     <div className="flex flex-col gap-5">
       <OrderItemsSummary pedido={pedido} compactoConModal />
-      {cobrable && (
+      {saldoCobrable(pedido) && (
         <SaldoPendiente
           pedido={pedido}
           identidad={identidad}

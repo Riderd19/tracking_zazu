@@ -1,6 +1,9 @@
 import { InboxOutlined } from "@ant-design/icons";
+import { ESTADO_ID_CON_PAGO } from "../../constants/estadosPedido";
 import { tipoEntrega } from "../../utils/agencia";
 import { formatearFecha } from "../../utils/fecha";
+import SaldoPendiente from "../pago/SaldoPendiente";
+import saldoCobrable from "../pago/saldoCobrable";
 import CourierShalomExtras from "../shalom/CourierShalomExtras";
 import { campoClaveRecojo } from "../shalom/campoClaveRecojo";
 import DeliveryExtras from "../delivery/DeliveryExtras";
@@ -46,7 +49,16 @@ export default function PreparingCard({
         { label: "Próximo paso", valor: "En ruta" },
       ].filter(Boolean)}
     >
-      <CourierShalomExtras pedido={pedido} identidad={identidad} />
+      <div className="mt-3 flex flex-col gap-3 empty:hidden">
+        {Number(pedido.estado_id) === ESTADO_ID_CON_PAGO && saldoCobrable(pedido) && (
+          <SaldoPendiente
+            pedido={pedido}
+            identidad={identidad}
+            onPedidoUpdate={onPedidoUpdate}
+          />
+        )}
+        <CourierShalomExtras pedido={pedido} identidad={identidad} />
+      </div>
       <DeliveryExtras
         pedido={pedido}
         identidad={identidad}
