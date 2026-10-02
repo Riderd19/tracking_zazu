@@ -1,5 +1,5 @@
 import { FileDoneOutlined } from "@ant-design/icons";
-import { ESTADO_ID_CON_PAGO } from "../../constants/estadosPedido";
+import { ESTADOS_ID_CON_PAGO } from "../../constants/estadosPedido";
 import { tipoEntrega } from "../../utils/agencia";
 import { formatearFecha } from "../../utils/fecha";
 import SaldoPendiente from "../pago/SaldoPendiente";
@@ -46,7 +46,7 @@ export default function RegisteredCard({
       ].filter(Boolean)}
     >
       <div className="mt-3 flex flex-col gap-3 empty:hidden">
-        {Number(pedido.estado_id) === ESTADO_ID_CON_PAGO && saldoCobrable(pedido) && (
+        {ESTADOS_ID_CON_PAGO.includes(Number(pedido.estado_id)) && saldoCobrable(pedido) && (
           <SaldoPendiente
             pedido={pedido}
             identidad={identidad}
