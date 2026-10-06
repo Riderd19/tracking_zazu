@@ -121,9 +121,9 @@ export default function useChatDelPedido(identidad, abierto) {
     return () => clearInterval(intervalo)
   }, [estado, abierto, conSesion, aplicarEstado, recibir])
 
-  const mandar = useCallback(async (clave, texto) => {
+  const mandar = useCallback(async (clave, texto, opcion) => {
     try {
-      const datos = await conSesion((sesion) => enviarMensaje(sesion, texto))
+      const datos = await conSesion((sesion) => enviarMensaje(sesion, texto, opcion))
       aplicarEstado(datos)
       recibir([datos.mensaje])
       setPendientes((previos) => previos.filter((p) => p.clave !== clave))
@@ -134,14 +134,17 @@ export default function useChatDelPedido(identidad, abierto) {
     }
   }, [conSesion, aplicarEstado, recibir])
 
-  /** Envía lo que escribió el cliente. Se ve en el hilo al instante. */
-  const enviar = useCallback((texto) => {
+  /**
+   * Envía lo que escribió el cliente. Se ve en el hilo al instante.
+   * `opcion` es la clave de un mensaje predefinido, si tocó uno.
+   */
+  const enviar = useCallback((texto, opcion = null) => {
     const limpio = (texto ?? '').trim()
     if (!limpio || estado !== 'listo') return false
 
     const clave = nuevaClave()
-    setPendientes((previos) => [...previos, { clave, texto: limpio, estado: 'enviando' }])
-    mandar(clave, limpio)
+    setPendientes((previos) => [...previos, { clave, texto: limpio, opcion, estado: 'enviando' }])
+    mandar(clave, limpio, opcion)
     return true
   }, [estado, mandar])
 
@@ -149,7 +152,7 @@ export default function useChatDelPedido(identidad, abierto) {
     setPendientes((previos) => previos.map((p) => (
       p.clave === pendiente.clave ? { ...p, estado: 'enviando', motivo: null } : p
     )))
-    mandar(pendiente.clave, pendiente.texto)
+    mandar(pendiente.clave, pendiente.texto, pendiente.opcion)
   }, [mandar])
 
   const descartar = useCallback((pendiente) => {

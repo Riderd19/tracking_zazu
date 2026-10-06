@@ -12,11 +12,19 @@ import { SoporteChatContext } from './soporteChatContext'
 
 const MAX_CARACTERES = 1000
 
-// Para el cliente que no sabe por dónde empezar. Se envían tal cual.
-const SUGERENCIAS = [
-  '¿Cuándo llega mi pedido?',
-  '¿Cuánto me falta pagar?',
-  'Quiero hablar con un asesor',
+// Mensajes que el cliente puede mandar con un toque. Todos tienen respuesta
+// fija en el backend, sin IA (ver ChatWebDelPedido::OPCIONES): la IA queda
+// solo para lo que el cliente escribe con sus palabras.
+//  - ayuda_pago: los pasos para pagar el saldo con Ligo Pay.
+//  - cuando_llega: en qué va el envío y su fecha, con los datos del tracking.
+//  - problema_clave: pide que describa el problema y lo pasa a Soporte.
+//  - hablar_con_asesor: pasa el chat a un asesor.
+// `soloShalom`: la clave de recojo existe solo en los envíos por Shalom.
+const MENSAJES_PREDEFINIDOS = [
+  { texto: 'Necesito ayuda con el pago', opcion: 'ayuda_pago' },
+  { texto: '¿Cuándo llega mi pedido?', opcion: 'cuando_llega' },
+  { texto: 'Tengo problemas con mi clave', opcion: 'problema_clave', soloShalom: true },
+  { texto: 'Quiero hablar con un asesor', opcion: 'hablar_con_asesor' },
 ]
 
 const AUTOR = {
@@ -133,12 +141,15 @@ export default function ChatDelPedido({ pedido, identidad, children }) {
     return () => window.removeEventListener('keydown', alTeclear)
   }, [abierto])
 
-  const enviar = (valor = texto) => {
-    if (chat.enviar(valor)) setTexto('')
+  const enviar = () => {
+    if (chat.enviar(texto)) setTexto('')
   }
 
-  const sinMensajes = chat.mensajes.length === 0 && chat.pendientes.length === 0
   const atiendeAsesor = chat.atiende === 'asesor'
+  // Con un asesor atendiendo no van: la respuesta fija sería del asistente, y
+  // dos voces en el mismo chat confunden. Mientras se espera una respuesta
+  // tampoco, para no apilar preguntas sin contestar.
+  const conPredefinidos = chat.estado === 'listo' && !atiendeAsesor && !chat.esperandoRespuesta
 
   return (
     <SoporteChatContext.Provider value={soporte}>
@@ -239,29 +250,29 @@ export default function ChatDelPedido({ pedido, identidad, children }) {
                   </p>
                 )}
 
-                {sinMensajes && (
-                  <div className="flex flex-wrap gap-2">
-                    {SUGERENCIAS.map((sugerencia) => (
-                      <button
-                        key={sugerencia}
-                        type="button"
-                        onClick={() => enviar(sugerencia)}
-                        className="cursor-pointer rounded-full border border-violet-200 bg-white px-3 py-1.5 text-xs font-medium text-violet-700 hover:bg-violet-50"
-                      >
-                        {sugerencia}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
                 <div ref={finalRef} />
               </div>
             )}
           </div>
 
+          {conPredefinidos && (
+            <div className="flex shrink-0 gap-2 overflow-x-auto border-t border-gray-100 px-3 pt-3 pb-1" aria-label="Mensajes rápidos">
+              {MENSAJES_PREDEFINIDOS.filter((p) => !p.soloShalom || pedido?.es_shalom).map((predefinido) => (
+                <button
+                  key={predefinido.texto}
+                  type="button"
+                  onClick={() => chat.enviar(predefinido.texto, predefinido.opcion)}
+                  className="shrink-0 cursor-pointer rounded-full border border-violet-200 bg-white px-3 py-1.5 text-xs font-medium whitespace-nowrap text-violet-700 hover:bg-violet-50"
+                >
+                  {predefinido.texto}
+                </button>
+              ))}
+            </div>
+          )}
+
           <form
             onSubmit={(e) => { e.preventDefault(); enviar() }}
-            className="flex shrink-0 items-end gap-2 border-t border-gray-200 px-3 py-3"
+            className={`flex shrink-0 items-end gap-2 px-3 py-3 ${conPredefinidos ? '' : 'border-t border-gray-200'}`}
           >
             <textarea
               ref={campoRef}

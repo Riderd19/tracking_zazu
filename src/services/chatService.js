@@ -52,11 +52,14 @@ export async function traerMensajes(sesion, despuesDe) {
 }
 
 // { atiende, esperando_respuesta, mensaje }
-export async function enviarMensaje(sesion, texto) {
+// `opcion` es la clave del mensaje predefinido que tocó el cliente (ver
+// MENSAJES_PREDEFINIDOS en ChatDelPedido): con ella el asistente contesta una
+// respuesta fija en vez de pasar por la IA.
+export async function enviarMensaje(sesion, texto, opcion = null) {
   const response = await fetch(`${API_URL}/public/tracking/chat/mensajes`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json', [CABECERA_SESION]: sesion },
-    body: JSON.stringify({ mensaje: texto }),
+    body: JSON.stringify(opcion ? { mensaje: texto, opcion } : { mensaje: texto }),
   })
 
   return leerRespuesta(response, 'No pudimos enviar tu mensaje. Inténtalo de nuevo.')
