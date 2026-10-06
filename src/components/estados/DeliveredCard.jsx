@@ -11,6 +11,7 @@ import {
 import { Button, Modal } from 'antd'
 import { useState } from 'react'
 import { WHATSAPP_SOPORTE_LINK } from '../../constants/soporte'
+import BotonContactaSoporte from '../chat/BotonContactaSoporte'
 import { nombreYAgencia } from '../../utils/agencia'
 import { formatearFecha } from '../../utils/fecha'
 import OrderItemsSummary from '../seguimiento/OrderItemsSummary'
@@ -131,13 +132,16 @@ export default function DeliveredCard({ pedido, identidad }) {
           </a>
         </div>
 
-        <div className="relative flex h-64 items-end justify-center overflow-hidden md:h-105">
-          <span className="absolute left-[12%] top-[18%] h-28 w-28 rounded-full bg-violet-100/50 blur-3xl" />
-          <img
-            src="/images/pedido-entregado-zazu.png"
-            alt="Repartidor de Zazu entregando el pedido a la clienta"
-            className="relative z-10 h-full w-full object-contain object-center drop-shadow-[0_18px_24px_rgba(76,29,149,0.1)]"
-          />
+        <div className="flex flex-col gap-4">
+          <div className="relative flex h-64 items-end justify-center overflow-hidden md:h-105">
+            <span className="absolute left-[12%] top-[18%] h-28 w-28 rounded-full bg-violet-100/50 blur-3xl" />
+            <img
+              src="/images/pedido-entregado-zazu.png"
+              alt="Repartidor de Zazu entregando el pedido a la clienta"
+              className="relative z-10 h-full w-full object-contain object-center drop-shadow-[0_18px_24px_rgba(76,29,149,0.1)]"
+            />
+          </div>
+          <BotonContactaSoporte />
         </div>
       </div>
 
