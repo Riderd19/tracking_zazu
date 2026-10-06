@@ -1,3 +1,4 @@
+import BotonContactaSoporte from '../../components/chat/BotonContactaSoporte'
 import CourierTrackingCard from '../../components/estados/CourierTrackingCard'
 import AgencyMap from '../../components/mapas/AgencyMap'
 import ResumenLateral from '../../components/seguimiento/ResumenLateral'
@@ -39,21 +40,24 @@ export default function EnRutaCourierView({ pedido, identidad, onPedidoUpdate, d
       }
     >
       <CourierTrackingCard pedido={pedido} lugar={destino} identidad={identidad} />
-      {ilustracion ? (
-        <div className="h-64 w-full rounded-2xl md:h-95 lg:h-105">
-          <img
-            src={ilustracion.src}
-            alt={ilustracion.alt}
-            className="h-full w-full object-contain object-center"
+      <div className="flex flex-col gap-4">
+        {ilustracion ? (
+          <div className="h-64 w-full rounded-2xl md:h-95 lg:h-105">
+            <img
+              src={ilustracion.src}
+              alt={ilustracion.alt}
+              className="h-full w-full object-contain object-center"
+            />
+          </div>
+        ) : (
+          <AgencyMap
+            coordenadas={pedido.destino_coordenadas}
+            lugar={destino}
+            className="md:h-95 lg:h-105"
           />
-        </div>
-      ) : (
-        <AgencyMap
-          coordenadas={pedido.destino_coordenadas}
-          lugar={destino}
-          className="md:h-95 lg:h-105"
-        />
-      )}
+        )}
+        <BotonContactaSoporte />
+      </div>
       {conResumen && (
         <ResumenLateral
           pedido={pedido}

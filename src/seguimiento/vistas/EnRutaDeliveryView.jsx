@@ -1,3 +1,4 @@
+import BotonContactaSoporte from '../../components/chat/BotonContactaSoporte'
 import DeliveryMap from '../../components/mapas/DeliveryMap'
 import ResumenLateral from '../../components/seguimiento/ResumenLateral'
 import hayResumen from '../hayResumen'
@@ -22,7 +23,10 @@ export default function EnRutaDeliveryView({ pedido, identidad, onPedidoUpdate }
           : 'grid grid-cols-1 gap-5'
       }
     >
-      <DeliveryMap destino={pedido.destino_coordenadas} className="lg:h-105" />
+      <div className="flex flex-col gap-4">
+        <DeliveryMap destino={pedido.destino_coordenadas} className="lg:h-105" />
+        <BotonContactaSoporte />
+      </div>
       {conResumen && (
         <ResumenLateral
           pedido={pedido}

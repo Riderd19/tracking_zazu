@@ -1,7 +1,7 @@
 // VITE_API_URL se inyecta al compilar. En produccion dejamos un valor seguro
 // para que el tracking publicado no intente llamar a localhost si el servidor
 // de build no recibio la variable de entorno.
-const API_URL = (
+export const API_URL = (
   import.meta.env.VITE_API_URL ||
   (import.meta.env.PROD ? 'https://zazu.com.pe/api' : 'http://127.0.0.1:8000/api' | 'https://dev.zazu.com.pe/api'
   )
@@ -142,7 +142,7 @@ export async function pedirClaveDeRecojo(identidad) {
 // identidades que /public/tracking: el token del link del bot o código +
 // DNI/celular. Quien llegó por el link nunca escribió su DNI, así que sin el
 // token no tendría cómo pedir nada de esto.
-function cuerpoDeIdentidad(identidad) {
+export function cuerpoDeIdentidad(identidad) {
   return identidad?.token
     ? { token: identidad.token }
     : { codigo: identidad?.codigo, verificacion: identidad?.identificador }

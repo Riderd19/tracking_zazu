@@ -1,3 +1,4 @@
+import BotonContactaSoporte from '../components/chat/BotonContactaSoporte'
 import { EN_GESTION } from '../constants/estadosPedido'
 import RegistradoView from './vistas/RegistradoView'
 import PreparandoView from './vistas/PreparandoView'
@@ -57,13 +58,16 @@ function etapaDe(estadoCodigo) {
   return null
 }
 
-/** El diseño que le corresponde a este pedido, o nada si su estado no tiene uno. */
+/** El diseño que le corresponde a este pedido, o solo el botón de soporte si su estado no tiene uno. */
 export default function VistaDelEstado({ pedido, identidad, onPedidoUpdate, destino }) {
   const etapa = etapaDe(pedido.estado_actual?.codigo)
   const tipo = (pedido.tipo_envio ?? '').toUpperCase()
   const Vista = VISTAS[tipo]?.[etapa]
 
-  if (!Vista) return null
+  // Sin diseño propio no hay imagen debajo de la cual ofrecer el chat: el botón
+  // va solo, para que en escritorio no se quede sin forma de abrirlo.
+  if (!Vista) return <BotonContactaSoporte className="md:mx-auto md:max-w-md" />
+
 
   return (
     <Vista
