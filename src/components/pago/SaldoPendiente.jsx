@@ -149,7 +149,7 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
           </span>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-gray-900 mb-0">
-              {pagado ? 'Pago realizado' : 'Saldo pendiente'}
+              {pagado ? 'Pago realizado' : 'QUIERO PAGAR AHORA MI SALDO RESTANTE'}
             </p>
             <p className="text-xs text-gray-500 mb-0">
               {pagado ? 'Tu pedido ya no tiene saldo pendiente.' : 'Haz clic para pagar mediante un QR seguro.'}
