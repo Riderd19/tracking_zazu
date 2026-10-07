@@ -26,6 +26,10 @@ async function leerRespuesta(response, mensajePorDefecto) {
     // El backend ya responde un texto pensado para el cliente (mensaje vacío o largo).
     throw new Error(body.message ?? 'Revisa tu mensaje e inténtalo de nuevo.')
   }
+  if (response.status === 413) {
+    // Lo corta el servidor web antes de llegar a Laravel, sin cuerpo JSON.
+    throw new Error('La foto es muy pesada. Prueba con otra.')
+  }
 
   throw new Error(body.message ?? mensajePorDefecto)
 }
@@ -63,4 +67,31 @@ export async function enviarMensaje(sesion, texto, opcion = null) {
   })
 
   return leerRespuesta(response, 'No pudimos enviar tu mensaje. Inténtalo de nuevo.')
+}
+
+// { atiende, esperando_respuesta, mensaje } — la foto la ve el asesor en el
+// módulo Chat (ver ChatTrackingController::enviarImagen).
+export async function enviarImagen(sesion, foto) {
+  const datos = new FormData()
+  datos.append('imagen', foto, 'foto.jpg')
+
+  // Sin Content-Type: el navegador lo pone con el boundary del multipart.
+  const response = await fetch(`${API_URL}/public/tracking/chat/imagenes`, {
+    method: 'POST',
+    headers: { Accept: 'application/json', [CABECERA_SESION]: sesion },
+    body: datos,
+  })
+
+  return leerRespuesta(response, 'No pudimos enviar tu foto. Inténtalo de nuevo.')
+}
+
+// La foto de un mensaje, como blob. No va en un <img src> directo porque la
+// sesión viaja en una cabecera, y el navegador no la manda al pedir una imagen.
+export async function traerImagen(sesion, mensajeId) {
+  const response = await fetch(`${API_URL}/public/tracking/chat/mensajes/${mensajeId}/imagen`, {
+    headers: { [CABECERA_SESION]: sesion },
+  })
+
+  if (!response.ok) await leerRespuesta(response, 'No pudimos cargar la foto.')
+  return response.blob()
 }

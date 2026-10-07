@@ -4,6 +4,7 @@ import {
   CloseOutlined,
   CustomerServiceOutlined,
   ExclamationCircleFilled,
+  PictureOutlined,
   RobotOutlined,
   SendOutlined,
 } from '@ant-design/icons'
@@ -37,7 +38,45 @@ function hora(iso) {
   return new Date(iso).toLocaleTimeString('es-PE', { hour: 'numeric', minute: '2-digit' })
 }
 
-function Burbuja({ de, texto, fecha, pendiente, onReintentar, onDescartar }) {
+/**
+ * La foto de un mensaje. Se baja con la sesión del chat (no hay URL pública) y
+ * solo cuando el mensaje se muestra; `url` viene ya resuelta en las fotos que el
+ * cliente está subiendo.
+ */
+function Foto({ url: urlInicial, mensajeId, cargar }) {
+  const [url, setUrl] = useState(urlInicial ?? null)
+  const [fallo, setFallo] = useState(false)
+
+  useEffect(() => {
+    if (url || !mensajeId) return undefined
+    let vigente = true
+    cargar(mensajeId)
+      .then((u) => { if (vigente) setUrl(u) })
+      .catch(() => { if (vigente) setFallo(true) })
+    return () => { vigente = false }
+  }, [url, mensajeId, cargar])
+
+  if (fallo) {
+    return (
+      <span className="flex items-center gap-1.5 text-xs opacity-80">
+        <PictureOutlined /> No se pudo cargar la foto
+      </span>
+    )
+  }
+
+  if (!url) {
+    return <span className="flex h-40 w-40 items-center justify-center"><Spin size="small" /></span>
+  }
+
+  return (
+    // Se abre en otra pestaña para verla completa.
+    <a href={url} target="_blank" rel="noreferrer" className="block">
+      <img src={url} alt="Foto que enviaste" className="block max-h-64 max-w-full rounded-xl object-contain" />
+    </a>
+  )
+}
+
+function Burbuja({ de, texto, fecha, foto, pendiente, onReintentar, onDescartar }) {
   const delCliente = de === 'cliente'
   const autor = AUTOR[de]
 
@@ -50,11 +89,13 @@ function Burbuja({ de, texto, fecha, pendiente, onReintentar, onDescartar }) {
         </span>
       )}
       <div
-        className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-line break-words ${
+        className={`max-w-[85%] rounded-2xl text-sm leading-relaxed whitespace-pre-line break-words ${
+          foto ? 'p-1' : 'px-3.5 py-2.5'
+        } ${
           delCliente ? 'rounded-br-md bg-violet-700 text-white' : 'rounded-bl-md bg-gray-100 text-gray-900'
         } ${pendiente?.estado === 'enviando' ? 'opacity-70' : ''}`}
       >
-        {texto}
+        {foto ? <Foto {...foto} /> : texto}
       </div>
       {pendiente?.estado === 'error' ? (
         <span className="mt-1 flex flex-wrap items-center justify-end gap-2 text-[11px] text-red-600">
@@ -110,8 +151,11 @@ function Escribiendo() {
 export default function ChatDelPedido({ pedido, identidad, children }) {
   const [abierto, setAbierto] = useState(false)
   const [texto, setTexto] = useState('')
+  // Por qué no se pudo mandar la foto elegida, si no se pudo ni empezar.
+  const [avisoFoto, setAvisoFoto] = useState(null)
   const finalRef = useRef(null)
   const campoRef = useRef(null)
+  const fotoRef = useRef(null)
 
   const chat = useChatDelPedido(identidad, abierto)
   const { iniciar, noLeidos } = chat
@@ -143,6 +187,20 @@ export default function ChatDelPedido({ pedido, identidad, children }) {
 
   const enviar = () => {
     if (chat.enviar(texto)) setTexto('')
+  }
+
+  const alElegirFoto = async (e) => {
+    const archivo = e.target.files?.[0]
+    // Se limpia para poder elegir la misma foto otra vez.
+    e.target.value = ''
+    if (!archivo) return
+
+    setAvisoFoto(null)
+    try {
+      await chat.enviarFoto(archivo)
+    } catch (err) {
+      setAvisoFoto(err.message)
+    }
   }
 
   const atiendeAsesor = chat.atiende === 'asesor'
@@ -227,7 +285,13 @@ export default function ChatDelPedido({ pedido, identidad, children }) {
                 />
 
                 {chat.mensajes.map((m) => (
-                  <Burbuja key={m.id} de={m.de} texto={m.texto} fecha={m.fecha} />
+                  <Burbuja
+                    key={m.id}
+                    de={m.de}
+                    texto={m.texto}
+                    fecha={m.fecha}
+                    foto={m.imagen ? { mensajeId: m.id, cargar: chat.cargarFoto } : null}
+                  />
                 ))}
 
                 {chat.pendientes.map((p) => (
@@ -235,6 +299,7 @@ export default function ChatDelPedido({ pedido, identidad, children }) {
                     key={p.clave}
                     de="cliente"
                     texto={p.texto}
+                    foto={p.foto ? { url: p.foto.url } : null}
                     pendiente={p}
                     onReintentar={() => chat.reintentar(p)}
                     onDescartar={() => chat.descartar(p)}
@@ -270,10 +335,46 @@ export default function ChatDelPedido({ pedido, identidad, children }) {
             </div>
           )}
 
+          {avisoFoto && (
+            <p role="alert" className="mx-3 mt-2 mb-0 flex items-start gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">
+              <ExclamationCircleFilled className="mt-0.5" />
+              <span className="flex-1">{avisoFoto}</span>
+              <button
+                type="button"
+                onClick={() => setAvisoFoto(null)}
+                aria-label="Cerrar el aviso"
+                className="cursor-pointer border-0 bg-transparent p-0 text-red-700"
+              >
+                <CloseOutlined />
+              </button>
+            </p>
+          )}
+
           <form
             onSubmit={(e) => { e.preventDefault(); enviar() }}
             className={`flex shrink-0 items-end gap-2 px-3 py-3 ${conPredefinidos ? '' : 'border-t border-gray-200'}`}
           >
+            {/* Una captura del pago, el producto que llegó, la pantalla de la
+                agencia: la ve el asesor en el módulo Chat. */}
+            <input
+              ref={fotoRef}
+              type="file"
+              accept="image/*"
+              onChange={alElegirFoto}
+              className="hidden"
+              tabIndex={-1}
+              aria-hidden="true"
+            />
+            <button
+              type="button"
+              onClick={() => fotoRef.current?.click()}
+              disabled={chat.estado !== 'listo'}
+              aria-label="Enviar una foto"
+              title="Enviar una foto"
+              className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-gray-300 bg-white text-lg text-violet-700 hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <PictureOutlined />
+            </button>
             <textarea
               ref={campoRef}
               value={texto}
