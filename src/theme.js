@@ -2,8 +2,8 @@
 // Variación del morado de marca de Zazu, independiente del tema del panel admin.
 export const zazuTrackingTheme = {
   token: {
-    colorPrimary: '#6d28d9',
-    colorInfo: '#6d28d9',
+    colorPrimary: '#560591',
+    colorInfo: '#560591',
     borderRadius: 10,
     colorBorder: '#e5e1f0',
     colorTextHeading: '#18181b',
@@ -12,7 +12,7 @@ export const zazuTrackingTheme = {
   },
   components: {
     Steps: {
-      colorPrimary: '#6d28d9',
+      colorPrimary: '#560591',
     },
     Card: {
       borderRadiusLG: 16,

@@ -117,7 +117,7 @@ export default function DeliveredCard({ pedido, identidad }) {
 
           <Button
             type="primary"
-            className="mt-4 h-10! bg-[#5C009C]! text-xs! font-semibold!"
+            className="mt-4 h-10! bg-[#560591]! text-xs! font-semibold!"
             icon={<EyeOutlined />}
             onClick={() => setDetalleAbierto(true)}
             block

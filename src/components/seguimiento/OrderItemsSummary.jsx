@@ -202,7 +202,7 @@ export default function OrderItemsSummary({
 
           <Button
             type="primary"
-            className="h-10! bg-[#5C009C]! text-xs! font-semibold!"
+            className="h-10! bg-[#560591]! text-xs! font-semibold!"
             icon={<EyeOutlined />}
             onClick={() => setModalAbierto(true)}
             block

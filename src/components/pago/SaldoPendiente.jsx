@@ -161,7 +161,7 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
         <div className="flex items-start gap-3">
           <span
             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xl ${
-              pagado ? 'bg-emerald-50 text-emerald-600' : 'bg-violet-100 text-[#5C009C]'
+              pagado ? 'bg-emerald-50 text-emerald-600' : 'bg-violet-100 text-[#560591]'
             }`}
           >
             {pagado ? <CheckCircleFilled /> : <WalletFilled />}
@@ -189,7 +189,7 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
             <span className="text-sm font-semibold text-gray-900">
               {pagado ? 'Saldo pendiente' : 'Por pagar'}
             </span>
-            <span className={`text-2xl font-bold ${pagado ? 'text-emerald-700' : 'text-[#5C009C]'}`}>
+            <span className={`text-2xl font-bold ${pagado ? 'text-emerald-700' : 'text-[#560591]'}`}>
               {money(porPagar)}
             </span>
           </div>
@@ -204,7 +204,7 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
               block
               icon={<QrcodeOutlined />}
               onClick={abrir}
-              className="mt-4 h-12! rounded-xl! bg-[#5C009C]! text-base! font-semibold! hover:bg-[#4A007E]!"
+              className="mt-4 h-12! rounded-xl! bg-[#560591]! text-base! font-semibold! hover:bg-violet-800!"
             >
               Pagar {money(porPagar)} con QR
             </Button>
