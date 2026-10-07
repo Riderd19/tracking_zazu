@@ -4,7 +4,7 @@ import {
   ChatSesionVencidaError,
   enviarImagen as subirImagen,
   enviarMensaje,
-  traerImagen,
+  traerArchivo,
   traerMensajes,
 } from '../services/chatService'
 import { achicarFoto } from '../utils/achicarFoto'
@@ -197,10 +197,27 @@ export default function useChatDelPedido(identidad, abierto) {
     const guardada = fotosRef.current.get(mensajeId)
     if (guardada) return guardada
 
-    const blob = await conSesion((sesion) => traerImagen(sesion, mensajeId))
+    const blob = await conSesion((sesion) => traerArchivo(sesion, mensajeId))
     const url = URL.createObjectURL(blob)
     fotosRef.current.set(mensajeId, url)
     return url
+  }, [conSesion])
+
+  /**
+   * Baja al dispositivo el documento que mandó el asesor. Se pide con la sesión y
+   * se descarga con un enlace temporal: no hay URL pública que abrir.
+   */
+  const descargarDocumento = useCallback(async (mensajeId, nombre) => {
+    const blob = await conSesion((sesion) => traerArchivo(sesion, mensajeId))
+    const url = URL.createObjectURL(blob)
+    const enlace = document.createElement('a')
+    enlace.href = url
+    enlace.download = nombre || `documento-${mensajeId}`
+    document.body.appendChild(enlace)
+    enlace.click()
+    enlace.remove()
+    // Después del clic: el navegador ya tomó el archivo.
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
   }, [conSesion])
 
   const reintentar = useCallback((pendiente) => {
@@ -227,6 +244,7 @@ export default function useChatDelPedido(identidad, abierto) {
     enviar,
     enviarFoto,
     cargarFoto,
+    descargarDocumento,
     reintentar,
     descartar,
   }

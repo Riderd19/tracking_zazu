@@ -3,7 +3,9 @@ import { Spin } from 'antd'
 import {
   CloseOutlined,
   CustomerServiceOutlined,
+  DownloadOutlined,
   ExclamationCircleFilled,
+  FileTextOutlined,
   PictureOutlined,
   RobotOutlined,
   SendOutlined,
@@ -43,7 +45,7 @@ function hora(iso) {
  * solo cuando el mensaje se muestra; `url` viene ya resuelta en las fotos que el
  * cliente está subiendo.
  */
-function Foto({ url: urlInicial, mensajeId, cargar }) {
+function Foto({ url: urlInicial, mensajeId, cargar, alt = 'Foto que enviaste' }) {
   const [url, setUrl] = useState(urlInicial ?? null)
   const [fallo, setFallo] = useState(false)
 
@@ -71,12 +73,53 @@ function Foto({ url: urlInicial, mensajeId, cargar }) {
   return (
     // Se abre en otra pestaña para verla completa.
     <a href={url} target="_blank" rel="noreferrer" className="block">
-      <img src={url} alt="Foto que enviaste" className="block max-h-64 max-w-full rounded-xl object-contain" />
+      <img src={url} alt={alt} className="block max-h-64 max-w-full rounded-xl object-contain" />
     </a>
   )
 }
 
-function Burbuja({ de, texto, fecha, foto, pendiente, onReintentar, onDescartar }) {
+function pesoLegible(bytes) {
+  if (!bytes) return ''
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+/** El documento que mandó el asesor: se descarga con la sesión del chat. */
+function Documento({ mensajeId, nombre, bytes, descargar }) {
+  const [estado, setEstado] = useState('listo') // 'listo' | 'bajando' | 'error'
+
+  const bajar = async () => {
+    setEstado('bajando')
+    try {
+      await descargar(mensajeId, nombre)
+      setEstado('listo')
+    } catch {
+      setEstado('error')
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={bajar}
+      disabled={estado === 'bajando'}
+      className="flex w-full min-w-[200px] cursor-pointer items-center gap-3 rounded-xl border-0 bg-white px-3 py-2.5 text-left text-gray-900 disabled:cursor-wait"
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-lg text-violet-700">
+        {estado === 'bajando' ? <Spin size="small" /> : <FileTextOutlined />}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-semibold">{nombre}</span>
+        <span className={`block text-[11px] ${estado === 'error' ? 'text-red-600' : 'text-gray-500'}`}>
+          {estado === 'error' ? 'No se pudo descargar. Toca para reintentar.' : `${pesoLegible(bytes)} · Toca para descargar`}
+        </span>
+      </span>
+      <DownloadOutlined className="shrink-0 text-violet-700" />
+    </button>
+  )
+}
+
+function Burbuja({ de, texto, fecha, foto, documento, pendiente, onReintentar, onDescartar }) {
   const delCliente = de === 'cliente'
   const autor = AUTOR[de]
 
@@ -90,12 +133,17 @@ function Burbuja({ de, texto, fecha, foto, pendiente, onReintentar, onDescartar 
       )}
       <div
         className={`max-w-[85%] rounded-2xl text-sm leading-relaxed whitespace-pre-line break-words ${
-          foto ? 'p-1' : 'px-3.5 py-2.5'
+          foto || documento ? 'p-1' : 'px-3.5 py-2.5'
         } ${
           delCliente ? 'rounded-br-md bg-violet-700 text-white' : 'rounded-bl-md bg-gray-100 text-gray-900'
         } ${pendiente?.estado === 'enviando' ? 'opacity-70' : ''}`}
       >
-        {foto ? <Foto {...foto} /> : texto}
+        {foto && <Foto {...foto} />}
+        {documento && <Documento {...documento} />}
+        {/* Con adjunto, el texto es su comentario y va debajo. */}
+        {(foto || documento)
+          ? texto && <p className="mb-0 px-2.5 pt-1.5 pb-1">{texto}</p>
+          : texto}
       </div>
       {pendiente?.estado === 'error' ? (
         <span className="mt-1 flex flex-wrap items-center justify-end gap-2 text-[11px] text-red-600">
@@ -290,7 +338,17 @@ export default function ChatDelPedido({ pedido, identidad, children }) {
                     de={m.de}
                     texto={m.texto}
                     fecha={m.fecha}
-                    foto={m.imagen ? { mensajeId: m.id, cargar: chat.cargarFoto } : null}
+                    foto={m.imagen ? {
+                      mensajeId: m.id,
+                      cargar: chat.cargarFoto,
+                      alt: m.de === 'cliente' ? 'Foto que enviaste' : 'Foto que te envió el asesor',
+                    } : null}
+                    documento={m.documento ? {
+                      mensajeId: m.id,
+                      nombre: m.documento.nombre,
+                      bytes: m.documento.bytes,
+                      descargar: chat.descargarDocumento,
+                    } : null}
                   />
                 ))}
 

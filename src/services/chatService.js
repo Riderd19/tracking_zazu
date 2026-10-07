@@ -85,13 +85,14 @@ export async function enviarImagen(sesion, foto) {
   return leerRespuesta(response, 'No pudimos enviar tu foto. Inténtalo de nuevo.')
 }
 
-// La foto de un mensaje, como blob. No va en un <img src> directo porque la
-// sesión viaja en una cabecera, y el navegador no la manda al pedir una imagen.
-export async function traerImagen(sesion, mensajeId) {
-  const response = await fetch(`${API_URL}/public/tracking/chat/mensajes/${mensajeId}/imagen`, {
+// La foto o el documento de un mensaje, como blob. No va en un <img src> ni en
+// un enlace directo porque la sesión viaja en una cabecera, y el navegador no la
+// manda al pedir una imagen o al seguir un enlace.
+export async function traerArchivo(sesion, mensajeId) {
+  const response = await fetch(`${API_URL}/public/tracking/chat/mensajes/${mensajeId}/archivo`, {
     headers: { [CABECERA_SESION]: sesion },
   })
 
-  if (!response.ok) await leerRespuesta(response, 'No pudimos cargar la foto.')
+  if (!response.ok) await leerRespuesta(response, 'No pudimos cargar el archivo.')
   return response.blob()
 }
