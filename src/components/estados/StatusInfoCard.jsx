@@ -1,7 +1,6 @@
-import { EyeOutlined, WhatsAppOutlined } from "@ant-design/icons";
+import { EyeOutlined } from "@ant-design/icons";
 import { Button, Modal } from "antd";
 import { useState } from "react";
-import { WHATSAPP_SOPORTE_LINK } from "../../constants/soporte";
 import OrderItemsSummary from "../seguimiento/OrderItemsSummary";
 
 function Fila({ label, valor }) {
@@ -66,21 +65,6 @@ export default function StatusInfoCard({
         >
           Click para ver el detalle de tu pedido
         </Button>
-
-        <a
-        className="mt-2 block"
-        href={WHATSAPP_SOPORTE_LINK}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <Button
-          className="h-10! text-xs! font-semibold!"
-          icon={<WhatsAppOutlined />}
-          block
-        >
-          ¿Necesitas ayuda?
-        </Button>
-        </a>
 
         {children}
       </div>

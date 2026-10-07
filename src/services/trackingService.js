@@ -163,7 +163,7 @@ async function cambiarEntrega(ruta, identidad, datos, mensajePorDefecto) {
 
   if (response.status === 429) {
     // El límite es por hora (ver AppServiceProvider): "espera un momento" no alcanza.
-    throw new Error('Alcanzaste el límite de cambios por ahora. Inténtalo más tarde o escríbenos por WhatsApp.')
+    throw new Error('Alcanzaste el límite de cambios por ahora. Inténtalo más tarde o escríbenos por el chat de soporte.')
   }
   if (response.status === 422 && body.errors) {
     // Copy propio: el mensaje de validación de Laravel nombra campos internos.

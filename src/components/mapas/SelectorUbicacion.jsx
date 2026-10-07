@@ -61,7 +61,7 @@ export default function SelectorUbicacion({ valor, onChange, className = "" }) {
       <div
         className={`flex min-h-[320px] items-center justify-center rounded-2xl border border-gray-100 bg-gray-50 p-6 text-center text-sm text-gray-500 ${className}`}
       >
-        No pudimos cargar el mapa en este momento. Inténtalo más tarde o escríbenos por WhatsApp.
+        No pudimos cargar el mapa en este momento. Inténtalo más tarde o escríbenos por el chat de soporte.
       </div>
     );
   }
