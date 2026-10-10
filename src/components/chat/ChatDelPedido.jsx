@@ -4,11 +4,7 @@ import {
   CustomerServiceOutlined,
   DownloadOutlined,
   ExclamationCircleFilled,
-<<<<<<< HEAD
   FileTextOutlined,
-=======
-  MinusOutlined,
->>>>>>> 29f60e6a0e5b822033560a71a5fe1811c1cca6d2
   PictureOutlined,
   RobotOutlined,
   SendOutlined,
