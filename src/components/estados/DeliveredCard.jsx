@@ -6,11 +6,9 @@ import {
   FileDoneOutlined,
   FileTextOutlined,
   KeyOutlined,
-  WhatsAppOutlined,
 } from '@ant-design/icons'
 import { Button, Modal } from 'antd'
 import { useState } from 'react'
-import { WHATSAPP_SOPORTE_LINK } from '../../constants/soporte'
 import BotonContactaSoporte from '../chat/BotonContactaSoporte'
 import { nombreYAgencia } from '../../utils/agencia'
 import { formatearFecha } from '../../utils/fecha'
@@ -117,19 +115,13 @@ export default function DeliveredCard({ pedido, identidad }) {
 
           <Button
             type="primary"
-            className="mt-4 h-10! bg-[#5C009C]! text-xs! font-semibold!"
+            className="mt-4 h-10! bg-[#560591]! text-xs! font-semibold!"
             icon={<EyeOutlined />}
             onClick={() => setDetalleAbierto(true)}
             block
           >
             Ver detalle del pedido
           </Button>
-
-          <a className="mt-2 block" href={WHATSAPP_SOPORTE_LINK} target="_blank" rel="noopener noreferrer">
-            <Button className="h-9! text-xs! font-semibold!" icon={<WhatsAppOutlined />} block>
-              ¿Necesitas ayuda con tu entrega?
-            </Button>
-          </a>
         </div>
 
         <div className="flex flex-col gap-4">

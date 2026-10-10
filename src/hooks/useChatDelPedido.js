@@ -27,6 +27,36 @@ function juntar(previos, nuevos) {
 let contadorClaves = 0
 const nuevaClave = () => `pendiente-${Date.now()}-${++contadorClaves}`
 
+// Hasta qué mensaje vio el cliente, por pedido y en este navegador. Que exista
+// dice además que ese pedido ya tiene conversación: abrir el chat la crea en el
+// Inbox (ChatWebDelPedido::abrir), así que solo se retoma sola la de quien ya
+// la abrió alguna vez — si no, cada consulta del tracking le dejaría un chat
+// vacío al asesor. Sin almacenamiento (modo privado), el globito cuenta solo lo
+// que llega durante la visita.
+const claveVisto = (pedido) => `zazu-chat-visto:${pedido}`
+
+function leerVisto(pedido) {
+  if (!pedido) return null
+  try {
+    const valor = localStorage.getItem(claveVisto(pedido))
+    return valor === null ? null : Number(valor) || 0
+  } catch {
+    return null
+  }
+}
+
+function guardarVisto(pedido, id) {
+  if (!pedido) return
+  try {
+    localStorage.setItem(claveVisto(pedido), String(Math.max(id, leerVisto(pedido) ?? 0)))
+  } catch {
+    // Sin almacenamiento: no hay a quién avisarle en la próxima visita.
+  }
+}
+
+const respuestasDespuesDe = (mensajes, visto) =>
+  (mensajes ?? []).filter((m) => m.de !== 'cliente' && m.id > visto).length
+
 /**
  * Todo el estado del chat del pedido: la sesión, los mensajes, el polling y los
  * envíos que están en camino o fallaron.
@@ -34,8 +64,12 @@ const nuevaClave = () => `pendiente-${Date.now()}-${++contadorClaves}`
  * La sesión se pide la primera vez que el cliente abre el chat, con la misma
  * identidad de la búsqueda (token del enlace o código + DNI/celular). Si vence,
  * se renueva sola con esa identidad: el cliente no vuelve a escribir nada.
+ *
+ * Si el cliente ya había abierto el chat de este pedido (en este navegador), la
+ * sesión se retoma sola al cargar la página, sin abrir la ventana: así el globito
+ * avisa de las respuestas que llegaron mientras no estaba.
  */
-export default function useChatDelPedido(identidad, abierto) {
+export default function useChatDelPedido(identidad, abierto, pedidoCodigo) {
   const [mensajes, setMensajes] = useState([])
   // Lo que el cliente escribió y todavía no confirmó el servidor, o que falló.
   const [pendientes, setPendientes] = useState([])
@@ -89,18 +123,42 @@ export default function useChatDelPedido(identidad, abierto) {
     sesionRef.current = datos.sesion
     aplicarEstado(datos)
     recibir(datos.mensajes)
-    return datos.sesion
+    return datos
   }, [identidad, aplicarEstado, recibir])
 
   // Corre `accion` con la sesión vigente y, si venció, la renueva y reintenta una vez.
   const conSesion = useCallback(async (accion) => {
     try {
-      return await accion(sesionRef.current ?? (await abrirSesion()))
+      return await accion(sesionRef.current ?? (await abrirSesion()).sesion)
     } catch (err) {
       if (!(err instanceof ChatSesionVencidaError)) throw err
-      return accion(await abrirSesion())
+      return accion((await abrirSesion()).sesion)
     }
   }, [abrirSesion])
+
+  // Retoma sola la conversación que el cliente ya tenía (ver claveVisto). Una
+  // sola vez al montar: el chat se monta de nuevo por cada pedido. Si falla, el
+  // chat queda como si nunca se hubiera abierto y el botón lo intenta de nuevo.
+  const retomadoRef = useRef(false)
+  useEffect(() => {
+    const visto = leerVisto(pedidoCodigo)
+    if (retomadoRef.current || visto === null || !identidad) return
+    retomadoRef.current = true
+
+    abrirSesion()
+      .then((datos) => {
+        setEstado((actual) => (actual === 'inactivo' ? 'listo' : actual))
+        if (!abiertoRef.current) setNoLeidos(respuestasDespuesDe(datos.mensajes, visto))
+      })
+      .catch(() => {
+        // Silencioso: es un aviso de cortesía, no algo que el cliente pidió.
+      })
+  }, [pedidoCodigo, identidad, abrirSesion])
+
+  // Con el chat abierto, todo lo que llega queda visto.
+  useEffect(() => {
+    if (abierto && estado === 'listo') guardarVisto(pedidoCodigo, mensajes.at(-1)?.id ?? 0)
+  }, [abierto, estado, mensajes, pedidoCodigo])
 
   /** Abre el chat la primera vez (o reintenta si falló). Lo llama el botón. */
   const iniciar = useCallback(async () => {

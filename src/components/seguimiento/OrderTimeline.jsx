@@ -195,7 +195,7 @@ export default function OrderTimeline({
           );
 
           // Colores calcados del inspector de Figma (Dev Mode): línea/círculo
-          // completado en #5C009C/#560591, círculo actual en blanco con borde
+          // completado en #560591, círculo actual en blanco con borde
           // #330753 e ícono #560591, círculo pendiente en blanco con borde
           // #E5E7EB. El texto (título y fecha) usa el mismo gris #374151 en
           // los 3 estados — la diferencia la marcan el círculo y la línea, no
@@ -245,7 +245,7 @@ export default function OrderTimeline({
                         }
                       : estado === "cancelado"
                         ? { backgroundColor: "#ef2b2d", color: "#fff" }
-                        : { backgroundColor: "#5C009C", color: "#fff" }),
+                        : { backgroundColor: "#560591", color: "#fff" }),
                 }}
               >
                 {estado === "cancelado" ? (

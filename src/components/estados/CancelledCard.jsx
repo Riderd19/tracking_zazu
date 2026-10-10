@@ -4,7 +4,6 @@ import {
   SyncOutlined,
 } from "@ant-design/icons";
 import { formatearFecha } from "../../utils/fecha";
-import { WHATSAPP_SOPORTE_LINK } from "../../constants/soporte";
 import CourierShalomExtras from "../shalom/CourierShalomExtras";
 
 function dato(pedido, nombres, respaldo) {
@@ -87,18 +86,6 @@ export default function CancelledCard({ pedido, identidad }) {
       <div className="mt-4">
         <CourierShalomExtras pedido={pedido} identidad={identidad} />
       </div>
-
-      <a
-        href={WHATSAPP_SOPORTE_LINK}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-4 flex h-10 items-center justify-center gap-3 rounded-lg border border-gray-200 bg-gray-50 text-xs font-semibold text-gray-900 transition-colors hover:border-violet-300 hover:text-violet-700"
-      >
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-[11px] text-white">
-          ?
-        </span>
-        ¿Necesitas ayuda?
-      </a>
     </article>
   );
 }

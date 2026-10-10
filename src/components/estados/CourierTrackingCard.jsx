@@ -124,7 +124,7 @@ export default function CourierTrackingCard({ pedido, lugar, identidad, classNam
 
       {urlRastreo && (
         <a className="mt-4 block" href={urlRastreo} target="_blank" rel="noopener noreferrer">
-          <Button type="primary" className="h-10! bg-[#5C009C]! text-xs! font-semibold!" block>
+          <Button type="primary" className="h-10! bg-[#560591]! text-xs! font-semibold!" block>
             Rastrear en {agencia}
           </Button>
         </a>

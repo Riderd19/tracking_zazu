@@ -3,16 +3,28 @@ import { Button, Modal, QRCode, Spin } from 'antd'
 import {
   CheckCircleFilled,
   ClockCircleOutlined,
-  CreditCardOutlined,
   KeyOutlined,
+  LockFilled,
+  QrcodeOutlined,
   ReloadOutlined,
+  WalletFilled,
 } from '@ant-design/icons'
 import { buscarPedidoDeIdentidad, generarQrSaldo } from '../../services/trackingService'
 import { pedirClaveUnaVez } from '../../services/claveRecojo'
+import montosDelPedido from './montosDelPedido'
 
 const POLL_MS = 10000
 
 const money = (value) => `S/ ${Number(value || 0).toFixed(2)}`
+
+function Fila({ label, valor }) {
+  return (
+    <div className="flex items-center justify-between gap-2 text-sm">
+      <span className="text-gray-500">{label}</span>
+      <span className="font-semibold text-gray-900">{valor}</span>
+    </div>
+  )
+}
 
 function secondsLeft(expiresAt) {
   if (!expiresAt) return 0
@@ -129,36 +141,79 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
 
   if (monto <= 0 && !pagado) return null
 
+  // Lo que falta es lo mismo que cobra el QR (`pago.amount`), para que el
+  // monto de la tarjeta y el del botón nunca se contradigan.
+  const { total } = montosDelPedido(pedido)
+  const porPagar = pagado ? 0 : monto
+  const yaPagado = Math.max(0, total - porPagar)
+
+  let subtitulo = 'Págalo ahora y recibe tu pedido sin pendientes'
+  if (pagado) subtitulo = 'Tu pedido ya no tiene saldo pendiente'
+  else if (pedido.es_shalom) subtitulo = 'Págalo para ver tu clave de recojo'
+
   return (
     <>
-      <button
-        type="button"
-        onClick={pagado ? undefined : abrir}
-        disabled={pagado}
-        className={`w-full rounded-2xl p-4 text-left border-0 transition-colors ${
-          pagado ? 'bg-emerald-50 cursor-default' : 'bg-violet-50 hover:bg-violet-100 cursor-pointer'
+      <div
+        className={`rounded-2xl border bg-white p-4 shadow-sm ${
+          pagado ? 'border-emerald-200' : 'border-violet-200'
         }`}
       >
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-start gap-3">
           <span
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white text-lg ${
-              pagado ? 'bg-emerald-500' : 'bg-gray-900'
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xl ${
+              pagado ? 'bg-emerald-50 text-emerald-600' : 'bg-violet-100 text-[#560591]'
             }`}
           >
-            {pagado ? <CheckCircleFilled /> : <CreditCardOutlined />}
+            {pagado ? <CheckCircleFilled /> : <WalletFilled />}
           </span>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-900 mb-0">
-              {pagado ? 'Pago realizado' : 'QUIERO PAGAR AHORA MI SALDO RESTANTE'}
+            <p className="mb-0.5 text-[15px] font-semibold text-gray-900">
+              {pagado ? 'Pago completado' : 'Tienes un saldo por pagar'}
             </p>
-            <p className="text-xs text-gray-500 mb-0">
-              {pagado ? 'Tu pedido ya no tiene saldo pendiente.' : 'Haz clic para pagar mediante un QR seguro.'}
-            </p>
+            <p className="mb-0 text-[13px] leading-snug text-gray-600">{subtitulo}</p>
           </div>
         </div>
 
-        {!pagado && <p className="text-2xl font-bold text-violet-700 mb-0">{money(monto)}</p>}
-      </button>
+        <div className={`mt-4 rounded-xl p-3.5 ${pagado ? 'bg-emerald-50' : 'bg-violet-50'}`}>
+          {total > 0 && (
+            <div
+              className={`mb-3 flex flex-col gap-1.5 border-b pb-3 ${
+                pagado ? 'border-emerald-200' : 'border-violet-200'
+              }`}
+            >
+              <Fila label="Total del pedido" valor={money(total)} />
+              <Fila label={pagado ? 'Pagado' : 'Ya pagaste'} valor={money(yaPagado)} />
+            </div>
+          )}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-sm font-semibold text-gray-900">
+              {pagado ? 'Saldo pendiente' : 'Por pagar'}
+            </span>
+            <span className={`text-2xl font-bold ${pagado ? 'text-emerald-700' : 'text-[#560591]'}`}>
+              {money(porPagar)}
+            </span>
+          </div>
+        </div>
+
+        {pagado ? (
+          <p className="mt-3 mb-0 text-center text-xs text-gray-500">Método de pago: QR</p>
+        ) : (
+          <>
+            <Button
+              type="primary"
+              block
+              icon={<QrcodeOutlined />}
+              onClick={abrir}
+              className="mt-4 h-12! rounded-xl! bg-[#560591]! text-base! font-semibold! hover:bg-violet-800!"
+            >
+              Pagar {money(porPagar)} con QR
+            </Button>
+            <p className="mt-3 mb-0 flex items-center justify-center gap-1 text-[11px] text-gray-500">
+              <LockFilled /> Pago seguro con QR desde tu app bancaria
+            </p>
+          </>
+        )}
+      </div>
 
       <Modal open={open} onCancel={() => setOpen(false)} footer={null} centered title="Pagar saldo pendiente">
         {loading && (

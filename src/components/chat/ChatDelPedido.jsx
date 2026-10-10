@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Spin } from 'antd'
 import {
-  CloseOutlined,
   CustomerServiceOutlined,
   DownloadOutlined,
   ExclamationCircleFilled,
+<<<<<<< HEAD
   FileTextOutlined,
+=======
+  MinusOutlined,
+>>>>>>> 29f60e6a0e5b822033560a71a5fe1811c1cca6d2
   PictureOutlined,
   RobotOutlined,
   SendOutlined,
@@ -189,7 +192,8 @@ function Escribiendo() {
  * Envuelve la página del seguimiento para compartir con ella cómo se abre
  * (SoporteChatContext): en escritorio lo abre el botón grande "Contacta
  * Soporte" que cada vista pone debajo de su imagen (BotonContactaSoporte); en
- * celular, el botón flotante de acá.
+ * celular, el botón flotante de acá. Minimizado, el chat queda como ese botón
+ * flotante también en escritorio, con el globito de mensajes sin leer.
  *
  * Aparece solo con el pedido ya verificado —por el enlace o por nota de venta +
  * DNI/celular— y usa esa misma identidad para abrir la conversación. Como la
@@ -205,7 +209,7 @@ export default function ChatDelPedido({ pedido, identidad, children }) {
   const campoRef = useRef(null)
   const fotoRef = useRef(null)
 
-  const chat = useChatDelPedido(identidad, abierto)
+  const chat = useChatDelPedido(identidad, abierto, pedido?.codigo)
   const { iniciar, noLeidos } = chat
 
   const abrir = useCallback(() => {
@@ -225,7 +229,7 @@ export default function ChatDelPedido({ pedido, identidad, children }) {
     if (abierto && chat.estado === 'listo') campoRef.current?.focus()
   }, [abierto, chat.estado])
 
-  // Escape cierra, como cualquier ventana.
+  // Escape minimiza, como cualquier ventana.
   useEffect(() => {
     if (!abierto) return
     const alTeclear = (e) => { if (e.key === 'Escape') setAbierto(false) }
@@ -252,6 +256,10 @@ export default function ChatDelPedido({ pedido, identidad, children }) {
   }
 
   const atiendeAsesor = chat.atiende === 'asesor'
+  // En escritorio el botón flotante aparece recién cuando hay conversación
+  // (el chat se abrió y se minimizó, o se retomó con mensajes): antes de eso ya
+  // está el botón grande "Contacta Soporte" de la vista.
+  const flotanteEnEscritorio = chat.estado !== 'inactivo' || chat.noLeidos > 0
   // Con un asesor atendiendo no van: la respuesta fija sería del asistente, y
   // dos voces en el mismo chat confunden. Mientras se espera una respuesta
   // tampoco, para no apilar preguntas sin contestar.
@@ -261,20 +269,27 @@ export default function ChatDelPedido({ pedido, identidad, children }) {
     <SoporteChatContext.Provider value={soporte}>
       {children}
 
-      {/* Solo en celular: en escritorio lo abre BotonContactaSoporte, debajo de
-          la imagen del estado. */}
       {!abierto && (
         <button
           type="button"
           onClick={abrir}
-          aria-label="Contacta Soporte"
-          className="fixed right-4 bottom-4 z-[1000] flex cursor-pointer items-center gap-2 rounded-full border-0 bg-violet-700 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-900/25 transition-colors hover:bg-violet-800 sm:right-6 sm:bottom-6 md:hidden"
+          title="Chat de soporte"
+          aria-label={
+            chat.noLeidos > 0
+              ? `Abrir el chat de soporte: ${chat.noLeidos} ${chat.noLeidos === 1 ? 'mensaje' : 'mensajes'} sin leer`
+              : 'Abrir el chat de soporte'
+          }
+          className={`fixed right-4 bottom-4 z-[1000] flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border-0 bg-violet-700 text-2xl text-white shadow-lg shadow-violet-900/30 transition hover:scale-105 hover:bg-violet-800 sm:right-6 sm:bottom-6 ${
+            flotanteEnEscritorio ? '' : 'md:hidden'
+          }`}
         >
-          <CustomerServiceOutlined className="text-lg" />
-          <span>Contacta Soporte</span>
           {chat.noLeidos > 0 && (
-            <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[11px] font-bold">
-              {chat.noLeidos}
+            <span className="absolute inset-0 animate-ping rounded-full bg-violet-500 opacity-30 motion-reduce:animate-none" />
+          )}
+          <CustomerServiceOutlined className="relative" />
+          {chat.noLeidos > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-6 min-w-6 items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-bold text-white ring-2 ring-white">
+              {chat.noLeidos > 9 ? '9+' : chat.noLeidos}
             </span>
           )}
         </button>
@@ -296,13 +311,16 @@ export default function ChatDelPedido({ pedido, identidad, children }) {
                 {atiendeAsesor ? 'Te atiende un asesor de Zazu' : 'Asistente virtual · Responde al instante'}
               </p>
             </div>
+            {/* Minimiza, no cierra: la conversación sigue y queda el botón
+                flotante para volver. */}
             <button
               type="button"
               onClick={() => setAbierto(false)}
-              aria-label="Cerrar el chat"
+              aria-label="Minimizar el chat"
+              title="Minimizar"
               className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent text-white hover:bg-white/15"
             >
-              <CloseOutlined />
+              <MinusOutlined />
             </button>
           </header>
 

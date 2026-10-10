@@ -15,6 +15,25 @@
   /* Inter en 400 / 600 / 700, que son los únicos pesos que se cargan (ver
      index.html): usar font-normal, font-semibold o font-bold. */
   --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Un solo morado en todo el tracking: el del logo, #560591. La escala
+     `violet` de Tailwind se reemplaza por tonos de ese morado, así que
+     cualquier violet-* (botones, chat, insignias) sale de la marca. 600 y 700
+     son el morado tal cual; los claros son para fondos y bordes, y 800 para
+     el hover. Fuera de Tailwind (tema de antd en theme.js, SVG de los mapas,
+     línea de tiempo) se usa el mismo #560591. */
+  --color-violet-50: #f8f1fd;
+  --color-violet-100: #efe0fb;
+  --color-violet-200: #ddbef4;
+  --color-violet-300: #c492e8;
+  --color-violet-400: #9f54d4;
+  --color-violet-500: #781bbb;
+  --color-violet-600: #560591;
+  --color-violet-700: #560591;
+  --color-violet-800: #48047a;
+  --color-violet-900: #330753;
+  --color-violet-950: #1f0233;
+
   --animate-fade-in-up: fade-in-up 0.35s ease-out both;
   --animate-shake: shake 0.4s ease-in-out;
   --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
@@ -54,10 +73,10 @@
 @keyframes pulse-soft {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(109, 40, 217, 0.4);
+    box-shadow: 0 0 0 0 rgba(86, 5, 145, 0.4);
   }
   50% {
-    box-shadow: 0 0 0 6px rgba(109, 40, 217, 0);
+    box-shadow: 0 0 0 6px rgba(86, 5, 145, 0);
   }
 }
 

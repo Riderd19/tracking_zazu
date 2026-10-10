@@ -7,6 +7,7 @@ import {
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
 import { Button, Modal } from "antd";
+import montosDelPedido from "../pago/montosDelPedido";
 
 // `nombre`/`variante` vienen tal cual del CRM (ticket_productos.nombre_crm /
 // variante_crm) — no hay talla/color como campos separados en el dato real,
@@ -105,27 +106,6 @@ function Articulo({ fila }) {
 const soles = (monto) => `S/ ${Number(monto).toFixed(2)}`;
 
 /**
- * Total, pagado y por pagar del pedido.
- *
- * `total_pagado` fue durante un tiempo el monto total tal cual (un Contra
- * Entrega sin pagar figuraba "pagado" entero). El backend nuevo manda
- * `total_pedido` / `total_pagado` / `por_pagar`; con el anterior se reconstruye
- * igual: su `total_pagado` es el total, y lo que falta es `saldo_pendiente`
- * salvo que el pedido ya sea Pago Completo.
- */
-function montosDelPedido(pedido) {
-  const total = Number(pedido.total_pedido ?? pedido.total_pagado ?? 0);
-  const porPagar =
-    pedido.por_pagar !== undefined
-      ? Number(pedido.por_pagar)
-      : pedido.tipo_pago === "Pago Completo"
-        ? 0
-        : Math.min(total, Math.max(0, Number(pedido.saldo_pendiente ?? 0)));
-
-  return { total, porPagar, pagado: Math.max(0, total - porPagar) };
-}
-
-/**
  * Los montos del resumen. Sin nada por cobrar, "Total pagado" como siempre; con
  * saldo, el total, lo pagado y lo que falta, que es lo que más importa ver.
  */
@@ -222,7 +202,7 @@ export default function OrderItemsSummary({
 
           <Button
             type="primary"
-            className="h-10! bg-[#5C009C]! text-xs! font-semibold!"
+            className="h-10! bg-[#560591]! text-xs! font-semibold!"
             icon={<EyeOutlined />}
             onClick={() => setModalAbierto(true)}
             block

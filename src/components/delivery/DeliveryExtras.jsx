@@ -107,7 +107,7 @@ function FormularioFecha({ pedido, identidad, onListo }) {
 
         <Button
           type="primary"
-          className="h-10! bg-[#5C009C]! text-xs! font-semibold!"
+          className="h-10! bg-[#560591]! text-xs! font-semibold!"
           loading={guardando}
           disabled={sinCambios}
           onClick={confirmar}
@@ -167,7 +167,7 @@ function FormularioUbicacion({ pedido, identidad, onListo }) {
 
       <Button
         type="primary"
-        className="h-10! bg-[#5C009C]! text-xs! font-semibold!"
+        className="h-10! bg-[#560591]! text-xs! font-semibold!"
         loading={guardando}
         disabled={!punto || !movido}
         onClick={confirmar}

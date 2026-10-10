@@ -101,7 +101,7 @@ export default function AgencyMap({ coordenadas, lugar, className = '' }) {
     'data:image/svg+xml;charset=UTF-8,' +
     encodeURIComponent(`
       <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44">
-        <circle cx="22" cy="22" r="19" fill="#6d28d9" stroke="#fff" stroke-width="3"/>
+        <circle cx="22" cy="22" r="19" fill="#560591" stroke="#fff" stroke-width="3"/>
         <g transform="translate(22 22) scale(0.55) translate(-16 -16)">
           <path d="${BUILDING_ICON_PATH}" fill="#F9FAFB"/>
         </g>
