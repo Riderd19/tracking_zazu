@@ -22,11 +22,16 @@ function ClaveLiberada({ identidad }) {
   }
 
   if (!resultado.ok) {
-    // Pagado pero la clave todavía no está cargada, u otro motivo que el backend
-    // explica: se muestra corto y con el detalle a mano.
+    const clavePendienteEnShalom = resultado.estado === 'generando'
+    const detalle = clavePendienteEnShalom
+      ? 'El pago ya fue validado. Shalom todavía no ha enviado la clave; vuelve a consultar en unos minutos.'
+      : resultado.mensaje
+
     return (
-      <Tooltip title={resultado.mensaje}>
-        <span className="text-xs font-semibold text-amber-600">Se está generando</span>
+      <Tooltip title={detalle}>
+        <span className="text-xs font-semibold text-amber-600">
+          {clavePendienteEnShalom ? 'Pendiente de Shalom' : 'No disponible'}
+        </span>
       </Tooltip>
     )
   }

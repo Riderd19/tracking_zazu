@@ -56,12 +56,13 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
   const pago = pedido.ligo_payment ?? {}
   const monto = Number(pago.amount ?? pedido.saldo_pendiente ?? 0)
   const pagado = pago.status === 'pagado'
+  const errorLigo = pago.error
   // `remaining` se deriva de `pago.expires_at` en cada render — nunca se
   // sincroniza en un efecto — y `tick` solo fuerza un re-render por segundo
   // mientras el QR está vigente, para que la cuenta regresiva se vea avanzar.
   const [, setTick] = useState(0)
   const remaining = secondsLeft(pago.expires_at)
-  const qrVigente = pago.status === 'vigente' && Boolean(pago.qr_value) && remaining > 0
+  const qrVigente = !errorLigo && pago.status === 'vigente' && Boolean(pago.qr_value) && remaining > 0
 
   useEffect(() => {
     if (!open || !qrVigente) return undefined
@@ -149,6 +150,7 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
 
   let subtitulo = 'Págalo ahora y recibe tu pedido sin pendientes'
   if (pagado) subtitulo = 'Tu pedido ya no tiene saldo pendiente'
+  else if (errorLigo) subtitulo = 'Ligo no validó el pago; la clave sigue bloqueada'
   else if (pedido.es_shalom) subtitulo = 'Págalo para ver tu clave de recojo'
 
   return (
@@ -174,6 +176,14 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
           </div>
         </div>
 
+        {errorLigo && (
+          <div role="alert" aria-live="polite" className="mt-3 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
+            <p className="mb-1 font-semibold">Ligo no validó este pago</p>
+            <p className="mb-1">{errorLigo}</p>
+            <p className="mb-0 text-xs">No vuelvas a pagar todavía. Contacta a soporte para revisar el ingreso.</p>
+          </div>
+        )}
+
         <div className={`mt-4 rounded-xl p-3.5 ${pagado ? 'bg-emerald-50' : 'bg-violet-50'}`}>
           {total > 0 && (
             <div
@@ -197,7 +207,7 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
 
         {pagado ? (
           <p className="mt-3 mb-0 text-center text-xs text-gray-500">Método de pago: QR</p>
-        ) : (
+        ) : errorLigo ? null : (
           <>
             <Button
               type="primary"
@@ -236,10 +246,20 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
 
         {!loading && !qrVigente && !pagado && (
           <div className="py-5 text-center">
-            <p>{error || 'El QR venció o todavía no pudo generarse.'}</p>
-            <Button type="primary" icon={<ReloadOutlined />} onClick={generar}>
-              Generar un nuevo QR
-            </Button>
+            {errorLigo ? (
+              <div role="alert" aria-live="polite" className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-left text-sm text-rose-800">
+                <p className="mb-1 font-semibold">Ligo no validó este pago</p>
+                <p className="mb-1">{errorLigo}</p>
+                <p className="mb-0">No vuelvas a pagar todavía. Contacta a soporte para revisar el ingreso.</p>
+              </div>
+            ) : (
+              <>
+                <p>{error || 'El QR venció o todavía no pudo generarse.'}</p>
+                <Button type="primary" icon={<ReloadOutlined />} onClick={generar}>
+                  Generar un nuevo QR
+                </Button>
+              </>
+            )}
           </div>
         )}
 
