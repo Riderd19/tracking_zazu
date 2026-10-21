@@ -55,6 +55,7 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
 
   const pago = pedido.ligo_payment ?? {}
   const monto = Number(pago.amount ?? pedido.saldo_pendiente ?? 0)
+  const cci = pago.cci
   const pagado = pago.status === 'pagado'
   const errorLigo = pago.error
   // `remaining` se deriva de `pago.expires_at` en cada render — nunca se
@@ -204,6 +205,22 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
             </span>
           </div>
         </div>
+
+        {!pagado && cci && (
+          <div className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-3">
+            <p className="mb-1 text-xs font-medium text-gray-600">CCI para transferencias</p>
+            <p className="mb-0 break-all font-mono text-sm font-semibold tracking-wide text-gray-900">{cci}</p>
+          </div>
+        )}
+
+        {!pagado && porPagar > 500 && (
+          <div role="note" className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            <p className="mb-0 font-medium">
+              Por montos mayores a S/ 500, realiza el pago mediante transferencia al CCI de ZAZU.
+              {cci ? <> Usa el CCI mostrado arriba.</> : ' Comunícate con soporte para solicitar el CCI.'}
+            </p>
+          </div>
+        )}
 
         {pagado ? (
           <p className="mt-3 mb-0 text-center text-xs text-gray-500">Método de pago: QR</p>
