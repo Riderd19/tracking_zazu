@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Button, Modal, QRCode, Spin } from 'antd'
+import { Button, Modal, QRCode, Spin, message } from 'antd'
 import {
   CheckCircleFilled,
   ClockCircleOutlined,
+  CopyOutlined,
+  CustomerServiceOutlined,
   KeyOutlined,
   LockFilled,
   QrcodeOutlined,
@@ -12,10 +14,22 @@ import {
 import { buscarPedidoDeIdentidad, generarQrSaldo } from '../../services/trackingService'
 import { pedirClaveUnaVez } from '../../services/claveRecojo'
 import montosDelPedido from './montosDelPedido'
+import { useSoporteChat } from '../chat/soporteChatContext'
 
 const POLL_MS = 10000
 
+const MENSAJE_SOLICITAR_CCI = 'Quiero solicitar el CCI para realizar mi pago pendiente'
+
 const money = (value) => `S/ ${Number(value || 0).toFixed(2)}`
+
+async function copiarCci(cci) {
+  try {
+    await navigator.clipboard.writeText(cci)
+    message.success('CCI copiado')
+  } catch {
+    message.info(`Copia el CCI: ${cci}`)
+  }
+}
 
 function Fila({ label, valor }) {
   return (
@@ -45,6 +59,7 @@ function countdown(seconds) {
 // uno nuevo cuando hace falta y, mientras el modal está abierto, vuelve a
 // consultar el tracking para enterarse cuando Ligo confirma el pago.
 export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
+  const soporte = useSoporteChat()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -207,9 +222,18 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
         </div>
 
         {!pagado && cci && (
-          <div className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-3">
-            <p className="mb-1 text-xs font-medium text-gray-600">CCI para transferencias</p>
-            <p className="mb-0 break-all font-mono text-sm font-semibold tracking-wide text-gray-900">{cci}</p>
+          <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3">
+            <div className="min-w-0">
+              <p className="mb-1 text-xs font-medium text-gray-600">CCI para transferencias</p>
+              <p className="mb-0 break-all font-mono text-sm font-semibold tracking-wide text-gray-900">{cci}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => copiarCci(cci)}
+              className="flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border-0 bg-transparent px-2 py-1 text-sm font-semibold text-violet-700 hover:bg-violet-100"
+            >
+              <CopyOutlined /> Copiar
+            </button>
           </div>
         )}
 
@@ -219,6 +243,17 @@ export default function SaldoPendiente({ pedido, identidad, onPedidoUpdate }) {
               Por montos mayores a S/ 500, realiza el pago mediante transferencia al CCI de ZAZU.
               {cci ? <> Usa el CCI mostrado arriba.</> : ' Comunícate con soporte para solicitar el CCI.'}
             </p>
+            {/* Sin CCI a la vista: un clic abre el chat con la solicitud ya enviada. */}
+            {!cci && soporte?.abrirConMensaje && (
+              <Button
+                block
+                icon={<CustomerServiceOutlined />}
+                onClick={() => soporte.abrirConMensaje(MENSAJE_SOLICITAR_CCI)}
+                className="mt-3 h-10! rounded-lg! border-amber-300! bg-white! font-semibold! text-amber-900! hover:border-amber-400! hover:bg-amber-100!"
+              >
+                Solicitar el CCI
+              </Button>
+            )}
           </div>
         )}
 

@@ -60,9 +60,9 @@ export default function ValorClaveRecojo({ pedido, identidad }) {
 
   return (
     <Tooltip title="Se libera cuando completes el pago de tu pedido.">
-      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400">
-        <LockOutlined />
-        <span className="tracking-[0.2em]">••••</span>
+      <span className="inline-flex cursor-help items-center gap-1.5 text-[13px] font-semibold text-violet-700">
+        <LockOutlined className="text-xs" />
+        Visible al pagar
       </span>
     </Tooltip>
   )
