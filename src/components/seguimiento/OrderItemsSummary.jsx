@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   DownOutlined,
   EyeOutlined,
+  RightOutlined,
   UpOutlined,
   ShoppingOutlined,
   SafetyCertificateOutlined,
@@ -147,6 +148,14 @@ export default function OrderItemsSummary({
   inicialmenteAbierto = false,
   siempreAbierto = false,
   compactoConModal = false,
+  // Una sola tarjeta de dos filas (artículos con su total, y método de pago) con
+  // "Ver detalle" en la cabecera: para la vista de Shalom, donde los montos ya los
+  // muestra la tarjeta de saldo y repetirlos aquí sería ruido.
+  resumido = false,
+  // Solo la cabecera ("Resumen de tu pedido · Productos, cantidades y variantes" con
+  // "Ver detalle"): para "entregado", donde ya no hay montos por cobrar que mostrar.
+  soloCabecera = false,
+  className = "",
 }) {
   // En una vista lateral inicia compacto; dentro de un modal puede solicitarse
   // abierto para mostrar el detalle completo desde el primer momento.
@@ -164,6 +173,98 @@ export default function OrderItemsSummary({
   const pagoCompleto = tipo_pago === "Pago Completo";
 
   const filas = agruparArticulos(articulos);
+
+  const modalDetalle = (
+    <Modal
+      title="Detalle de tu pedido"
+      open={modalAbierto}
+      onCancel={() => setModalAbierto(false)}
+      footer={null}
+      width={560}
+      centered
+      destroyOnHidden
+    >
+      <div className="mt-5">
+        <OrderItemsSummary pedido={pedido} inicialmenteAbierto />
+      </div>
+    </Modal>
+  );
+
+  if (soloCabecera) {
+    return (
+      <>
+        <button
+          type="button"
+          onClick={() => setModalAbierto(true)}
+          className={`flex w-full cursor-pointer items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3.5 text-left ${className}`}
+        >
+          <span className="min-w-0">
+            <span className="block text-sm font-semibold text-gray-900">Resumen de tu pedido</span>
+            <span className="block text-xs text-gray-500">Productos, cantidades y variantes</span>
+          </span>
+          <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-violet-700">
+            Ver detalle <RightOutlined className="text-[10px]" />
+          </span>
+        </button>
+        {modalDetalle}
+      </>
+    );
+  }
+
+  if (resumido) {
+    const { total } = montosDelPedido(pedido);
+
+    return (
+      <>
+        <div className={`w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 ${className}`}>
+          {/* Celular: una sola línea con todo y "Ver ›". */}
+          <button
+            type="button"
+            onClick={() => setModalAbierto(true)}
+            className="flex w-full cursor-pointer items-center justify-between gap-3 border-0 bg-transparent p-0 text-left md:hidden"
+          >
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold text-gray-900">Resumen de tu pedido</span>
+              <span className="block text-xs leading-snug text-gray-500">
+                {articulos.length} artículo{articulos.length === 1 ? "" : "s"} · Total S/ {total.toFixed(2)}
+                {metodo_pago ? ` · ${metodo_pago}` : ""}
+              </span>
+            </span>
+            <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-violet-700">
+              Ver <RightOutlined className="text-[10px]" />
+            </span>
+          </button>
+
+          <div className="mb-1 hidden items-center justify-between gap-2 md:flex">
+            <p className="mb-0 text-sm font-semibold text-gray-900">Resumen de tu pedido</p>
+            <button
+              type="button"
+              onClick={() => setModalAbierto(true)}
+              className="flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-sm font-semibold text-violet-700 hover:text-violet-900"
+            >
+              Ver detalle <RightOutlined className="text-[10px]" />
+            </button>
+          </div>
+
+          <div className="hidden divide-y divide-gray-100 md:block">
+            <div className="flex items-center justify-between gap-2 py-2.5 text-sm">
+              <span className="text-gray-600">
+                {articulos.length} artículo{articulos.length === 1 ? "" : "s"}
+              </span>
+              <span className="font-semibold text-gray-900">S/ {total.toFixed(2)}</span>
+            </div>
+            {metodo_pago && (
+              <div className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                <span className="shrink-0 text-gray-600">Método de pago</span>
+                <span className="text-right font-semibold uppercase text-gray-900">{metodo_pago}</span>
+              </div>
+            )}
+          </div>
+        </div>
+        {modalDetalle}
+      </>
+    );
+  }
 
   if (compactoConModal) {
     return (
@@ -211,19 +312,7 @@ export default function OrderItemsSummary({
           </Button>
         </div>
 
-        <Modal
-          title="Detalle de tu pedido"
-          open={modalAbierto}
-          onCancel={() => setModalAbierto(false)}
-          footer={null}
-          width={560}
-          centered
-          destroyOnHidden
-        >
-          <div className="mt-5">
-            <OrderItemsSummary pedido={pedido} inicialmenteAbierto />
-          </div>
-        </Modal>
+        {modalDetalle}
       </>
     );
   }

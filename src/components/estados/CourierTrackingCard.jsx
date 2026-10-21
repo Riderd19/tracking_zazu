@@ -1,6 +1,4 @@
-import { Button } from 'antd'
-import { ExclamationCircleFilled } from '@ant-design/icons'
-import TruckFastIcon from '../icons/TruckFastIcon'
+import { ArrowRightOutlined, ExclamationCircleFilled, RightOutlined } from '@ant-design/icons'
 import { agenciaBase, nombreYAgencia } from '../../utils/agencia'
 import { urlRastreoAgencia } from '../../constants/courierTracking'
 import { formatearFecha } from '../../utils/fecha'
@@ -8,14 +6,14 @@ import { campoClaveRecojo } from '../shalom/campoClaveRecojo'
 
 function Fila({ label, valor, destacado = false }) {
   return (
-    <div className="flex items-center justify-between gap-3 py-3">
-      <span className="text-xs font-semibold text-gray-500">{label}</span>
+    <div className="flex items-center justify-between gap-4 py-3">
+      <span className="shrink-0 text-[13px] text-gray-500">{label}</span>
       {destacado ? (
         <span className="inline-flex items-center rounded-full bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-700">
           {valor}
         </span>
       ) : (
-        <span className="text-xs font-semibold text-gray-900">{valor}</span>
+        <span className="text-right text-[13px] font-semibold leading-snug text-gray-900">{valor}</span>
       )}
     </div>
   )
@@ -55,7 +53,17 @@ const VARIANTES_SEGUIMIENTO = {
 // (agencia - sucursal - ubicación), del que se derivan agencia/sucursal acá
 // para no repetir el parseo. El botón "Rastrear en X" varía según la
 // agencia (ver courierTracking.js) y se omite si no hay URL conocida.
-export default function CourierTrackingCard({ pedido, lugar, identidad, className = '' }) {
+// `compactoMovil` (Shalom en ruta): en celular el título grande ya lo da la tarjeta de
+// progreso de arriba, así que aquí queda solo "Seguimiento de envío" y el enlace al
+// mapa (`onVerMapa`), que en esa pantalla no se muestra entero.
+export default function CourierTrackingCard({
+  pedido,
+  lugar,
+  identidad,
+  className = '',
+  compactoMovil = false,
+  onVerMapa,
+}) {
   const {
     codigo_courier: codigo,
     guia_courier: guia,
@@ -72,19 +80,34 @@ export default function CourierTrackingCard({ pedido, lugar, identidad, classNam
   const fechaPaso = variante ? formatearFecha(seguimiento.pasos?.[variante.pasoFecha]?.fecha) : null
   const claveRecojo = campoClaveRecojo(pedido, identidad)
   const filaClave = claveRecojo && <Fila label={claveRecojo.label} valor={claveRecojo.valor} />
+  const soloEscritorio = compactoMovil ? 'max-md:hidden' : ''
 
   return (
-    <div className={`w-full rounded-xl border border-gray-200 bg-white p-5 shadow-sm ${className}`}>
-      <div className="mb-3 inline-flex items-center gap-2 rounded-md border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-700">
-        <TruckFastIcon className="text-sm" />
+    <div className={`w-full rounded-2xl border border-gray-200 bg-white p-5 shadow-sm ${className}`}>
+      {compactoMovil && (
+        <div className="mb-1 flex items-center justify-between gap-2 md:hidden">
+          <p className="mb-0 text-sm font-semibold text-gray-900">Seguimiento de envío</p>
+          {onVerMapa && (
+            <button
+              type="button"
+              onClick={onVerMapa}
+              className="flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-sm font-semibold text-violet-700"
+            >
+              Ver mapa <RightOutlined className="text-[10px]" />
+            </button>
+          )}
+        </div>
+      )}
+
+      <div className={`mb-3 inline-flex items-center rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-semibold text-violet-700 ${soloEscritorio}`}>
         {variante?.badge ?? 'Seguimiento de envío'}
       </div>
 
       {variante ? (
         <>
-          <h2 className="mb-1 text-xl font-bold tracking-tight text-gray-900">{variante.titulo(agencia)}</h2>
-          {fechaPaso && <p className="mb-2 text-xs font-semibold text-gray-500">{fechaPaso}</p>}
-          <p className="mb-3 text-xs leading-5 text-gray-500">
+          <h2 className={`mb-2 text-xl font-bold leading-tight tracking-tight text-gray-900 ${soloEscritorio}`}>{variante.titulo(agencia)}</h2>
+          {fechaPaso && <p className={`mb-2 text-xs font-semibold text-gray-500 ${soloEscritorio}`}>{fechaPaso}</p>}
+          <p className={`mb-3 text-[13px] leading-5 text-gray-600 ${soloEscritorio}`}>
             {typeof variante.descripcion === 'function' ? variante.descripcion(agencia) : variante.descripcion}
           </p>
 
@@ -98,8 +121,8 @@ export default function CourierTrackingCard({ pedido, lugar, identidad, classNam
         </>
       ) : (
         <>
-          <h2 className="mb-1 text-xl font-bold tracking-tight text-gray-900">Tu pedido está en manos de {agencia}</h2>
-          <p className="mb-3 text-xs leading-5 text-gray-500">
+          <h2 className={`mb-2 text-xl font-bold leading-tight tracking-tight text-gray-900 ${soloEscritorio}`}>Tu pedido está en manos de {agencia}</h2>
+          <p className={`mb-3 text-[13px] leading-5 text-gray-600 ${soloEscritorio}`}>
             Consulta el seguimiento de tu envío directamente en {agencia}.
           </p>
 
@@ -123,10 +146,14 @@ export default function CourierTrackingCard({ pedido, lugar, identidad, classNam
       )}
 
       {urlRastreo && (
-        <a className="mt-4 block" href={urlRastreo} target="_blank" rel="noopener noreferrer">
-          <Button type="primary" className="h-10! bg-[#560591]! text-xs! font-semibold!" block>
-            Rastrear en {agencia}
-          </Button>
+        <a
+          className="mt-4 flex h-11 items-center justify-center gap-2 rounded-xl border border-[#560591] text-sm font-semibold text-[#560591]! transition-colors hover:bg-violet-50"
+          href={urlRastreo}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Rastrear en {agencia}
+          <ArrowRightOutlined className="-rotate-45 text-xs" />
         </a>
       )}
     </div>

@@ -16,15 +16,11 @@ import OrderItemsSummary from '../seguimiento/OrderItemsSummary'
 import CourierShalomExtras from '../shalom/CourierShalomExtras'
 import ValorClaveRecojo from '../shalom/ClaveRecojo'
 import { estadoClaveRecojo } from '../../services/claveRecojo'
-
-function fechaEntrega(pedido) {
-  const hito = pedido.timeline?.find((item) => item.codigo === 'entregado')
-  return pedido.fecha_entregado_zazu1 ?? pedido.fecha_entrega_real ?? hito?.fecha ?? pedido.fecha_actualizacion ?? null
-}
+import fechaDeEntrega from '../../seguimiento/fechaDeEntrega'
 
 export default function DeliveredCard({ pedido, identidad }) {
   const [detalleAbierto, setDetalleAbierto] = useState(false)
-  const fecha = formatearFecha(fechaEntrega(pedido))
+  const fecha = formatearFecha(fechaDeEntrega(pedido))
   const esCourier = pedido.tipo_envio?.toUpperCase() === 'COURIER'
   const lugarCompleto = pedido.sede_entrega?.nombre
     ?? pedido.sede_entrega?.direccion

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Spin } from 'antd'
 import {
+  CloseOutlined,
   CustomerServiceOutlined,
   DownloadOutlined,
   ExclamationCircleFilled,
@@ -213,7 +214,28 @@ export default function ChatDelPedido({ pedido, identidad, children }) {
     iniciar()
   }, [iniciar])
 
-  const soporte = useMemo(() => ({ abrir, noLeidos }), [abrir, noLeidos])
+  // Un mensaje que otra parte de la página pidió mandar al abrir el chat (p. ej.
+  // "Solicitar el CCI" en SaldoPendiente). Se guarda en una ref y no en estado para
+  // mandarlo una sola vez: se consume en cuanto la sesión está lista. Si la sesión
+  // falla, queda esperando y sale cuando el cliente reintenta abrir el chat.
+  const mensajeEnColaRef = useRef(null)
+  const [colaVersion, setColaVersion] = useState(0)
+
+  const abrirConMensaje = useCallback((mensaje) => {
+    mensajeEnColaRef.current = mensaje
+    setColaVersion((n) => n + 1)
+    abrir()
+  }, [abrir])
+
+  const { estado: estadoChat, enviar: enviarAlChat } = chat
+  useEffect(() => {
+    if (estadoChat !== 'listo' || !mensajeEnColaRef.current) return
+    const mensaje = mensajeEnColaRef.current
+    mensajeEnColaRef.current = null
+    enviarAlChat(mensaje)
+  }, [estadoChat, enviarAlChat, colaVersion])
+
+  const soporte = useMemo(() => ({ abrir, abrirConMensaje, noLeidos }), [abrir, abrirConMensaje, noLeidos])
 
   // Al pie con cada mensaje nuevo, y con el aviso de "escribiendo".
   useEffect(() => {

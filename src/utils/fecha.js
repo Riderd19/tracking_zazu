@@ -37,3 +37,27 @@ export function formatearFecha(fecha) {
     ...(conHora && { hour: 'numeric', minute: '2-digit' }),
   }).format(valor)
 }
+
+const HORA = new Intl.DateTimeFormat('es-PE', { hour: 'numeric', minute: '2-digit' })
+
+// "03 de octubre de 2026 a las 3:50 p. m." (o sin la hora si el valor no la trae).
+export function formatearFechaConHora(fecha) {
+  if (!fecha) return null
+
+  const { valor, conHora } = parsearFecha(fecha)
+  if (Number.isNaN(valor.getTime())) return fecha
+
+  const dia = new Intl.DateTimeFormat('es-PE', { day: '2-digit', month: 'long', year: 'numeric' }).format(valor)
+  return conHora ? `${dia} a las ${HORA.format(valor)}` : dia
+}
+
+// "03/10/2026 · 3:50 p. m." (o solo el día si el valor no trae la hora).
+export function formatearFechaCorta(fecha) {
+  if (!fecha) return null
+
+  const { valor, conHora } = parsearFecha(fecha)
+  if (Number.isNaN(valor.getTime())) return fecha
+
+  const dia = new Intl.DateTimeFormat('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(valor)
+  return conHora ? `${dia} · ${HORA.format(valor)}` : dia
+}

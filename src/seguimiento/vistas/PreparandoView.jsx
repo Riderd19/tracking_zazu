@@ -1,8 +1,23 @@
 import PreparingCard from '../../components/estados/PreparingCard'
+import PreparandoShalomView from './PreparandoShalomView'
 import TarjetaConIlustracion from './TarjetaConIlustracion'
 
-/** El pedido se está empaquetando en el almacén. Hoy igual para los dos tipos de envío. */
+/**
+ * El pedido se está empaquetando en el almacén. Courier Shalom tiene su propio diseño
+ * (con el lugar del voucher y "¿Qué sigue?"); el resto usa la tarjeta con ilustración.
+ */
 export default function PreparandoView({ pedido, identidad, onPedidoUpdate, destino }) {
+  if (pedido.es_shalom && (pedido.tipo_envio ?? '').toUpperCase() === 'COURIER') {
+    return (
+      <PreparandoShalomView
+        pedido={pedido}
+        identidad={identidad}
+        onPedidoUpdate={onPedidoUpdate}
+        destino={destino}
+      />
+    )
+  }
+
   return (
     <TarjetaConIlustracion
       imagenSrc="/images/pedido-preparando-zazu.png"
