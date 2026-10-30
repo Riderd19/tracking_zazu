@@ -113,6 +113,12 @@ const soles = (monto) => `S/ ${Number(monto).toFixed(2)}`;
 function MontosDelPedido({ pedido, destacado = "text-lg" }) {
   const { total, porPagar, pagado } = montosDelPedido(pedido);
 
+  // Un pedido que volvió y se reenvía: el cliente paga el envío de nuevo, aparte
+  // de la cuenta cliente, y lo que importa es la suma de los dos.
+  if (pedido.reenvio) {
+    return <EnvioPorRetorno reenvio={pedido.reenvio} destacado={destacado} />;
+  }
+
   if (porPagar <= 0) {
     return (
       <div className="flex items-center justify-between">
@@ -135,6 +141,32 @@ function MontosDelPedido({ pedido, destacado = "text-lg" }) {
       <div className="flex items-center justify-between">
         <span className="text-sm font-semibold text-gray-900">Por pagar</span>
         <span className={`${destacado} font-bold text-violet-700`}>{soles(porPagar)}</span>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Cuenta cliente + envío por retorno = lo que paga el cliente. Ver
+ * TrackingPublicController::reenvioParaElTracking().
+ */
+function EnvioPorRetorno({ reenvio, destacado }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-gray-500">Cuenta cliente</span>
+        <span className="font-semibold text-gray-900">{soles(reenvio.cuenta_cliente)}</span>
+      </div>
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-gray-500">
+          Envío por retorno
+          {reenvio.pendiente <= 0 ? <span className="ml-1 text-xs text-emerald-600">(pagado)</span> : null}
+        </span>
+        <span className="font-semibold text-gray-900">{soles(reenvio.cargo)}</span>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-semibold text-gray-900">Total a pagar</span>
+        <span className={`${destacado} font-bold text-violet-700`}>{soles(reenvio.total)}</span>
       </div>
     </div>
   );
