@@ -1,6 +1,6 @@
 // Códigos viejos de pedidos.estado (confirmado, en_preparacion, listo,
-// procesado, registrado, solicitud_portal, asignado, recepcionado) que caen
-// en el paso "Pedido Registrado" del timeline — ver OrderTimeline.jsx y el fallback
+// procesado, registrado, solicitud_portal, asignado) que caen en el paso
+// "Pedido Registrado" del timeline — ver OrderTimeline.jsx y el fallback
 // del backend para pedidos sin ticket vinculado.
 export const EN_GESTION = [
   "pendiente",
@@ -11,8 +11,11 @@ export const EN_GESTION = [
   "en_preparacion",
   "listo",
   "asignado",
-  "recepcionado",
 ];
+
+// Códigos que el cliente ve como "En ruta". `recepcionado` llega después de
+// picking y packing: para el cliente el paquete ya va en camino.
+export const EN_RUTA = ["en_ruta", "recepcionado"];
 
 // `pedidos.estado_id` con los que el cliente ya puede pagar su saldo antes de
 // que el pedido salga en ruta: la tarjeta de pago aparece también en las de

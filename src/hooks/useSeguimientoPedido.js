@@ -11,14 +11,13 @@ import {
   leerTokenDeUrl,
   limpiarCodigoDeUrl,
 } from '../utils/codigoUrl'
+import { EN_RUTA } from '../constants/estadosPedido'
 
 // Cada cuánto se refresca el pedido mientras está "En Ruta" (posición del
 // motorizado, hora estimada). No es push en vivo (eso requeriría un canal de
 // broadcast que hoy no existe) — 20s es suficiente para que el mapa se sienta
 // actualizado sin acercarse al límite de 10 consultas/min por IP del backend.
 const INTERVALO_POLLING_MS = 20000
-const CODIGO_EN_RUTA = 'en_ruta'
-
 function clasificarError(err) {
   if (err instanceof TrackingRateLimitError)
     return { tipo: 'rate_limit', mensaje: err.message }
@@ -106,7 +105,7 @@ export default function useSeguimientoPedido() {
   // polling se ignoran en silencio: no tiene sentido tirar al usuario a una
   // pantalla de error por un refresh de fondo que falló una vez.
   useEffect(() => {
-    if (!identidad || pedido?.estado_actual?.codigo !== CODIGO_EN_RUTA) return
+    if (!identidad || !EN_RUTA.includes(pedido?.estado_actual?.codigo)) return
 
     const intervalo = setInterval(async () => {
       try {

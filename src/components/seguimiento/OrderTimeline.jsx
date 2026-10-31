@@ -9,7 +9,7 @@ import {
 } from "@ant-design/icons";
 import TruckFastIcon from "../icons/TruckFastIcon";
 import MotorcycleIcon from "../icons/MotorcycleIcon";
-import { EN_GESTION } from "../../constants/estadosPedido";
+import { EN_GESTION, EN_RUTA } from "../../constants/estadosPedido";
 
 // Pipeline que ve el cliente: 4 pasos. El código que llega en `estadoActual` lo
 // traduce el backend desde el estado del pedido en Zazu 2 (pedidos.estado, ver
@@ -31,7 +31,7 @@ function construirHitos(estadoActual, tipoEnvio) {
     return [
       { label: "Pedido registrado", codigos: EN_GESTION },
       { label: "Preparando pedido", codigos: ["despachado"] },
-      { label: "En ruta", codigos: ["en_ruta", "enviado"] },
+      { label: "En ruta", codigos: [...EN_RUTA, "enviado"] },
       { label: "Pedido anulado", codigos: ["cancelado"] },
     ];
   }
@@ -61,7 +61,7 @@ function construirHitos(estadoActual, tipoEnvio) {
     },
     {
       label: "En ruta",
-      codigos: ["en_ruta", "enviado"],
+      codigos: [...EN_RUTA, "enviado"],
       icon: iconoEnRuta,
     },
     {

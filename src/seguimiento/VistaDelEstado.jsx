@@ -1,5 +1,5 @@
 import BotonContactaSoporte from '../components/chat/BotonContactaSoporte'
-import { EN_GESTION } from '../constants/estadosPedido'
+import { EN_GESTION, EN_RUTA } from '../constants/estadosPedido'
 import RegistradoView from './vistas/RegistradoView'
 import PreparandoView from './vistas/PreparandoView'
 import EnRutaDeliveryView from './vistas/EnRutaDeliveryView'
@@ -49,7 +49,7 @@ function etapaDe(estadoCodigo) {
   // momento ("estamos preparando tu pedido"), y sin este caso esos pedidos se
   // quedaban sin ninguna tarjeta —solo la línea de tiempo— hasta que despachaban.
   if (estadoCodigo === 'despachado' || estadoCodigo === 'picking') return 'preparando'
-  if (estadoCodigo === 'en_ruta') return 'en_ruta'
+  if (EN_RUTA.includes(estadoCodigo)) return 'en_ruta'
   if (estadoCodigo === 'entregado') return 'entregado'
   if (EN_GESTION.includes(estadoCodigo)) return 'registrado'
 

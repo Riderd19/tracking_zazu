@@ -1,3 +1,5 @@
+import { EN_RUTA } from '../constants/estadosPedido'
+
 /**
  * Si el pedido es de Courier Shalom en una etapa con diseño móvil propio, cuál:
  * 'preparando', 'en_ruta' o 'entregado'. null en cualquier otro caso.
@@ -14,5 +16,6 @@ export default function etapaShalomCompacta(pedido) {
 
   const estado = pedido.estado_actual?.codigo
   if (estado === 'despachado' || estado === 'picking') return 'preparando'
-  return estado === 'en_ruta' || estado === 'entregado' ? estado : null
+  if (EN_RUTA.includes(estado)) return 'en_ruta'
+  return estado === 'entregado' ? estado : null
 }
