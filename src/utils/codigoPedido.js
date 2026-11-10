@@ -1,5 +1,12 @@
 export function combinarCodigo(empresa, numero) {
-  return `${empresa}/${numero.trim()}`
+  const numeroLimpio = numero.trim()
+
+  // Las notas NV del CRM ya son el identificador completo del ticket
+  // (crm_id/external_ref). No llevan prefijo de empresa; el cliente elige
+  // esa empresa por separado en el formulario.
+  if (/^NV-[A-Z0-9-]+$/i.test(numeroLimpio)) return numeroLimpio.toUpperCase()
+
+  return `${empresa}/${numeroLimpio}`
 }
 
 // Empresa que se preselecciona en el formulario cuando no hay un código de URL
